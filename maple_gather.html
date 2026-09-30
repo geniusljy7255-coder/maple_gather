@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f341.svg" type="image/svg+xml">
+    <title>메이플스토리 피로도 수익 계산기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        input[type="text"], input[type="number"] {
+            text-align: right;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 p-4 min-h-screen">
+    
+    <!-- 상단 타이틀 바 -->
+    <header class="max-w-4xl mx-auto bg-blue-600 text-white p-3 rounded-t-lg">
+        <h1 class="text-lg md:text-xl font-bold text-center">메이플스토리 피로도 수익 계산기</h1>
+    </header>
+
+    <div class="max-w-4xl mx-auto bg-white rounded-b-lg border border-gray-200 p-5 space-y-4">
+        
+        <!-- 시세 및 비용 설정 -->
+        <div class="grid gap-3 p-3 bg-blue-50/60 rounded-lg border border-blue-200">
+            <h2 class="text-base font-bold text-gray-800 border-b pb-2">시세 및 비용 설정</h2>
+            
+            <!-- 주요 아이템 단가 (강조) -->
+            <div>
+                <span class="text-xs font-semibold text-blue-700 mb-2 block">주요 아이템 단가</span>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="bg-white p-3 rounded-lg border-2 border-blue-200">
+                        <label class="block text-sm font-bold text-gray-800 mb-1">쥬니퍼베리 씨앗</label>
+                        <input type="text" id="seedPrice" value="710,000" class="w-full p-2 text-base font-bold text-blue-900 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="handleInput(this)">
+                        <div id="seedPriceKor" class="text-xs text-blue-600 mt-1 text-right font-semibold">71만 메소</div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg border-2 border-blue-200">
+                        <label class="block text-sm font-bold text-gray-800 mb-1">쥬니퍼베리 씨앗 오일</label>
+                        <input type="text" id="oilPrice" value="5,000,000" class="w-full p-2 text-base font-bold text-blue-900 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="handleInput(this)">
+                        <div id="oilPriceKor" class="text-xs text-blue-600 mt-1 text-right font-semibold">500만 메소</div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg border-2 border-blue-200">
+                        <label class="block text-sm font-bold text-gray-800 mb-1">소형 재물 획득의 비약</label>
+                        <input type="text" id="potionPrice" value="4,500,000" class="w-full p-2 text-base font-bold text-blue-900 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="handleInput(this)">
+                        <div id="potionPriceKor" class="text-xs text-blue-600 mt-1 text-right font-semibold">450만 메소</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 부가 설정 (작게) -->
+            <div class="pt-2 border-t border-gray-200">
+                <span class="text-xs font-medium text-gray-800 mb-2 block">활동 및 제작 비용 설정</span>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div class="bg-white p-2.5 rounded border border-gray-200">
+                        <label class="block text-xs font-medium text-gray-800 mb-1">하루 사용 피로도</label>
+                        <input type="text" id="dailyFatigue" value="500" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
+                        <div id="dailyFatigueKor" class="text-xs text-gray-800 mt-1 text-right">500 피로도</div>
+                    </div>
+
+                    <div class="bg-white p-2.5 rounded border border-gray-200">
+                        <label class="block text-xs font-medium text-gray-800 mb-1">채집 도구 (500피로도당)</label>
+                        <input type="text" id="toolPrice" value="100,000,000" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
+                        <div id="toolPriceKor" class="text-xs text-gray-800 mt-1 text-right">1억 메소</div>
+                    </div>
+
+                    <div class="bg-white p-2.5 rounded border border-gray-200">
+                        <label class="block text-xs font-medium text-gray-800 mb-1">비약 제작 레시피 가격</label>
+                        <input type="text" id="recipePrice" value="7,000,000" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
+                        <div id="recipePriceKor" class="text-xs text-gray-800 mt-1 text-right">700만 메소</div>
+                    </div>
+
+                    <div class="bg-white p-2.5 rounded border border-gray-200">
+                        <label class="block text-xs font-medium text-gray-800 mb-1">최상급 아이템 결정</label>
+                        <input type="text" id="crystalPrice" value="200,000" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
+                        <div id="crystalPriceKor" class="text-xs text-gray-800 mt-1 text-right">20만 메소</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <!-- 순이익 비교 -->
+        <div class="grid gap-3 p-3 bg-green-50/60 rounded-lg border border-green-200">
+            <h2 class="text-base font-bold text-gray-800 border-b pb-2">순이익 비교</h2>
+
+            <!-- 1회 제작 기댓값 요약 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="flex justify-between items-center bg-white p-2.5 rounded border">
+                    <span class="text-xs font-medium text-gray-700">오일 1회 제작 기댓값 (씨앗 6개, 90%)</span>
+                    <span id="oilMargin" class="font-bold text-sm">0</span>
+                </div>
+                <div class="flex justify-between items-center bg-white p-2.5 rounded border">
+                    <span class="text-xs font-medium text-gray-700">비약 1회 제작 순이익 (오일 5개 → 6개, 5피로도)</span>
+                    <span id="potionMargin" class="font-bold text-sm">0</span>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <!-- 시나리오 1 -->
+                <div class="bg-white border border-gray-200 p-3.5 rounded-lg flex flex-col justify-between" id="boxScenario1">
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-sm mb-1">단순 채집</h3>
+                        <p id="s1Desc" class="text-xs text-gray-500 mb-2">채집 후 씨앗 전량 판매</p>
+                    </div>
+                    <div class="border-t pt-2 mt-2">
+                        <div id="scenario1Kor" class="font-bold text-base text-gray-900 text-right">0 메소</div>
+                    </div>
+                </div>
+
+                <!-- 시나리오 2 -->
+                <div class="bg-white border border-gray-200 p-3.5 rounded-lg flex flex-col justify-between" id="boxScenario2">
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-sm mb-1">채집 + 오일 제작</h3>
+                        <p id="s2Desc" class="text-xs text-gray-500 mb-2">채집 후 오일 가공 판매</p>
+                    </div>
+                    <div class="border-t pt-2 mt-2">
+                        <div id="scenario2Kor" class="font-bold text-base text-gray-900 text-right">0 메소</div>
+                    </div>
+                </div>
+
+                <!-- 시나리오 3 -->
+                <div class="bg-white border border-gray-200 p-3.5 rounded-lg flex flex-col justify-between" id="boxScenario3">
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-sm mb-1">소재비 제작(채집 > 오일 > 제작)</h3>
+                        <p id="s3Desc" class="text-xs text-gray-500 mb-2">채집 및 오일 가공 후 비약 제작 (5피로도 소모)</p>
+                    </div>
+                    <div class="border-t pt-2 mt-2">
+                        <div id="scenario3Kor" class="font-bold text-base text-gray-900 text-right">0 메소</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 보유 씨앗 계산기 -->
+        <div class="bg-amber-50/50 p-4 rounded-lg border border-amber-200 mt-6 space-y-3">
+            <h2 class="text-base font-bold text-amber-900 border-b border-amber-200 pb-2 flex justify-between items-center gap-3">
+                보유 씨앗 계산기
+                <p class="text-xs text-amber-700">채집한 씨앗 수량으로 비교합니다.</p>
+            </h2>
+
+            <div class="flex items-center gap-3 justify-end">
+                <label class="block text-xs font-bold text-amber-900">보유 씨앗 수량 (개)</label>
+                <input type="text" id="harvestedSeeds" value="500" class="w-full md:w-1/3 p-2 text-base font-bold border border-amber-300 rounded focus:outline-none bg-white" oninput="handleInput(this)">
+                <span class="block text-base font-bold text-amber-900">개</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <!-- 1. 씨앗 그대로 판매 -->
+                <div class="bg-white p-3 rounded border border-amber-200">
+                    <span class="text-xs text-gray-500 block font-medium">1. 씨앗 그대로 판매</span>
+                    <span id="seedSellTotal" class="text-xs text-gray-500 pb-4">0</span>
+                    <div id="seedSellTotalKor" class="font-bold text-right text-sm text-gray-800">0 메소</div>
+                    <div class="border-t mt-1 pt-1 text-right">
+                    </div>
+                </div>
+
+                <!-- 2. 오일 가공 판매 -->
+                <div class="bg-white p-3 rounded border border-amber-200">
+                    <span class="text-xs text-gray-500 block font-medium">2. 오일 가공 판매 (기댓값)</span>
+                    <span id="oilSellTotal" class="text-xs text-gray-500 pb-4">0</span>
+                    <div id="oilSellTotalKor" class="font-bold text-right text-sm text-gray-800">0 메소</div>
+                    <div class="border-t mt-1 pt-1 text-right">
+                        <span id="craftOilDiff" class="text-xs font-bold">0</span>
+                    </div>
+                </div>
+
+                <!-- 3. 소재비 제작 판매 -->
+                <div class="bg-white p-3 rounded border border-amber-200">
+                    <span class="text-xs text-gray-500 block font-medium">3. 소재비 제작 판매 (기댓값)</span>
+                    <span id="potionSellTotal" class="text-xs text-gray-500 pb-4">0</span>
+                    <div id="potionSellTotalKor" class="font-bold text-right text-sm text-gray-800">0 메소</div>
+                    <div class="border-t mt-1 pt-1 text-right">
+                        <span id="craftPotionDiff" class="text-xs font-bold">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 숫자를 한글 메소 단위로 변환
+        function formatKoreanMoney(num) {
+            if (isNaN(num) || num === 0) return '0 메소';
+            
+            const isNegative = num < 0;
+            let absNum = Math.abs(Math.round(num));
+
+            const eok = Math.floor(absNum / 100000000);
+            let remainder = absNum % 100000000;
+            const man = Math.floor(remainder / 10000);
+            const remain = remainder % 10000;
+
+            let result = '';
+            if (eok > 0) result += `${eok.toLocaleString()}억 `;
+            if (man > 0) result += `${man.toLocaleString()}만 `;
+            if (remain > 0 || (eok === 0 && man === 0)) result += `${remain.toLocaleString()}`;
+
+            return (isNegative ? '-' : '') + result.trim() + ' 메소';
+        }
+
+        // 입력창 자동 콤마 포맷
+        function formatNumber(input) {
+            let value = input.value.replace(/,/g, '').replace(/[^0-9]/g, '');
+            if (value === '') value = '0';
+            input.value = Number(value).toLocaleString('ko-KR');
+        }
+
+        // 입력값 파싱
+        function getVal(id) {
+            return Number(document.getElementById(id).value.replace(/,/g, '')) || 0;
+        }
+
+        // 통합 핸들러
+        function handleInput(input) {
+            if (input) formatNumber(input);
+            calculate();
+        }
+
+        function calculate() {
+            const seedPrice = getVal('seedPrice');
+            const oilPrice = getVal('oilPrice');
+            const potionPrice = getVal('potionPrice');
+            const dailyFatigue = getVal('dailyFatigue');
+            const toolPrice = getVal('toolPrice');
+            const recipePrice = getVal('recipePrice');
+            const crystalPrice = getVal('crystalPrice');
+            const harvestedSeeds = getVal('harvestedSeeds');
+
+            // 한글 금액 레이블 표기
+            document.getElementById('seedPriceKor').textContent = formatKoreanMoney(seedPrice);
+            document.getElementById('oilPriceKor').textContent = formatKoreanMoney(oilPrice);
+            document.getElementById('potionPriceKor').textContent = formatKoreanMoney(potionPrice);
+            document.getElementById('dailyFatigueKor').textContent = `${dailyFatigue.toLocaleString()} 피로도`;
+            document.getElementById('toolPriceKor').textContent = formatKoreanMoney(toolPrice);
+            document.getElementById('recipePriceKor').textContent = formatKoreanMoney(recipePrice);
+            document.getElementById('crystalPriceKor').textContent = formatKoreanMoney(crystalPrice);
+
+            // 도구 비용: 500 피로도당 toolPrice 적용 (비례 계산)
+            const totalToolCost = (dailyFatigue / 500) * toolPrice;
+
+            // 1회 제작 기댓값 계산
+            const oilCraftCost = (seedPrice * 6) + 1000;
+            const oilCraftExpect = oilPrice * 0.9;
+            const oilMargin = oilCraftExpect - oilCraftCost;
+            
+            document.getElementById('oilMargin').textContent = formatKoreanMoney(oilMargin);
+            document.getElementById('oilMargin').className = oilMargin >= 0 ? "font-bold text-sm text-red-600" : "font-bold text-sm text-blue-600";
+
+            // 비약 제작 기댓값 (피로도 5 소모)
+            const potionCraftCost = (oilPrice * 5) + (crystalPrice * 2);
+            const potionCraftRev = potionPrice * 6;
+            const potionMargin = potionCraftRev - potionCraftCost;
+
+            document.getElementById('potionMargin').textContent = formatKoreanMoney(potionMargin);
+            document.getElementById('potionMargin').className = potionMargin >= 0 ? "font-bold text-sm text-red-600" : "font-bold text-sm text-blue-600";
+
+            // 피로도 시나리오 계산
+            // 시나리오 1: 단순 채집
+            const s1Profit = (dailyFatigue * seedPrice) - totalToolCost;
+            document.getElementById('scenario1Kor').textContent = formatKoreanMoney(s1Profit);
+            document.getElementById('s1Desc').textContent = `씨앗 ${dailyFatigue.toLocaleString()}개 판매 (도구 ${formatKoreanMoney(totalToolCost)} 차감)`;
+
+            // 시나리오 2: 채집 후 오일 제작
+            const oilAttempts = Math.floor(dailyFatigue / 6);
+            const leftoverSeeds = dailyFatigue % 6;
+            const expectedOil = oilAttempts * 0.9;
+            const s2Profit = (expectedOil * oilPrice) + (leftoverSeeds * seedPrice) - (totalToolCost + (oilAttempts * 1000));
+            document.getElementById('scenario2Kor').textContent = formatKoreanMoney(s2Profit);
+            document.getElementById('s2Desc').textContent = `오일 약 ${expectedOil.toFixed(1)}개 + 남은 씨앗 ${leftoverSeeds}개`;
+
+            // 시나리오 3: 연금술 (채집 + 오일 가공 + 비약 제작)
+            // 1. 비약 1회당 필요 피로도(약 38.33) 기반 최대 제작 가능 횟수 추정
+            let s3PotionCrafts = Math.floor(dailyFatigue / 38.3333);
+            let s3GatherFatigue = 0;
+            let s3Seeds = 0;
+            let s3OilAttempts = 0;
+            let s3ExpectedOil = 0;
+            let s3ReqOil = 0;
+
+            // 2. 채집 오일 수량이 비약 필요 오일보다 부족하지 않은 최대 횟수 산출
+            while (s3PotionCrafts > 0) {
+                s3GatherFatigue = dailyFatigue - (s3PotionCrafts * 5); // 비약 제작 피로도 차감 후 채집 피로도
+                s3Seeds = s3GatherFatigue;
+                s3OilAttempts = Math.floor(s3Seeds / 6);
+                s3ExpectedOil = Math.floor(s3OilAttempts * 0.9); // 오일 획득량 정수 처리
+                s3ReqOil = s3PotionCrafts * 5; // 비약 제작에 필요한 오일 수량
+
+                if (s3ExpectedOil >= s3ReqOil) {
+                    break; // 오일 재료 충족 시 확정
+                }
+                s3PotionCrafts--;
+            }
+
+            // 입력 피로도가 적어 1회도 제작 불가능한 경우 예외 처리
+            if (s3PotionCrafts <= 0) {
+                s3PotionCrafts = 0;
+                s3GatherFatigue = dailyFatigue;
+                s3Seeds = dailyFatigue;
+                s3OilAttempts = Math.floor(s3Seeds / 6);
+                s3ExpectedOil = Math.floor(s3OilAttempts * 0.9);
+                s3ReqOil = 0;
+            }
+
+            // 3. 정수 정산 (남은 오일 및 씨앗)
+            const s3LeftoverOil = s3ExpectedOil - s3ReqOil;
+            const s3LeftoverSeeds = s3Seeds % 6;
+
+            // 4. 비용 및 매출 계산
+            const s3ToolCost = (s3GatherFatigue / 500) * toolPrice; // 실제 채집 피로도 비례 도구 비용
+            const s3OilFee = s3OilAttempts * 1000;
+            const s3CrystalFee = s3PotionCrafts * (crystalPrice * 2);
+            const s3TotalCost = recipePrice + s3CrystalFee + s3OilFee + s3ToolCost;
+
+            const s3PotionRev = s3PotionCrafts * 6 * potionPrice;
+            const s3OilRev = s3LeftoverOil * oilPrice;
+            const s3SeedRev = s3LeftoverSeeds * seedPrice;
+            const s3TotalRev = s3PotionRev + s3OilRev + s3SeedRev;
+
+            const s3Profit = s3TotalRev - s3TotalCost;
+
+            // 5. DOM 출력
+            document.getElementById('scenario3Kor').textContent = formatKoreanMoney(s3Profit);
+            document.getElementById('s3Desc').textContent = `비약 ${s3PotionCrafts * 6}개 제작 + 남은 오일 ${s3LeftoverOil}개 + 남은 씨앗 ${s3LeftoverSeeds}개`;
+
+            // 최적 가이드 안내
+            document.getElementById('boxScenario1').classList.remove('border-2', 'border-green-500', 'bg-green-50/30');
+            document.getElementById('boxScenario2').classList.remove('border-2', 'border-green-500', 'bg-green-50/30');
+            document.getElementById('boxScenario3').classList.remove('border-2', 'border-green-500', 'bg-green-50/30');
+
+            let maxGatherProfit = Math.max(s1Profit, s2Profit);
+
+            if (maxGatherProfit > s3Profit) {
+                if (s2Profit > s1Profit) {
+                    document.getElementById('boxScenario2').classList.add('border-2', 'border-green-500', 'bg-green-50/30');
+                } else {
+                    document.getElementById('boxScenario1').classList.add('border-2', 'border-green-500', 'bg-green-50/30');
+                }
+            } else {
+                document.getElementById('boxScenario3').classList.add('border-2', 'border-green-500', 'bg-green-50/30');
+            }
+
+            // 보유 씨앗 계산기
+            // 1. 씨앗 그대로 판매
+            const seedSellTotal = harvestedSeeds * seedPrice;
+            document.getElementById('seedSellTotal').textContent = '씨앗 '+ harvestedSeeds.toLocaleString() + ' 개';
+            document.getElementById('seedSellTotalKor').textContent = formatKoreanMoney(seedSellTotal);
+
+            // 2. 오일 가공 판매
+            const subOilAttempts = Math.floor(harvestedSeeds / 6);
+            const subLeftoverSeeds = harvestedSeeds % 6;
+            const subExpectedOil = subOilAttempts * 0.9;
+            const oilSellTotal = (subExpectedOil * oilPrice) + (subLeftoverSeeds * seedPrice) - (subOilAttempts * 1000);
+            const craftOilDiff = oilSellTotal - seedSellTotal;
+
+            document.getElementById('oilSellTotal').textContent = '오일 ' + subExpectedOil.toLocaleString() + '  개 + 씨앗 '+ subLeftoverSeeds.toLocaleString() + ' 개';;
+            document.getElementById('oilSellTotalKor').textContent = formatKoreanMoney(oilSellTotal);
+            document.getElementById('craftOilDiff').textContent = (craftOilDiff >= 0 ? '+' : '') + formatKoreanMoney(craftOilDiff);
+            document.getElementById('craftOilDiff').className = craftOilDiff >= 0 ? "text-xs font-bold text-red-600" : "text-xs font-bold text-blue-600";
+
+            // 3. 소재비 제작 판매 (씨앗 -> 오일(기댓값) -> 비약)
+            const subPotionAttempts = Math.floor(subExpectedOil / 5);
+            const subLeftoverOil = subExpectedOil - (subPotionAttempts * 5);
+            const subPotionRev = subPotionAttempts * (potionPrice * 6);
+            const subPotionFee = subPotionAttempts * (crystalPrice * 2);
+            const subOilFee = subOilAttempts * 1000;
+            const potionSellTotal = subPotionRev + (subLeftoverOil * oilPrice) + (subLeftoverSeeds * seedPrice) - subPotionFee - subOilFee;
+            const craftPotionDiff = potionSellTotal - seedSellTotal;
+
+            document.getElementById('potionSellTotal').textContent = '소재비 '+(subPotionAttempts*6).toLocaleString()
+            + ' 개 + 오일 ' + subLeftoverOil.toLocaleString() + '  개 + 씨앗 '+ subLeftoverSeeds.toLocaleString() + ' 개';
+            document.getElementById('potionSellTotalKor').textContent = formatKoreanMoney(potionSellTotal);
+            document.getElementById('craftPotionDiff').textContent = (craftPotionDiff >= 0 ? '+' : '') + formatKoreanMoney(craftPotionDiff);
+            document.getElementById('craftPotionDiff').className = craftPotionDiff >= 0 ? "text-xs font-bold text-red-600" : "text-xs font-bold text-blue-600";
+        }
+
+        window.onload = function() {
+            calculate();
+        };
+    </script>
+</body>
+</html>
