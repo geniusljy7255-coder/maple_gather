@@ -12,177 +12,197 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800 p-4 min-h-screen">
+<body class="bg-gray-100 text-gray-800 p-3 sm:p-6 min-h-screen font-sans">
     
     <!-- 상단 타이틀 바 -->
-    <header class="max-w-4xl mx-auto text-white p-3">
-        <h1 class="text-lg md:text-xl font-bold text-blue-800">땅캐라</h1>
+    <header class="max-w-4xl mx-auto py-3 px-1">
+        <h1 class="text-xl md:text-2xl font-black text-blue-900 tracking-tight">땅캐라</h1>
     </header>
 
     <!-- 탭 버튼 영역 -->
-    <div class="max-w-4xl mx-auto flex bg-white border-x border-gray-200 border-b rounded-t-lg">
-        <button id="tabBtn1" onclick="switchTab('tab1')" class="flex-1 py-3 font-bold text-center border-b-2 border-blue-600 text-blue-600 bg-blue-50 focus:outline-none transition-colors">
+    <div class="max-w-4xl mx-auto flex bg-gray-200/80 rounded-t-xl border-t border-x border-gray-300">
+        <button id="tabBtn1" onclick="switchTab('tab1')" class="flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-blue-600 text-blue-600 bg-white rounded-tl-xl transition-all">
             쥬니퍼베리 씨앗 계산기
         </button>
-        <button id="tabBtn2" onclick="switchTab('tab2')" class="flex-1 py-3 font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 focus:outline-none transition-colors">
-            영롱한 황혼의 정수 계산기 (준비중)
+        <button id="tabBtn2" onclick="switchTab('tab2')" class="flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-800 hover:bg-white/50 rounded-tr-xl transition-all">
+            영롱한 황혼의 정수 계산기
         </button>
     </div>
 
     <!-- 1번 탭: 기존 피로도 계산기 컨텐츠 -->
-    <div id="tab1" class="tab-content max-w-4xl mx-auto bg-white rounded-b-lg border-x border-b border-gray-200 p-5 space-y-4">
+    <div id="tab1" class="tab-content max-w-4xl mx-auto bg-white rounded-b-xl border-x border-b border-gray-300 p-4 md:p-6 space-y-6">
         
         <!-- 시세 및 비용 설정 -->
-        <div class="grid gap-3 p-3 bg-blue-50/60 rounded-lg border border-blue-200">
-            <h2 class="text-base font-bold text-blue-950 border-b pb-2">시세 및 비용 설정</h2>
+        <div class="grid gap-4 p-4 md:p-5 bg-blue-50/50 rounded-xl border border-blue-200">
+            <h2 class="text-base font-bold text-blue-950 border-b border-blue-200 pb-2.5 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-blue-600 inline-block"></span>
+                시세 및 비용 설정
+            </h2>
             
             <!-- 주요 아이템 단가 (강조) -->
             <div>
-                <span class="text-xs font-semibold text-blue-700 mb-2 block">주요 아이템 단가</span>
+                <span class="text-xs font-bold text-blue-800 mb-2 block tracking-tight">주요 아이템 단가</span>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div class="bg-white p-3 rounded-lg border-2 border-blue-200">
-                        <label class="block text-sm font-bold text-gray-800 mb-1">쥬니퍼베리 씨앗</label>
-                        <input type="text" id="seedPrice" value="710,000" class="w-full p-2 text-base font-bold text-blue-900 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="handleInput(this)">
-                        <div id="seedPriceKor" class="text-xs text-blue-600 mt-1 text-right font-semibold">71만 메소</div>
+                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5">쥬니퍼베리 씨앗</label>
+                        <input type="text" id="seedPrice" value="710,000" class="w-full p-2 text-base font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="seedPriceKor" class="text-xs text-blue-600 mt-1.5 text-right font-bold">71만 메소</div>
                     </div>
 
-                    <div class="bg-white p-3 rounded-lg border-2 border-blue-200">
-                        <label class="block text-sm font-bold text-gray-800 mb-1">쥬니퍼베리 씨앗 오일</label>
-                        <input type="text" id="oilPrice" value="5,000,000" class="w-full p-2 text-base font-bold text-blue-900 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="handleInput(this)">
-                        <div id="oilPriceKor" class="text-xs text-blue-600 mt-1 text-right font-semibold">500만 메소</div>
+                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5">쥬니퍼베리 씨앗 오일</label>
+                        <input type="text" id="oilPrice" value="5,000,000" class="w-full p-2 text-base font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="oilPriceKor" class="text-xs text-blue-600 mt-1.5 text-right font-bold">500만 메소</div>
                     </div>
 
-                    <div class="bg-white p-3 rounded-lg border-2 border-blue-200">
-                        <label class="block text-sm font-bold text-gray-800 mb-1">소형 재물 획득의 비약</label>
-                        <input type="text" id="potionPrice" value="4,500,000" class="w-full p-2 text-base font-bold text-blue-900 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="handleInput(this)">
-                        <div id="potionPriceKor" class="text-xs text-blue-600 mt-1 text-right font-semibold">450만 메소</div>
+                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5">소형 재물 획득의 비약</label>
+                        <input type="text" id="potionPrice" value="4,500,000" class="w-full p-2 text-base font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="potionPriceKor" class="text-xs text-blue-600 mt-1.5 text-right font-bold">450만 메소</div>
                     </div>
                 </div>
             </div>
 
             <!-- 부가 설정 (작게) -->
-            <div class="pt-2 border-t border-gray-200">
-                <span class="text-xs font-medium text-gray-800 mb-2 block">활동 및 제작 비용 설정</span>
+            <div class="pt-3 border-t border-blue-200/60">
+                <span class="text-xs font-bold text-gray-600 mb-2 block">활동 및 제작 비용 설정</span>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <div class="bg-white p-2.5 rounded border border-gray-200">
-                        <label class="block text-xs font-medium text-gray-800 mb-1">하루 사용 피로도</label>
-                        <input type="text" id="dailyFatigue" value="500" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
-                        <div id="dailyFatigueKor" class="text-xs text-gray-800 mt-1 text-right">500 피로도</div>
+                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">하루 사용 피로도</label>
+                        <input type="text" id="dailyFatigue" value="500" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="dailyFatigueKor" class="text-xs text-gray-500 mt-1 text-right font-medium">500 피로도</div>
                     </div>
 
-                    <div class="bg-white p-2.5 rounded border border-gray-200">
-                        <label class="block text-xs font-medium text-gray-800 mb-1">채집 도구 (500피로도당)</label>
-                        <input type="text" id="toolPrice" value="100,000,000" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
-                        <div id="toolPriceKor" class="text-xs text-gray-800 mt-1 text-right">1억 메소</div>
+                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">채집 도구 (500피로도당)</label>
+                        <input type="text" id="toolPrice" value="100,000,000" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="toolPriceKor" class="text-xs text-gray-500 mt-1 text-right font-medium">1억 메소</div>
                     </div>
 
-                    <div class="bg-white p-2.5 rounded border border-gray-200">
-                        <label class="block text-xs font-medium text-gray-800 mb-1">비약 제작 레시피 가격</label>
-                        <input type="text" id="recipePrice" value="7,000,000" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
-                        <div id="recipePriceKor" class="text-xs text-gray-800 mt-1 text-right">700만 메소</div>
+                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">비약 제작 레시피 가격</label>
+                        <input type="text" id="recipePrice" value="7,000,000" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="recipePriceKor" class="text-xs text-gray-500 mt-1 text-right font-medium">700만 메소</div>
                     </div>
 
-                    <div class="bg-white p-2.5 rounded border border-gray-200">
-                        <label class="block text-xs font-medium text-gray-800 mb-1">최상급 아이템 결정</label>
-                        <input type="text" id="crystalPrice" value="200,000" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
-                        <div id="crystalPriceKor" class="text-xs text-gray-800 mt-1 text-right">20만 메소</div>
+                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">최상급 아이템 결정</label>
+                        <input type="text" id="crystalPrice" value="200,000" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="crystalPriceKor" class="text-xs text-gray-500 mt-1 text-right font-medium">20만 메소</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- 순이익 비교 -->
-        <div class="grid gap-3 p-3 bg-green-50/60 rounded-lg border border-green-200">
-            <h2 class="text-base font-bold text-green-950 border-b pb-2">순이익 비교</h2>
+        <div class="grid gap-4 p-4 md:p-5 bg-emerald-50/40 rounded-xl border border-emerald-200">
+            <h2 class="text-base font-bold text-emerald-950 border-b border-emerald-200 pb-2.5 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-600 inline-block"></span>
+                순이익 비교
+            </h2>
 
             <!-- 1회 제작 기댓값 요약 -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div class="flex justify-between items-center bg-white p-2.5 rounded border">
-                    <span class="text-xs font-medium text-gray-700">오일 1회 제작 기댓값 (씨앗 6개, 90%)</span>
+                <div class="flex flex-col justify-between items-end bg-white p-3 rounded-xl border border-emerald-200/80">
+                    <span class="text-xs font-bold text-gray-700 w-full">오일 1회 제작 기댓값 (씨앗 6개, 90%)</span>
                     <span id="oilMargin" class="font-bold text-sm">0</span>
                 </div>
-                <div class="flex justify-between items-center bg-white p-2.5 rounded border">
-                    <span class="text-xs font-medium text-gray-700">비약 1회 제작 순이익 (오일 5개 → 6개, 5피로도)</span>
+                <div class="flex flex-col justify-between items-end bg-white p-3 rounded-xl border border-emerald-200/80">
+                    <span class="text-xs font-bold text-gray-700 w-full">비약 1회 제작 순이익 (오일 5개 → 6개, 5피로도)</span>
                     <span id="potionMargin" class="font-bold text-sm">0</span>
                 </div>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <!-- 시나리오 1 -->
-                <div class="bg-white border border-gray-200 p-3.5 rounded-lg flex flex-col justify-between" id="boxScenario1">
+                <div class="bg-white border border-gray-200 p-4 rounded-xl flex flex-col justify-between transition-all" id="boxScenario1">
                     <div>
                         <h3 class="font-bold text-gray-800 text-sm mb-1">단순 채집</h3>
-                        <p id="s1Desc" class="text-xs text-gray-500 mb-2">채집 후 씨앗 전량 판매</p>
+                        <p id="s1Desc" class="text-xs text-gray-500 mb-2 leading-relaxed">채집 후 씨앗 전량 판매</p>
                     </div>
-                    <div class="border-t pt-2 mt-2">
-                        <div id="scenario1Kor" class="font-bold text-base text-gray-900 text-right">0 메소</div>
+                    <div class="border-t border-gray-100 pt-2.5 mt-2">
+                        <div id="scenario1Kor" class="font-extrabold text-base text-gray-900 text-right">0 메소</div>
                     </div>
                 </div>
 
                 <!-- 시나리오 2 -->
-                <div class="bg-white border border-gray-200 p-3.5 rounded-lg flex flex-col justify-between" id="boxScenario2">
+                <div class="bg-white border border-gray-200 p-4 rounded-xl flex flex-col justify-between transition-all" id="boxScenario2">
                     <div>
                         <h3 class="font-bold text-gray-800 text-sm mb-1">채집 + 오일 제작</h3>
-                        <p id="s2Desc" class="text-xs text-gray-500 mb-2">채집 후 오일 가공 판매</p>
+                        <p id="s2Desc" class="text-xs text-gray-500 mb-2 leading-relaxed">채집 후 오일 가공 판매</p>
                     </div>
-                    <div class="border-t pt-2 mt-2">
-                        <div id="scenario2Kor" class="font-bold text-base text-gray-900 text-right">0 메소</div>
+                    <div class="border-t border-gray-100 pt-2.5 mt-2">
+                        <div id="scenario2Kor" class="font-extrabold text-base text-gray-900 text-right">0 메소</div>
                     </div>
                 </div>
 
                 <!-- 시나리오 3 -->
-                <div class="bg-white border border-gray-200 p-3.5 rounded-lg flex flex-col justify-between" id="boxScenario3">
+                <div class="bg-white border border-gray-200 p-4 rounded-xl flex flex-col justify-between transition-all" id="boxScenario3">
                     <div>
                         <h3 class="font-bold text-gray-800 text-sm mb-1">소재비 제작(채집 > 오일 > 제작)</h3>
-                        <p id="s3Desc" class="text-xs text-gray-500 mb-2">채집 및 오일 가공 후 비약 제작 (5피로도 소모)</p>
+                        <p id="s3Desc" class="text-xs text-gray-500 mb-2 leading-relaxed">채집 및 오일 가공 후 비약 제작 (5피로도 소모)</p>
                     </div>
-                    <div class="border-t pt-2 mt-2">
-                        <div id="scenario3Kor" class="font-bold text-base text-gray-900 text-right">0 메소</div>
+                    <div class="border-t border-gray-100 pt-2.5 mt-2">
+                        <div id="scenario3Kor" class="font-extrabold text-base text-gray-900 text-right">0 메소</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- 보유 씨앗 계산기 -->
-        <div class="bg-amber-50/50 p-4 rounded-lg border border-amber-200 mt-6 space-y-3">
-            <h2 class="text-base font-bold text-amber-900 border-b border-amber-200 pb-2 flex justify-between items-center gap-3">
-                보유 씨앗 계산기
-                <p class="text-xs text-amber-700">채집한 씨앗 수량으로 비교합니다.</p>
+        <div class="bg-amber-50/50 p-4 md:p-5 rounded-xl border border-amber-200 space-y-4">
+            <h2 class="text-base font-bold text-amber-950 border-b border-amber-200/80 pb-2.5 flex justify-between items-center gap-3">
+                <span class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                    보유 씨앗 계산기
+                </span>
+                <p class="text-xs font-normal text-amber-800">채집한 씨앗 수량으로 비교합니다.</p>
             </h2>
 
-            <div class="flex items-center gap-3 justify-end">
+            <div class="flex items-center gap-3 justify-end bg-white/80 p-2.5 rounded-lg border border-amber-200/60">
                 <label class="block text-xs font-bold text-amber-900">보유 씨앗 수량 (개)</label>
-                <input type="text" id="harvestedSeeds" value="500" class="w-full md:w-1/3 p-2 text-base font-bold border border-amber-300 rounded focus:outline-none bg-white" oninput="handleInput(this)">
-                <span class="block text-base font-bold text-amber-900">개</span>
+                <input type="text" id="harvestedSeeds" value="500" class="w-full md:w-1/3 p-1.5 text-base font-bold border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white" oninput="handleInput(this)">
+                <span class="block text-sm font-bold text-amber-900">개</span>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <!-- 1. 씨앗 그대로 판매 -->
-                <div class="bg-white p-3 rounded border border-amber-200">
-                    <span class="text-xs text-gray-500 block font-medium">1. 씨앗 그대로 판매</span>
-                    <span id="seedSellTotal" class="text-xs text-gray-500 pb-4">0</span>
-                    <div id="seedSellTotalKor" class="font-bold text-right text-sm text-gray-800">0 메소</div>
-                    <div class="border-t mt-1 pt-1 text-right">
+                <div class="bg-white p-3.5 rounded-xl border border-amber-200 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs text-gray-600 block font-bold mb-1">1. 씨앗 그대로 판매</span>
+                        <span id="seedSellTotal" class="text-xs text-gray-500 block min-h-[32px]">0</span>
+                    </div>
+                    <div class="border-t border-amber-100 pt-2 text-right">
+                        <div id="seedSellTotalKor" class="font-extrabold text-sm text-gray-800">0 메소</div>
+                        <div class="border-t border-transparent mt-1 pt-1 text-right"></div>
                     </div>
                 </div>
 
                 <!-- 2. 오일 가공 판매 -->
-                <div class="bg-white p-3 rounded border border-amber-200">
-                    <span class="text-xs text-gray-500 block font-medium">2. 오일 가공 판매 (기댓값)</span>
-                    <span id="oilSellTotal" class="text-xs text-gray-500 pb-4">0</span>
-                    <div id="oilSellTotalKor" class="font-bold text-right text-sm text-gray-800">0 메소</div>
-                    <div class="border-t mt-1 pt-1 text-right">
-                        <span id="craftOilDiff" class="text-xs font-bold">0</span>
+                <div class="bg-white p-3.5 rounded-xl border border-amber-200 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs text-gray-600 block font-bold mb-1">2. 오일 가공 판매 (기댓값)</span>
+                        <span id="oilSellTotal" class="text-xs text-gray-500 block min-h-[32px]">0</span>
+                    </div>
+                    <div class="border-t border-amber-100 pt-2 text-right">
+                        <div id="oilSellTotalKor" class="font-extrabold text-sm text-gray-800">0 메소</div>
+                        <div class="border-t border-gray-100 mt-1 pt-1 text-right">
+                            <span id="craftOilDiff" class="text-xs font-bold">0</span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- 3. 소재비 제작 판매 -->
-                <div class="bg-white p-3 rounded border border-amber-200">
-                    <span class="text-xs text-gray-500 block font-medium">3. 소재비 제작 판매 (기댓값)</span>
-                    <span id="potionSellTotal" class="text-xs text-gray-500 pb-4">0</span>
-                    <div id="potionSellTotalKor" class="font-bold text-right text-sm text-gray-800">0 메소</div>
-                    <div class="border-t mt-1 pt-1 text-right">
-                        <span id="craftPotionDiff" class="text-xs font-bold">0</span>
+                <div class="bg-white p-3.5 rounded-xl border border-amber-200 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs text-gray-600 block font-bold mb-1">3. 소재비 제작 판매 (기댓값)</span>
+                        <span id="potionSellTotal" class="text-xs text-gray-500 block min-h-[32px]">0</span>
+                    </div>
+                    <div class="border-t border-amber-100 pt-2 text-right">
+                        <div id="potionSellTotalKor" class="font-extrabold text-sm text-gray-800">0 메소</div>
+                        <div class="border-t border-gray-100 mt-1 pt-1 text-right">
+                            <span id="craftPotionDiff" class="text-xs font-bold">0</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -191,201 +211,207 @@
     </div>
 
     <!-- 2번 탭: 연금술 비약 계산기 컨텐츠 -->
-    <div id="tab2" class="tab-content hidden max-w-4xl mx-auto bg-white rounded-b-lg border-x border-b border-gray-200 p-5 space-y-4">
+    <div id="tab2" class="tab-content hidden max-w-4xl mx-auto bg-white rounded-b-xl border-x border-b border-gray-300 p-4 md:p-6 space-y-6">
         <!-- 시세 및 비용 설정 -->
-        <div class="grid gap-3 p-3 bg-blue-50/60 rounded-lg border border-blue-200">
-            <h2 class="text-base font-bold text-gray-800 border-b pb-2">시세 및 비용 설정</h2>
+        <div class="grid gap-4 p-4 md:p-5 bg-blue-50/50 rounded-xl border border-blue-200">
+            <h2 class="text-base font-bold text-blue-950 border-b border-blue-200 pb-2.5 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-blue-600 inline-block"></span>
+                시세 및 비용 설정
+            </h2>
             
             <div>
-                <span class="text-xs font-semibold text-blue-700 mb-2 block">주요 완제품 및 정수 단가</span>
+                <span class="text-xs font-bold text-blue-800 mb-2 block tracking-tight">주요 완제품 및 정수 단가</span>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-                    <div class="bg-white p-3 rounded-lg border-2 border-blue-200">
-                        <label class="block text-sm font-bold text-gray-800 mb-1">영롱한 황혼의 정수</label>
-                        <input type="text" id="t2ShiningTwilightPrice" value="7,000,000" class="w-full p-2 text-base font-bold text-blue-900 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="handleInput(this)">
-                        <div id="t2ShiningTwilightPriceKor" class="text-xs text-blue-600 mt-1 text-right font-semibold">700만 메소</div>
+                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5">영롱한 황혼의 정수</label>
+                        <input type="text" id="t2ShiningTwilightPrice" value="7,000,000" class="w-full p-2 text-base font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="t2ShiningTwilightPriceKor" class="text-xs text-blue-600 mt-1.5 text-right font-bold">700만 메소</div>
                     </div>
 
-                    <div class="bg-white p-3 rounded-lg border-2 border-blue-200">
-                        <label class="block text-sm font-bold text-gray-800 mb-1">소형 경험 축적의 비약</label>
-                        <input type="text" id="t2SmallExpPotionPrice" value="800,000" class="w-full p-2 text-base font-bold text-blue-900 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="handleInput(this)">
-                        <div id="t2SmallExpPotionPriceKor" class="text-xs text-blue-600 mt-1 text-right font-semibold">80만 메소</div>
+                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5">소형 경험 축적의 비약</label>
+                        <input type="text" id="t2SmallExpPotionPrice" value="800,000" class="w-full p-2 text-base font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="t2SmallExpPotionPriceKor" class="text-xs text-blue-600 mt-1.5 text-right font-bold">80만 메소</div>
                     </div>
                     
-                    <div class="bg-white p-3 rounded-lg border-2 border-blue-200">
-                        <label class="block text-sm font-bold text-gray-800 mb-1">소형 고농축 경험 축적의 비약</label>
-                        <input type="text" id="t2SmallHighExpPotionPrice" value="5,500,000" class="w-full p-2 text-base font-bold text-blue-900 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="handleInput(this)">
-                        <div id="t2SmallHighExpPotionPriceKor" class="text-xs text-blue-600 mt-1 text-right font-semibold">550만 메소</div>
+                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5">소형 고농축 경험 축적의 비약</label>
+                        <input type="text" id="t2SmallHighExpPotionPrice" value="5,500,000" class="w-full p-2 text-base font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="t2SmallHighExpPotionPriceKor" class="text-xs text-blue-600 mt-1.5 text-right font-bold">550만 메소</div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div class="bg-white p-3 rounded-lg border-2 border-blue-200">
-                        <label class="block text-sm font-bold text-gray-800 mb-1">하루 사용 피로도</label>
-                        <input type="text" id="t2DailyFatigue" value="500" class="w-full p-2 text-base font-bold text-blue-900 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="handleInput(this)">
-                        <div id="t2DailyFatigueKor" class="text-xs text-blue-600 mt-1 text-right font-semibold">500 피로도</div>
+                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5">하루 사용 피로도</label>
+                        <input type="text" id="t2DailyFatigue" value="500" class="w-full p-2 text-base font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="t2DailyFatigueKor" class="text-xs text-blue-600 mt-1.5 text-right font-bold">500 피로도</div>
                     </div>
 
-                    <div class="bg-white p-3 rounded-lg border-2 border-blue-200">
-                        <label class="block text-sm font-bold text-gray-800 mb-1">대영웅의 비약 </label>
-                        <input type="text" id="t2HeroPotionPrice" value="310,000" class="w-full p-2 text-base font-bold text-blue-900 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="handleInput(this)">
-                        <div id="t2HeroPotionPriceKor" class="text-xs text-blue-600 mt-1 text-right font-semibold">31만 메소</div>
+                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5">대영웅의 비약 </label>
+                        <input type="text" id="t2HeroPotionPrice" value="310,000" class="w-full p-2 text-base font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="t2HeroPotionPriceKor" class="text-xs text-blue-600 mt-1.5 text-right font-bold">31만 메소</div>
                     </div>
 
-                    <div class="bg-white p-3 rounded-lg border-2 border-blue-200">
-                        <label class="block text-sm font-bold text-gray-800 mb-1">고급 대영웅의 비약</label>
-                        <input type="text" id="t2AdvHeroPotionPrice" value="4,150,000" class="w-full p-2 text-base font-bold text-blue-900 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="handleInput(this)">
-                        <div id="t2AdvHeroPotionPriceKor" class="text-xs text-blue-600 mt-1 text-right font-semibold">415만 메소</div>
+                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5">고급 대영웅의 비약</label>
+                        <input type="text" id="t2AdvHeroPotionPrice" value="4,150,000" class="w-full p-2 text-base font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="t2AdvHeroPotionPriceKor" class="text-xs text-blue-600 mt-1.5 text-right font-bold">415만 메소</div>
                     </div>
                 </div>
             </div>
 
             <!-- 부가 설정 (제작 재료) -->
-            <div class="pt-2 border-t border-gray-200">
-                <span class="text-xs font-medium text-gray-800 mb-2 block">비약 제작 기타 재료 단가</span>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-2.5">
-                    <div class="bg-white p-2.5 rounded border border-gray-200">
-                        <label class="block text-xs font-bold text-gray-800 mb-1">히솝 꽃</label>
-                        <input type="text" id="t2HyssopFlowerPrice" value="700" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
-                        <div id="t2HyssopFlowerPriceKor" class="text-xs text-gray-800 mt-1 text-right">700 메소</div>
+            <div class="pt-3 border-t border-blue-200/60">
+                <span class="text-xs font-bold text-gray-600 mb-2 block">비약 제작 기타 재료 단가</span>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">히솝 꽃</label>
+                        <input type="text" id="t2HyssopFlowerPrice" value="700" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="t2HyssopFlowerPriceKor" class="text-xs text-gray-500 mt-1 text-right font-medium">700 메소</div>
                     </div>
 
-                    <div class="bg-white p-2.5 rounded border border-gray-200">
-                        <label class="block text-xs font-medium text-gray-800 mb-1">뒤틀린 시간의 정수</label>
-                        <input type="text" id="t2TwistedTimePrice" value="7,300" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
-                        <div id="t2TwistedTimePriceKor" class="text-xs text-gray-800 mt-1 text-right">7300 메소</div>
+                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">뒤틀린 시간의 정수</label>
+                        <input type="text" id="t2TwistedTimePrice" value="7,300" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="t2TwistedTimePriceKor" class="text-xs text-gray-500 mt-1 text-right font-medium">7300 메소</div>
                     </div>
 
-                    <div class="bg-white p-2.5 rounded border border-gray-200">
-                        <label class="block text-xs font-medium text-gray-800 mb-1">마력 결정</label>
-                        <input type="text" id="t2MagicCrystalPrice" value="50" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
-                        <div id="t2MagicCrystalPriceKor" class="text-xs text-gray-800 mt-1 text-right">50 메소</div>
+                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">마력 결정</label>
+                        <input type="text" id="t2MagicCrystalPrice" value="50" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="t2MagicCrystalPriceKor" class="text-xs text-gray-500 mt-1 text-right font-medium">50 메소</div>
                     </div>
 
-                    <div class="bg-white p-2.5 rounded border border-gray-200">
-                        <label class="block text-xs font-medium text-gray-800 mb-1">상급 주문의 정수</label>
-                        <input type="text" id="t2AdvSpellPrice" value="7,700" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
-                        <div id="t2AdvSpellPriceKor" class="text-xs text-gray-800 mt-1 text-right">7700 메소</div>
+                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">상급 주문의 정수</label>
+                        <input type="text" id="t2AdvSpellPrice" value="7,700" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="t2AdvSpellPriceKor" class="text-xs text-gray-500 mt-1 text-right font-medium">7700 메소</div>
                     </div>
 
-                    <div class="bg-white p-2.5 rounded border border-gray-200">
-                        <label class="block text-xs font-medium text-gray-800 mb-1">황혼의 정수</label>
-                        <input type="text" id="t2TwilightPrice" value="17,000" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
-                        <div id="t2TwilightPriceKor" class="text-xs text-gray-800 mt-1 text-right">1만 7000 메소</div>
+                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">황혼의 정수</label>
+                        <input type="text" id="t2TwilightPrice" value="17,000" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="t2TwilightPriceKor" class="text-xs text-gray-500 mt-1 text-right font-medium">1만 7000 메소</div>
                     </div>
 
-                    <div class="bg-white p-2.5 rounded border border-gray-200">
-                        <label class="block text-xs font-medium text-gray-800 mb-1">소형 고농축 경험 축적의 비약 레시피</label>
-                        <input type="text" id="t2RecipePrice" value="10,000" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
-                        <div id="t2RecipePriceKor" class="text-xs text-gray-800 mt-1 text-right">1만 메소</div>
+                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">소형 고농축 경험 축적의 비약 레시피</label>
+                        <input type="text" id="t2RecipePrice" value="10,000" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
+                        <div id="t2RecipePriceKor" class="text-xs text-gray-500 mt-1 text-right font-medium">1만 메소</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- 순이익 비교 -->
-        <div class="grid gap-3 p-3 bg-green-50/60 rounded-lg border border-green-200">
-            <h2 class="text-base font-bold text-gray-800 border-b pb-2">순이익 비교</h2>
+        <div class="grid gap-4 p-4 md:p-5 bg-emerald-50/40 rounded-xl border border-emerald-200">
+            <h2 class="text-base font-bold text-emerald-950 border-b border-emerald-200 pb-2.5 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-600 inline-block"></span>
+                순이익 비교
+            </h2>
 
             <!-- 1회 제작 기댓값 요약 -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div class="flex justify-between items-center bg-white p-2.5 rounded border">
-                    <span class="text-xs font-medium text-gray-700">소고경축 1회 손익 (4개 완성 / 피로도 5)</span>
+                <div class="flex flex-col justify-between items-end bg-white p-3 rounded-xl border border-emerald-200/80">
+                    <span class="text-xs font-bold text-gray-700 w-full">소고경축 1회 손익 (4개 완성 / 피로도 5)</span>
                     <span id="t2SmallHighExpMargin" class="font-bold text-sm">0</span>
                 </div>
-                <div class="flex justify-between items-center bg-white p-2.5 rounded border">
-                    <span class="text-xs font-medium text-gray-700">고대비(직접제작) 1회 손익 (2개 완성 / 피로도 12.5)</span>
+                <div class="flex flex-col justify-between items-end bg-white p-3 rounded-xl border border-emerald-200/80">
+                    <span class="text-xs font-bold text-gray-700 w-full">고대비(직접제작) 1회 손익 (2개 완성 / 피로도 12.5)</span>
                     <span id="t2AdvHeroSelfMargin" class="font-bold text-sm">0</span>
                 </div>
-                <div class="flex justify-between items-center bg-white p-2.5 rounded border">
-                    <span class="text-xs font-medium text-gray-700">고대비(구매) 1회 손익 (2개 완성 / 피로도 10)</span>
+                <div class="flex flex-col justify-between items-end bg-white p-3 rounded-xl border border-emerald-200/80">
+                    <span class="text-xs font-bold text-gray-700 w-full">고대비(구매) 1회 손익 (2개 완성 / 피로도 10)</span>
                     <span id="t2AdvHeroBuyMargin" class="font-bold text-sm">0</span>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <!-- 시나리오 1 -->
-                <div class="bg-white border border-gray-200 p-3.5 rounded-lg flex flex-col justify-between" id="t2BoxScenario1">
+                <div class="bg-white border border-gray-200 p-4 rounded-xl flex flex-col justify-between transition-all" id="t2BoxScenario1">
                     <div>
                         <h3 class="font-bold text-gray-800 text-sm mb-1">소형 고농축 경축 제작</h3>
-                        <p id="t2S1Desc" class="text-xs text-gray-500 mb-2">재료 구매 후 제작 판매 (5 피로도/회)</p>
+                        <p id="t2S1Desc" class="text-xs text-gray-500 mb-2 leading-relaxed">재료 구매 후 제작 판매 (5 피로도/회)</p>
                     </div>
-                    <div class="border-t pt-2 mt-2">
-                        <div id="t2Scenario1Kor" class="font-bold text-base text-gray-900 text-right">0 메소</div>
+                    <div class="border-t border-gray-100 pt-2.5 mt-2">
+                        <div id="t2Scenario1Kor" class="font-extrabold text-base text-gray-900 text-right">0 메소</div>
                     </div>
                 </div>
 
                 <!-- 시나리오 2 -->
-                <div class="bg-white border border-gray-200 p-3.5 rounded-lg flex flex-col justify-between" id="t2BoxScenario2">
+                <div class="bg-white border border-gray-200 p-4 rounded-xl flex flex-col justify-between transition-all" id="t2BoxScenario2">
                     <div>
                         <h3 class="font-bold text-gray-800 text-sm mb-1">고급 대영웅의 비약 (직접제작)</h3>
-                        <p id="t2S2Desc" class="text-xs text-gray-500 mb-2">대영웅 직접 제작 후 고대비 제작 (12.5 피로도/회)</p>
+                        <p id="t2S2Desc" class="text-xs text-gray-500 mb-2 leading-relaxed">대영웅 직접 제작 후 고대비 제작 (12.5 피로도/회)</p>
                     </div>
-                    <div class="border-t pt-2 mt-2">
-                        <div id="t2Scenario2Kor" class="font-bold text-base text-gray-900 text-right">0 메소</div>
+                    <div class="border-t border-gray-100 pt-2.5 mt-2">
+                        <div id="t2Scenario2Kor" class="font-extrabold text-base text-gray-900 text-right">0 메소</div>
                     </div>
                 </div>
 
                 <!-- 시나리오 3 -->
-                <div class="bg-white border border-gray-200 p-3.5 rounded-lg flex flex-col justify-between" id="t2BoxScenario3">
+                <div class="bg-white border border-gray-200 p-4 rounded-xl flex flex-col justify-between transition-all" id="t2BoxScenario3">
                     <div>
                         <h3 class="font-bold text-gray-800 text-sm mb-1">고급 대영웅의 비약 (구매)</h3>
-                        <p id="t2S3Desc" class="text-xs text-gray-500 mb-2">대영웅 구매 후 고대비 제작 (10 피로도/회)</p>
+                        <p id="t2S3Desc" class="text-xs text-gray-500 mb-2 leading-relaxed">대영웅 구매 후 고대비 제작 (10 피로도/회)</p>
                     </div>
-                    <div class="border-t pt-2 mt-2">
-                        <div id="t2Scenario3Kor" class="font-bold text-base text-gray-900 text-right">0 메소</div>
+                    <div class="border-t border-gray-100 pt-2.5 mt-2">
+                        <div id="t2Scenario3Kor" class="font-extrabold text-base text-gray-900 text-right">0 메소</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- 보유 영황정 계산기 -->
-        <div class="bg-amber-50/50 p-4 rounded-lg border border-amber-200 mt-6 space-y-3">
-            <h2 class="text-base font-bold text-amber-900 border-b border-amber-200 pb-2 flex justify-between items-center gap-3">
-                보유 영황정 계산기
-                <p class="text-xs text-amber-700">보유 중인 영황정 수량 기준 순이익 비교</p>
+        <div class="bg-amber-50/50 p-4 md:p-5 rounded-xl border border-amber-200 space-y-4">
+            <h2 class="text-base font-bold text-amber-950 border-b border-amber-200/80 pb-2.5 flex justify-between items-center gap-3">
+                <span class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                    보유 영황정 계산기
+                </span>
+                <p class="text-xs font-normal text-amber-800">보유 중인 영황정 수량 기준 순이익 비교 (영황정 원가 0원 적용)</p>
             </h2>
 
-            <div class="flex items-center gap-3 justify-end">
+            <div class="flex items-center gap-3 justify-end bg-white/80 p-2.5 rounded-lg border border-amber-200/60">
                 <label class="block text-xs font-bold text-amber-900">보유 영황정 수량 (개)</label>
-                <input type="text" id="t2OwnedEssence" value="10" class="w-full md:w-1/3 p-2 text-base font-bold border border-amber-300 rounded focus:outline-none bg-white" oninput="handleInput(this)">
-                <span class="block text-base font-bold text-amber-900">개</span>
+                <input type="text" id="t2OwnedEssence" value="10" class="w-full md:w-1/3 p-1.5 text-base font-bold border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white" oninput="handleInput(this)">
+                <span class="block text-sm font-bold text-amber-900">개</span>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <!-- 1. 소형 고농축 경축 -->
-                <div class="bg-white p-3 rounded border border-amber-200 flex flex-col justify-between" id="t2OwnedBox1">
+                <div class="bg-white p-3.5 rounded-xl border border-amber-200 flex flex-col justify-between transition-all" id="t2OwnedBox1">
                     <div>
-                        <span class="text-xs text-gray-500 block font-medium">1. 소형 고농축 경축 제작</span>
-                        <span id="t2Owned1Desc" class="text-xs text-gray-500 pb-4 block">0</span>
+                        <span class="text-xs text-gray-600 block font-bold mb-1">1. 소형 고농축 경축 제작</span>
+                        <span id="t2Owned1Desc" class="text-xs text-gray-500 pb-4 block leading-relaxed">0</span>
                     </div>
-                    <div class="border-t pt-2 text-right">
-                        <span class="text-xs text-gray-500 block">순이익</span>
-                        <div id="t2Owned1Profit" class="font-bold text-right text-sm text-gray-800">0 메소</div>
+                    <div class="border-t border-amber-100 pt-2 text-right">
+                        <div id="t2Owned1Profit" class="font-extrabold text-right text-sm text-gray-800">0 메소</div>
                     </div>
                 </div>
 
                 <!-- 2. 고급 대영웅 (직접 제작) -->
-                <div class="bg-white p-3 rounded border border-amber-200 flex flex-col justify-between" id="t2OwnedBox2">
+                <div class="bg-white p-3.5 rounded-xl border border-amber-200 flex flex-col justify-between transition-all" id="t2OwnedBox2">
                     <div>
-                        <span class="text-xs text-gray-500 block font-medium">2. 고급 대영웅 (대영웅 직접제작)</span>
-                        <span id="t2Owned2Desc" class="text-xs text-gray-500 pb-4 block">0</span>
+                        <span class="text-xs text-gray-600 block font-bold mb-1">2. 고급 대영웅 (대영웅 직접제작)</span>
+                        <span id="t2Owned2Desc" class="text-xs text-gray-500 pb-4 block leading-relaxed">0</span>
                     </div>
-                    <div class="border-t pt-2 text-right">
-                        <span class="text-xs text-gray-500 block">순이익</span>
-                        <div id="t2Owned2Profit" class="font-bold text-right text-sm text-gray-800">0 메소</div>
+                    <div class="border-t border-amber-100 pt-2 text-right">
+                        <div id="t2Owned2Profit" class="font-extrabold text-right text-sm text-gray-800">0 메소</div>
                     </div>
                 </div>
 
                 <!-- 3. 고급 대영웅 (구매) -->
-                <div class="bg-white p-3 rounded border border-amber-200 flex flex-col justify-between" id="t2OwnedBox3">
+                <div class="bg-white p-3.5 rounded-xl border border-amber-200 flex flex-col justify-between transition-all" id="t2OwnedBox3">
                     <div>
-                        <span class="text-xs text-gray-500 block font-medium">3. 고급 대영웅 (대영웅 구매)</span>
-                        <span id="t2Owned3Desc" class="text-xs text-gray-500 pb-4 block">0</span>
+                        <span class="text-xs text-gray-600 block font-bold mb-1">3. 고급 대영웅 (대영웅 구매)</span>
+                        <span id="t2Owned3Desc" class="text-xs text-gray-500 pb-4 block leading-relaxed">0</span>
                     </div>
-                    <div class="border-t pt-2 text-right">
-                        <span class="text-xs text-gray-500 block">순이익</span>
-                        <div id="t2Owned3Profit" class="font-bold text-right text-sm text-gray-800">0 메소</div>
+                    <div class="border-t border-amber-100 pt-2 text-right">
+                        <div id="t2Owned3Profit" class="font-extrabold text-right text-sm text-gray-800">0 메소</div>
                     </div>
                 </div>
             </div>
@@ -403,15 +429,21 @@
             const btn1 = document.getElementById('tabBtn1');
             const btn2 = document.getElementById('tabBtn2');
 
-            const activeClass = "flex-1 py-3 font-bold text-center border-b-2 border-blue-600 text-blue-600 bg-blue-50 focus:outline-none transition-colors";
-            const inactiveClass = "flex-1 py-3 font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 focus:outline-none transition-colors";
+            const tab1activeClass = "flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-blue-600 text-blue-600 bg-white rounded-tl-xl transition-all";
+            const tab1inactiveClass = "flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-800 hover:bg-white/50 rounded-tl-xl transition-all";
+            const tab2activeClass = "flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-blue-600 text-blue-600 bg-white rounded-tr-xl transition-all";
+            const tab2inactiveClass = "flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-800 hover:bg-white/50 rounded-tr-xl transition-all";
 
             if (tabId === 'tab1') {
-                btn1.className = activeClass;
-                btn2.className = inactiveClass;
+                btn1.className = tab1activeClass;
+                btn2.className = tab2inactiveClass;
             } else {
-                btn1.className = inactiveClass;
-                btn2.className = activeClass;
+                btn1.className = tab1inactiveClass;
+                btn2.className = tab2activeClass;
+            }
+
+            if (document.activeElement instanceof HTMLElement) {
+                document.activeElement.blur();
             }
         }
 
