@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f341.svg" type="image/svg+xml">
-    <title>메이플스토리 피로도 수익 계산기</title>
+    <title>땅캐라</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         input[type="text"], input[type="number"] {
@@ -15,15 +15,26 @@
 <body class="bg-gray-100 text-gray-800 p-4 min-h-screen">
     
     <!-- 상단 타이틀 바 -->
-    <header class="max-w-4xl mx-auto bg-blue-600 text-white p-3 rounded-t-lg">
-        <h1 class="text-lg md:text-xl font-bold text-center">메이플스토리 피로도 수익 계산기</h1>
+    <header class="max-w-4xl mx-auto text-white p-3">
+        <h1 class="text-lg md:text-xl font-bold text-blue-800">땅캐라</h1>
     </header>
 
-    <div class="max-w-4xl mx-auto bg-white rounded-b-lg border border-gray-200 p-5 space-y-4">
+    <!-- 탭 버튼 영역 -->
+    <div class="max-w-4xl mx-auto flex bg-white border-x border-gray-200 border-b rounded-t-lg">
+        <button id="tabBtn1" onclick="switchTab('tab1')" class="flex-1 py-3 font-bold text-center border-b-2 border-blue-600 text-blue-600 bg-blue-50 focus:outline-none transition-colors">
+            쥬니퍼베리 씨앗 계산기
+        </button>
+        <button id="tabBtn2" onclick="switchTab('tab2')" class="flex-1 py-3 font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 focus:outline-none transition-colors">
+            영롱한 황혼의 정수 계산기 (준비중)
+        </button>
+    </div>
+
+    <!-- 1번 탭: 기존 피로도 계산기 컨텐츠 -->
+    <div id="tab1" class="tab-content max-w-4xl mx-auto bg-white rounded-b-lg border-x border-b border-gray-200 p-5 space-y-4">
         
         <!-- 시세 및 비용 설정 -->
         <div class="grid gap-3 p-3 bg-blue-50/60 rounded-lg border border-blue-200">
-            <h2 class="text-base font-bold text-gray-800 border-b pb-2">시세 및 비용 설정</h2>
+            <h2 class="text-base font-bold text-blue-950 border-b pb-2">시세 및 비용 설정</h2>
             
             <!-- 주요 아이템 단가 (강조) -->
             <div>
@@ -80,11 +91,9 @@
             </div>
         </div>
 
-        
-
         <!-- 순이익 비교 -->
         <div class="grid gap-3 p-3 bg-green-50/60 rounded-lg border border-green-200">
-            <h2 class="text-base font-bold text-gray-800 border-b pb-2">순이익 비교</h2>
+            <h2 class="text-base font-bold text-green-950 border-b pb-2">순이익 비교</h2>
 
             <!-- 1회 제작 기댓값 요약 -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -181,7 +190,177 @@
 
     </div>
 
+    <!-- 2번 탭: 연금술 비약 계산기 컨텐츠 -->
+    <div id="tab2" class="tab-content hidden max-w-4xl mx-auto bg-white rounded-b-lg border-x border-b border-gray-200 p-5 space-y-4">
+        <!-- 시세 및 비용 설정 -->
+        <div class="grid gap-3 p-3 bg-blue-50/60 rounded-lg border border-blue-200">
+            <h2 class="text-base font-bold text-gray-800 border-b pb-2">시세 및 비용 설정</h2>
+            
+            <div>
+                <span class="text-xs font-semibold text-blue-700 mb-2 block">주요 완제품 및 정수 단가</span>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                    <div class="bg-white p-3 rounded-lg border-2 border-blue-200">
+                        <label class="block text-sm font-bold text-gray-800 mb-1">영롱한 황혼의 정수</label>
+                        <input type="text" id="t2ShiningTwilightPrice" value="7,000,000" class="w-full p-2 text-base font-bold text-blue-900 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="handleInput(this)">
+                        <div id="t2ShiningTwilightPriceKor" class="text-xs text-blue-600 mt-1 text-right font-semibold">700만 메소</div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg border-2 border-blue-200">
+                        <label class="block text-sm font-bold text-gray-800 mb-1">소형 경험 축적의 비약</label>
+                        <input type="text" id="t2SmallExpPotionPrice" value="800,000" class="w-full p-2 text-base font-bold text-blue-900 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="handleInput(this)">
+                        <div id="t2SmallExpPotionPriceKor" class="text-xs text-blue-600 mt-1 text-right font-semibold">80만 메소</div>
+                    </div>
+                    
+                    <div class="bg-white p-3 rounded-lg border-2 border-blue-200">
+                        <label class="block text-sm font-bold text-gray-800 mb-1">소형 고농축 경험 축적의 비약</label>
+                        <input type="text" id="t2SmallHighExpPotionPrice" value="5,500,000" class="w-full p-2 text-base font-bold text-blue-900 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="handleInput(this)">
+                        <div id="t2SmallHighExpPotionPriceKor" class="text-xs text-blue-600 mt-1 text-right font-semibold">550만 메소</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="bg-white p-3 rounded-lg border-2 border-blue-200">
+                        <label class="block text-sm font-bold text-gray-800 mb-1">하루 사용 피로도</label>
+                        <input type="text" id="t2DailyFatigue" value="500" class="w-full p-2 text-base font-bold text-blue-900 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="handleInput(this)">
+                        <div id="t2DailyFatigueKor" class="text-xs text-blue-600 mt-1 text-right font-semibold">500 피로도</div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg border-2 border-blue-200">
+                        <label class="block text-sm font-bold text-gray-800 mb-1">대영웅의 비약 </label>
+                        <input type="text" id="t2HeroPotionPrice" value="310,000" class="w-full p-2 text-base font-bold text-blue-900 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="handleInput(this)">
+                        <div id="t2HeroPotionPriceKor" class="text-xs text-blue-600 mt-1 text-right font-semibold">31만 메소</div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg border-2 border-blue-200">
+                        <label class="block text-sm font-bold text-gray-800 mb-1">고급 대영웅의 비약</label>
+                        <input type="text" id="t2AdvHeroPotionPrice" value="4,150,000" class="w-full p-2 text-base font-bold text-blue-900 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="handleInput(this)">
+                        <div id="t2AdvHeroPotionPriceKor" class="text-xs text-blue-600 mt-1 text-right font-semibold">415만 메소</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 부가 설정 (제작 재료) -->
+            <div class="pt-2 border-t border-gray-200">
+                <span class="text-xs font-medium text-gray-800 mb-2 block">비약 제작 기타 재료 단가</span>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2.5">
+                    <div class="bg-white p-2.5 rounded border border-gray-200">
+                        <label class="block text-xs font-bold text-gray-800 mb-1">히솝 꽃</label>
+                        <input type="text" id="t2HyssopFlowerPrice" value="700" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
+                        <div id="t2HyssopFlowerPriceKor" class="text-xs text-gray-800 mt-1 text-right">700 메소</div>
+                    </div>
+
+                    <div class="bg-white p-2.5 rounded border border-gray-200">
+                        <label class="block text-xs font-medium text-gray-800 mb-1">뒤틀린 시간의 정수</label>
+                        <input type="text" id="t2TwistedTimePrice" value="7,300" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
+                        <div id="t2TwistedTimePriceKor" class="text-xs text-gray-800 mt-1 text-right">7300 메소</div>
+                    </div>
+
+                    <div class="bg-white p-2.5 rounded border border-gray-200">
+                        <label class="block text-xs font-medium text-gray-800 mb-1">마력 결정</label>
+                        <input type="text" id="t2MagicCrystalPrice" value="50" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
+                        <div id="t2MagicCrystalPriceKor" class="text-xs text-gray-800 mt-1 text-right">50 메소</div>
+                    </div>
+
+                    <div class="bg-white p-2.5 rounded border border-gray-200">
+                        <label class="block text-xs font-medium text-gray-800 mb-1">상급 주문의 정수</label>
+                        <input type="text" id="t2AdvSpellPrice" value="7,700" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
+                        <div id="t2AdvSpellPriceKor" class="text-xs text-gray-800 mt-1 text-right">7700 메소</div>
+                    </div>
+
+                    <div class="bg-white p-2.5 rounded border border-gray-200">
+                        <label class="block text-xs font-medium text-gray-800 mb-1">황혼의 정수</label>
+                        <input type="text" id="t2TwilightPrice" value="17,000" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
+                        <div id="t2TwilightPriceKor" class="text-xs text-gray-800 mt-1 text-right">1만 7000 메소</div>
+                    </div>
+
+                    <div class="bg-white p-2.5 rounded border border-gray-200">
+                        <label class="block text-xs font-medium text-gray-800 mb-1">소형 고농축 경험 축적의 비약 레시피</label>
+                        <input type="text" id="t2RecipePrice" value="10,000" class="w-full p-1.5 text-sm border border-gray-300 rounded focus:outline-none" oninput="handleInput(this)">
+                        <div id="t2RecipePriceKor" class="text-xs text-gray-800 mt-1 text-right">1만 메소</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 순이익 비교 -->
+        <div class="grid gap-3 p-3 bg-green-50/60 rounded-lg border border-green-200">
+            <h2 class="text-base font-bold text-gray-800 border-b pb-2">순이익 비교</h2>
+
+            <!-- 1회 제작 기댓값 요약 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="flex justify-between items-center bg-white p-2.5 rounded border">
+                    <span class="text-xs font-medium text-gray-700">소고경축 1회 손익 (4개 완성 / 피로도 5)</span>
+                    <span id="t2SmallHighExpMargin" class="font-bold text-sm">0</span>
+                </div>
+                <div class="flex justify-between items-center bg-white p-2.5 rounded border">
+                    <span class="text-xs font-medium text-gray-700">고대비(직접제작) 1회 손익 (2개 완성 / 피로도 12.5)</span>
+                    <span id="t2AdvHeroSelfMargin" class="font-bold text-sm">0</span>
+                </div>
+                <div class="flex justify-between items-center bg-white p-2.5 rounded border">
+                    <span class="text-xs font-medium text-gray-700">고대비(구매) 1회 손익 (2개 완성 / 피로도 10)</span>
+                    <span id="t2AdvHeroBuyMargin" class="font-bold text-sm">0</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <!-- 시나리오 1 -->
+                <div class="bg-white border border-gray-200 p-3.5 rounded-lg flex flex-col justify-between" id="t2BoxScenario1">
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-sm mb-1">소형 고농축 경축 제작</h3>
+                        <p id="t2S1Desc" class="text-xs text-gray-500 mb-2">재료 구매 후 제작 판매 (5 피로도/회)</p>
+                    </div>
+                    <div class="border-t pt-2 mt-2">
+                        <div id="t2Scenario1Kor" class="font-bold text-base text-gray-900 text-right">0 메소</div>
+                    </div>
+                </div>
+
+                <!-- 시나리오 2 -->
+                <div class="bg-white border border-gray-200 p-3.5 rounded-lg flex flex-col justify-between" id="t2BoxScenario2">
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-sm mb-1">고급 대영웅의 비약 (직접제작)</h3>
+                        <p id="t2S2Desc" class="text-xs text-gray-500 mb-2">대영웅 직접 제작 후 고대비 제작 (12.5 피로도/회)</p>
+                    </div>
+                    <div class="border-t pt-2 mt-2">
+                        <div id="t2Scenario2Kor" class="font-bold text-base text-gray-900 text-right">0 메소</div>
+                    </div>
+                </div>
+
+                <!-- 시나리오 3 -->
+                <div class="bg-white border border-gray-200 p-3.5 rounded-lg flex flex-col justify-between" id="t2BoxScenario3">
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-sm mb-1">고급 대영웅의 비약 (구매)</h3>
+                        <p id="t2S3Desc" class="text-xs text-gray-500 mb-2">대영웅 구매 후 고대비 제작 (10 피로도/회)</p>
+                    </div>
+                    <div class="border-t pt-2 mt-2">
+                        <div id="t2Scenario3Kor" class="font-bold text-base text-gray-900 text-right">0 메소</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // 탭 전환 함수
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            const btn1 = document.getElementById('tabBtn1');
+            const btn2 = document.getElementById('tabBtn2');
+
+            const activeClass = "flex-1 py-3 font-bold text-center border-b-2 border-blue-600 text-blue-600 bg-blue-50 focus:outline-none transition-colors";
+            const inactiveClass = "flex-1 py-3 font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 focus:outline-none transition-colors";
+
+            if (tabId === 'tab1') {
+                btn1.className = activeClass;
+                btn2.className = inactiveClass;
+            } else {
+                btn1.className = inactiveClass;
+                btn2.className = activeClass;
+            }
+        }
+
         // 숫자를 한글 메소 단위로 변환
         function formatKoreanMoney(num) {
             if (isNaN(num) || num === 0) return '0 메소';
@@ -204,12 +383,10 @@
 
         // 입력창 자동 콤마 포맷, 최대값 제한 및 커서 위치 유지
         function formatNumber(input) {
-            // 1. 포맷팅 전 커서 위치 및 커서 앞의 순수 숫자 개수 계산
             const selectionStart = input.selectionStart || 0;
             const valueBeforeCursor = input.value.slice(0, selectionStart);
             const digitsBeforeCursor = valueBeforeCursor.replace(/[^0-9]/g, '').length;
 
-            // 2. 값 정제 및 최대값 제한
             let rawValue = input.value.replace(/,/g, '').replace(/[^0-9]/g, '');
             if (rawValue === '') rawValue = '0';
 
@@ -220,7 +397,6 @@
             const formattedValue = num.toLocaleString('ko-KR');
             input.value = formattedValue;
 
-            // 3. 포맷팅된 문자열에서 이전 숫자 개수 위치에 맞게 커서 복원
             let newCursorPos = 0;
             let digitCount = 0;
 
@@ -238,13 +414,14 @@
                 }
             }
 
-            // 커서 위치 적용
             input.setSelectionRange(newCursorPos, newCursorPos);
         }
 
         // 입력값 파싱
         function getVal(id) {
-            return Number(document.getElementById(id).value.replace(/,/g, '')) || 0;
+            const el = document.getElementById(id);
+            if (!el) return 0;
+            return Number(el.value.replace(/,/g, '')) || 0;
         }
 
         // 통합 핸들러
@@ -253,7 +430,119 @@
             calculate();
         }
 
+        function calculateTab2() {
+            const shiningTwilight = getVal('t2ShiningTwilightPrice');
+            const smallExp = getVal('t2SmallExpPotionPrice');
+            const smallHighExp = getVal('t2SmallHighExpPotionPrice');
+            const fatigue = getVal('t2DailyFatigue');
+            const heroPotion = getVal('t2HeroPotionPrice');
+            const advHeroPotion = getVal('t2AdvHeroPotionPrice');
+            const hyssopFlower = getVal('t2HyssopFlowerPrice');
+            const twistedTime = getVal('t2TwistedTimePrice');
+            const magicCrystal = getVal('t2MagicCrystalPrice');
+            const advSpell = getVal('t2AdvSpellPrice');
+            const twilight = getVal('t2TwilightPrice');
+            const recipe = getVal('t2RecipePrice');
+
+            // 히솝 꽃 오일 1개당 기댓값 원가 계산 (히솝 꽃 6개 + 포션병 1,000메소, 90% 성공률)
+            const hyssopOilCost = ((hyssopFlower * 6) + 1000) / 0.9;
+
+            // 한글 금액 표기
+            if (document.getElementById('t2ShiningTwilightPriceKor')) document.getElementById('t2ShiningTwilightPriceKor').textContent = formatKoreanMoney(shiningTwilight);
+            if (document.getElementById('t2SmallExpPotionPriceKor')) document.getElementById('t2SmallExpPotionPriceKor').textContent = formatKoreanMoney(smallExp);
+            if (document.getElementById('t2SmallHighExpPotionPriceKor')) document.getElementById('t2SmallHighExpPotionPriceKor').textContent = formatKoreanMoney(smallHighExp);
+            if (document.getElementById('t2DailyFatigueKor')) document.getElementById('t2DailyFatigueKor').textContent = `${fatigue.toLocaleString()} 피로도`;
+            if (document.getElementById('t2HeroPotionPriceKor')) document.getElementById('t2HeroPotionPriceKor').textContent = formatKoreanMoney(heroPotion);
+            if (document.getElementById('t2AdvHeroPotionPriceKor')) document.getElementById('t2AdvHeroPotionPriceKor').textContent = formatKoreanMoney(advHeroPotion);
+            if (document.getElementById('t2HyssopFlowerPriceKor')) document.getElementById('t2HyssopFlowerPriceKor').textContent = `${formatKoreanMoney(hyssopFlower)} (오일 1개: ~${Math.round(hyssopOilCost).toLocaleString()}메소)`;
+            if (document.getElementById('t2TwistedTimePriceKor')) document.getElementById('t2TwistedTimePriceKor').textContent = formatKoreanMoney(twistedTime);
+            if (document.getElementById('t2MagicCrystalPriceKor')) document.getElementById('t2MagicCrystalPriceKor').textContent = formatKoreanMoney(magicCrystal);
+            if (document.getElementById('t2AdvSpellPriceKor')) document.getElementById('t2AdvSpellPriceKor').textContent = formatKoreanMoney(advSpell);
+            if (document.getElementById('t2TwilightPriceKor')) document.getElementById('t2TwilightPriceKor').textContent = formatKoreanMoney(twilight);
+            if (document.getElementById('t2RecipePriceKor')) document.getElementById('t2RecipePriceKor').textContent = formatKoreanMoney(recipe);
+
+            // 1. 소형 고농축 경험 축적의 비약 (1회 제작시 4개 완성 / 피로도 5)
+            // 재료: 소경축 4 + 영황정 2 + 히솝 오일 10 + 마결 1000 + 레시피 1
+            const costSmallHighExp = (smallExp * 4) + (shiningTwilight * 2) + (hyssopOilCost * 10) + (magicCrystal * 1000) + recipe;
+            const revSmallHighExp = smallHighExp * 4;
+            const marginSmallHighExp = revSmallHighExp - costSmallHighExp;
+            const s1Count = Math.floor(fatigue / 5);
+            const s1Profit = marginSmallHighExp * s1Count;
+
+            // 2. 대영웅의 비약 1회 제작비 (1회 제작시 2개 완성 / 피로도 5)
+            // 재료: 마결 10 + 히솝 오일 10 + 뒤틀린시간 15 + 빈 병 800 + 황정 3
+            const costHeroPotionOneCraft = (magicCrystal * 10) + (hyssopOilCost * 10) + (twistedTime * 15) + 800 + (twilight * 3);
+            const costPerHeroPotionSelf = costHeroPotionOneCraft / 2; // 개당 직접 제작비
+
+            // 3. 고급 대영웅의 비약 (직접 제작 루트: 대영웅 1개 직접제작 + 고대비 1회(2개) 제작)
+            // 대영웅 1개 제작 피로도 = 2.5, 고대비 1회 제작 피로도 = 10 -> 회당 총 12.5 피로도 소모
+            // 고대비 1회 제작 재료: 대영웅의 비약 1개(직접 제작) + 히솝 오일 10 + 상주정 1 + 영황정 1
+            const costAdvHeroSelf = costPerHeroPotionSelf + (hyssopOilCost * 10) + advSpell + shiningTwilight;
+            const revAdvHero = advHeroPotion * 2; // 1회 제작시 2개 완성
+            const marginAdvHeroSelf = revAdvHero - costAdvHeroSelf;
+            const s2Count = Math.floor(fatigue / 12.5);
+            const s2Profit = marginAdvHeroSelf * s2Count;
+
+            // 4. 고급 대영웅의 비약 (구매 루트: 대영웅 경매장 구매 1개 + 고대비 1회(2개) 제작 / 피로도 10)
+            const costAdvHeroBuy = heroPotion + (hyssopOilCost * 10) + advSpell + shiningTwilight;
+            const marginAdvHeroBuy = revAdvHero - costAdvHeroBuy;
+            const s3Count = Math.floor(fatigue / 10);
+            const s3Profit = marginAdvHeroBuy * s3Count;
+
+            // DOM 출력 - 1회 마진
+            if (document.getElementById('t2SmallHighExpMargin')) {
+                const el = document.getElementById('t2SmallHighExpMargin');
+                el.textContent = formatKoreanMoney(marginSmallHighExp);
+                el.className = marginSmallHighExp >= 0 ? "font-bold text-sm text-red-600" : "font-bold text-sm text-blue-600";
+            }
+            if (document.getElementById('t2AdvHeroSelfMargin')) {
+                const el = document.getElementById('t2AdvHeroSelfMargin');
+                el.textContent = formatKoreanMoney(marginAdvHeroSelf);
+                el.className = marginAdvHeroSelf >= 0 ? "font-bold text-sm text-red-600" : "font-bold text-sm text-blue-600";
+            }
+            if (document.getElementById('t2AdvHeroBuyMargin')) {
+                const el = document.getElementById('t2AdvHeroBuyMargin');
+                el.textContent = formatKoreanMoney(marginAdvHeroBuy);
+                el.className = marginAdvHeroBuy >= 0 ? "font-bold text-sm text-red-600" : "font-bold text-sm text-blue-600";
+            }
+
+            // DOM 출력 - 하루 피로도 시나리오 결과
+            if (document.getElementById('t2Scenario1Kor')) document.getElementById('t2Scenario1Kor').textContent = formatKoreanMoney(s1Profit);
+            if (document.getElementById('t2S1Desc')) document.getElementById('t2S1Desc').textContent = `제작 ${s1Count.toLocaleString()}회 (${(s1Count * 4).toLocaleString()}개 완성 / 피로도 ${s1Count * 5} 소모)`;
+
+            if (document.getElementById('t2Scenario2Kor')) document.getElementById('t2Scenario2Kor').textContent = formatKoreanMoney(s2Profit);
+            if (document.getElementById('t2S2Desc')) document.getElementById('t2S2Desc').textContent = `대영웅+고대비 직접제작 ${s2Count.toLocaleString()}회 (${(s2Count * 2).toLocaleString()}개 완성 / 피로도 ${Math.round(s2Count * 12.5)} 소모)`;
+
+            if (document.getElementById('t2Scenario3Kor')) document.getElementById('t2Scenario3Kor').textContent = formatKoreanMoney(s3Profit);
+            if (document.getElementById('t2S3Desc')) document.getElementById('t2S3Desc').textContent = `대영웅 구매 후 고대비 제작 ${s3Count.toLocaleString()}회 (${(s3Count * 2).toLocaleString()}개 완성 / 피로도 ${s3Count * 10} 소모)`;
+
+            // 최적 시나리오 녹색 하이라이트
+            const box1 = document.getElementById('t2BoxScenario1');
+            const box2 = document.getElementById('t2BoxScenario2');
+            const box3 = document.getElementById('t2BoxScenario3');
+
+            if (box1 && box2 && box3) {
+                box1.classList.remove('border-2', 'border-green-500', 'bg-green-50/30');
+                box2.classList.remove('border-2', 'border-green-500', 'bg-green-50/30');
+                box3.classList.remove('border-2', 'border-green-500', 'bg-green-50/30');
+
+                const maxProfit = Math.max(s1Profit, s2Profit, s3Profit);
+                if (maxProfit === s1Profit && s1Profit > 0) {
+                    box1.classList.add('border-2', 'border-green-500', 'bg-green-50/30');
+                } else if (maxProfit === s2Profit && s2Profit > 0) {
+                    box2.classList.add('border-2', 'border-green-500', 'bg-green-50/30');
+                } else if (maxProfit === s3Profit && s3Profit > 0) {
+                    box3.classList.add('border-2', 'border-green-500', 'bg-green-50/30');
+                }
+            }
+        }
+
         function calculate() {
+            calculateTab1();
+            calculateTab2();
+        }
+
+        function calculateTab1() {
             const seedPrice = getVal('seedPrice');
             const oilPrice = getVal('oilPrice');
             const potionPrice = getVal('potionPrice');
@@ -272,7 +561,7 @@
             document.getElementById('recipePriceKor').textContent = formatKoreanMoney(recipePrice);
             document.getElementById('crystalPriceKor').textContent = formatKoreanMoney(crystalPrice);
 
-            // 도구 비용: 500 피로도당 toolPrice 적용 (비례 계산)
+            // 도구 비용: 500 피로도당 toolPrice 적용
             const totalToolCost = (dailyFatigue / 500) * toolPrice;
 
             // 1회 제작 기댓값 계산
@@ -306,7 +595,6 @@
             document.getElementById('s2Desc').textContent = `오일 약 ${expectedOil.toFixed(1)}개 + 남은 씨앗 ${leftoverSeeds}개`;
 
             // 시나리오 3: 연금술 (채집 + 오일 가공 + 비약 제작)
-            // 1. 비약 1회당 필요 피로도(약 38.33) 기반 최대 제작 가능 횟수 추정
             let s3PotionCrafts = Math.floor(dailyFatigue / 38.3333);
             let s3GatherFatigue = 0;
             let s3Seeds = 0;
@@ -314,21 +602,19 @@
             let s3ExpectedOil = 0;
             let s3ReqOil = 0;
 
-            // 2. 채집 오일 수량이 비약 필요 오일보다 부족하지 않은 최대 횟수 산출
             while (s3PotionCrafts > 0) {
-                s3GatherFatigue = dailyFatigue - (s3PotionCrafts * 5); // 비약 제작 피로도 차감 후 채집 피로도
+                s3GatherFatigue = dailyFatigue - (s3PotionCrafts * 5);
                 s3Seeds = s3GatherFatigue;
                 s3OilAttempts = Math.floor(s3Seeds / 6);
-                s3ExpectedOil = Math.floor(s3OilAttempts * 0.9); // 오일 획득량 정수 처리
-                s3ReqOil = s3PotionCrafts * 5; // 비약 제작에 필요한 오일 수량
+                s3ExpectedOil = Math.floor(s3OilAttempts * 0.9);
+                s3ReqOil = s3PotionCrafts * 5;
 
                 if (s3ExpectedOil >= s3ReqOil) {
-                    break; // 오일 재료 충족 시 확정
+                    break;
                 }
                 s3PotionCrafts--;
             }
 
-            // 입력 피로도가 적어 1회도 제작 불가능한 경우 예외 처리
             if (s3PotionCrafts <= 0) {
                 s3PotionCrafts = 0;
                 s3GatherFatigue = dailyFatigue;
@@ -338,13 +624,11 @@
                 s3ReqOil = 0;
             }
 
-            // 3. 정수 정산 (남은 오일 및 씨앗)
             const s3LeftoverOil = s3ExpectedOil - s3ReqOil;
             const s3LeftoverSeeds = s3Seeds % 6;
 
-            // 4. 비용 및 매출 계산
-            const s3ToolCost = Math.ceil((s3GatherFatigue / 500)) * toolPrice; // 실제 채집 피로도 비례 도구 비용
-            const s3ToolCount = Math.ceil((s3GatherFatigue / 500)) ;
+            const s3ToolCost = Math.ceil((s3GatherFatigue / 500)) * toolPrice;
+            const s3ToolCount = Math.ceil((s3GatherFatigue / 500));
             const s3OilFee = s3OilAttempts * 1000;
             const s3CrystalFee = s3PotionCrafts * (crystalPrice * 2);
             const s3TotalCost = recipePrice + s3CrystalFee + s3OilFee + s3ToolCost;
@@ -356,11 +640,9 @@
 
             const s3Profit = s3TotalRev - s3TotalCost;
 
-            // 5. DOM 출력
             document.getElementById('scenario3Kor').textContent = formatKoreanMoney(s3Profit);
             document.getElementById('s3Desc').textContent = `비약 ${s3PotionCrafts * 6}개 제작 + 남은 오일 ${s3LeftoverOil}개 + 남은 씨앗 ${s3LeftoverSeeds}개(사용한 도구 ${s3ToolCount}개)`;
 
-            // 최적 가이드 안내
             document.getElementById('boxScenario1').classList.remove('border-2', 'border-green-500', 'bg-green-50/30');
             document.getElementById('boxScenario2').classList.remove('border-2', 'border-green-500', 'bg-green-50/30');
             document.getElementById('boxScenario3').classList.remove('border-2', 'border-green-500', 'bg-green-50/30');
@@ -378,24 +660,21 @@
             }
 
             // 보유 씨앗 계산기
-            // 1. 씨앗 그대로 판매
             const seedSellTotal = harvestedSeeds * seedPrice;
             document.getElementById('seedSellTotal').textContent = '씨앗 '+ harvestedSeeds.toLocaleString() + ' 개';
             document.getElementById('seedSellTotalKor').textContent = formatKoreanMoney(seedSellTotal);
 
-            // 2. 오일 가공 판매
             const subOilAttempts = Math.floor(harvestedSeeds / 6);
             const subLeftoverSeeds = harvestedSeeds % 6;
             const subExpectedOil = subOilAttempts * 0.9;
             const oilSellTotal = (subExpectedOil * oilPrice) + (subLeftoverSeeds * seedPrice) - (subOilAttempts * 1000);
             const craftOilDiff = oilSellTotal - seedSellTotal;
 
-            document.getElementById('oilSellTotal').textContent = '오일 ' + subExpectedOil.toLocaleString() + '  개 + 씨앗 '+ subLeftoverSeeds.toLocaleString() + ' 개';;
+            document.getElementById('oilSellTotal').textContent = '오일 ' + subExpectedOil.toLocaleString() + ' 개 + 씨앗 '+ subLeftoverSeeds.toLocaleString() + ' 개';
             document.getElementById('oilSellTotalKor').textContent = formatKoreanMoney(oilSellTotal);
             document.getElementById('craftOilDiff').textContent = (craftOilDiff >= 0 ? '+' : '') + formatKoreanMoney(craftOilDiff);
             document.getElementById('craftOilDiff').className = craftOilDiff >= 0 ? "text-xs font-bold text-red-600" : "text-xs font-bold text-blue-600";
 
-            // 3. 소재비 제작 판매 (씨앗 -> 오일(기댓값) -> 비약)
             const subPotionAttempts = Math.floor(subExpectedOil / 5);
             const subLeftoverOil = subExpectedOil - (subPotionAttempts * 5);
             const subPotionRev = subPotionAttempts * (potionPrice * 6);
@@ -405,7 +684,7 @@
             const craftPotionDiff = potionSellTotal - seedSellTotal;
 
             document.getElementById('potionSellTotal').textContent = '소재비 '+(subPotionAttempts*6).toLocaleString()
-            + ' 개 + 오일 ' + subLeftoverOil.toLocaleString() + '  개 + 씨앗 '+ subLeftoverSeeds.toLocaleString() + ' 개';
+            + ' 개 + 오일 ' + subLeftoverOil.toLocaleString() + ' 개 + 씨앗 '+ subLeftoverSeeds.toLocaleString() + ' 개';
             document.getElementById('potionSellTotalKor').textContent = formatKoreanMoney(potionSellTotal);
             document.getElementById('craftPotionDiff').textContent = (craftPotionDiff >= 0 ? '+' : '') + formatKoreanMoney(craftPotionDiff);
             document.getElementById('craftPotionDiff').className = craftPotionDiff >= 0 ? "text-xs font-bold text-red-600" : "text-xs font-bold text-blue-600";
