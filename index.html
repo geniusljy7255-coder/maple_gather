@@ -202,15 +202,44 @@
             return (isNegative ? '-' : '') + result.trim() + ' 메소';
         }
 
-        // 입력창 자동 콤마 포맷
+        // 입력창 자동 콤마 포맷, 최대값 제한 및 커서 위치 유지
         function formatNumber(input) {
-            let value = input.value.replace(/,/g, '').replace(/[^0-9]/g, '');
-            if (value === '') value = '0';
+            // 1. 포맷팅 전 커서 위치 및 커서 앞의 순수 숫자 개수 계산
+            const selectionStart = input.selectionStart || 0;
+            const valueBeforeCursor = input.value.slice(0, selectionStart);
+            const digitsBeforeCursor = valueBeforeCursor.replace(/[^0-9]/g, '').length;
 
-            let num = Number(value);
-            if (num > 10000000000) num = 10000000000;
-            
-            input.value = Number(value).toLocaleString('ko-KR');
+            // 2. 값 정제 및 최대값 제한
+            let rawValue = input.value.replace(/,/g, '').replace(/[^0-9]/g, '');
+            if (rawValue === '') rawValue = '0';
+
+            let num = Number(rawValue);
+
+            if (num > 1000000000) num = 1000000000;
+
+            const formattedValue = num.toLocaleString('ko-KR');
+            input.value = formattedValue;
+
+            // 3. 포맷팅된 문자열에서 이전 숫자 개수 위치에 맞게 커서 복원
+            let newCursorPos = 0;
+            let digitCount = 0;
+
+            if (digitsBeforeCursor === 0) {
+                newCursorPos = 0;
+            } else {
+                for (let i = 0; i < formattedValue.length; i++) {
+                    if (/[0-9]/.test(formattedValue[i])) {
+                        digitCount++;
+                    }
+                    if (digitCount === digitsBeforeCursor) {
+                        newCursorPos = i + 1;
+                        break;
+                    }
+                }
+            }
+
+            // 커서 위치 적용
+            input.setSelectionRange(newCursorPos, newCursorPos);
         }
 
         // 입력값 파싱
@@ -314,7 +343,8 @@
             const s3LeftoverSeeds = s3Seeds % 6;
 
             // 4. 비용 및 매출 계산
-            const s3ToolCost = (s3GatherFatigue / 500) * toolPrice; // 실제 채집 피로도 비례 도구 비용
+            const s3ToolCost = Math.ceil((s3GatherFatigue / 500)) * toolPrice; // 실제 채집 피로도 비례 도구 비용
+            const s3ToolCount = Math.ceil((s3GatherFatigue / 500)) ;
             const s3OilFee = s3OilAttempts * 1000;
             const s3CrystalFee = s3PotionCrafts * (crystalPrice * 2);
             const s3TotalCost = recipePrice + s3CrystalFee + s3OilFee + s3ToolCost;
@@ -328,7 +358,7 @@
 
             // 5. DOM 출력
             document.getElementById('scenario3Kor').textContent = formatKoreanMoney(s3Profit);
-            document.getElementById('s3Desc').textContent = `비약 ${s3PotionCrafts * 6}개 제작 + 남은 오일 ${s3LeftoverOil}개 + 남은 씨앗 ${s3LeftoverSeeds}개`;
+            document.getElementById('s3Desc').textContent = `비약 ${s3PotionCrafts * 6}개 제작 + 남은 오일 ${s3LeftoverOil}개 + 남은 씨앗 ${s3LeftoverSeeds}개(사용한 도구 ${s3ToolCount}개)`;
 
             // 최적 가이드 안내
             document.getElementById('boxScenario1').classList.remove('border-2', 'border-green-500', 'bg-green-50/30');
