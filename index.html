@@ -24,8 +24,11 @@
         <button id="tabBtn1" onclick="switchTab('tab1')" class="flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-blue-600 text-blue-600 bg-white rounded-tl-xl transition-all">
             쥬니퍼베리 씨앗 계산기
         </button>
-        <button id="tabBtn2" onclick="switchTab('tab2')" class="flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-800 hover:bg-white/50 rounded-tr-xl transition-all">
+        <button id="tabBtn2" onclick="switchTab('tab2')" class="flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-800 hover:bg-white/50 transition-all">
             영롱한 황혼의 정수 계산기
+        </button>
+        <button id="tabBtn3" onclick="switchTab('tab3')" class="flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-800 hover:bg-white/50 rounded-tr-xl transition-all">
+            스케줄러
         </button>
     </div>
 
@@ -416,11 +419,373 @@
                 </div>
             </div>
         </div>
+    </div>
 
+
+    <div id="tab3" class="tab-content hidden max-w-4xl mx-auto bg-white rounded-b-xl border-x border-b border-gray-300 p-4 md:p-6 space-y-6">
+    
+        <!-- API 키 및 캐릭터 검색 설정 -->
+        <div class="grid gap-4 p-4 md:p-5 bg-blue-50/50 rounded-xl border border-blue-200">
+            <h2 class="text-base font-bold text-blue-950 border-b border-blue-200 pb-2.5 flex justify-between items-center">
+                <span class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-blue-600 inline-block"></span>
+                    캐릭터 정보 조회
+                </span>
+                <span class="text-xs text-blue-700 font-normal">Nexon Open API 연동</span>
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="bg-white p-3 rounded-xl border border-blue-200">
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Nexon Open API Key</label>
+                    <input type="password" id="apiKey" placeholder="API Key 입력" class="w-full p-2 text-xs font-semibold text-gray-800 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" onchange="saveApiKey(this.value)">
+                </div>
+
+                <div class="md:col-span-2 bg-white p-3 rounded-xl border border-blue-200 flex items-end gap-2">
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">캐릭터 닉네임</label>
+                        <input type="text" id="character_name" placeholder="닉네임을 입력하세요" class="w-full p-2 text-sm font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" onkeyup="if(event.key==='Enter') fetchCharacterInfo()">
+                    </div>
+                    <button onclick="fetchCharacterInfo()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-lg transition-colors h-[38px] flex items-center justify-center min-w-[70px]">
+                        조회
+                    </button>
+                </div>
+            </div>
+
+            <!-- 캐릭터 프로필 출력 카드 -->
+            <div id="charCard" class="hidden bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+                    <div class="w-32 h-32 bg-gray-100 rounded-lg border border-gray-200 overflow-hidden flex items-center justify-center">
+                        <img id="charImg" src="" alt="캐릭터 이미지" class="w-full h-full object-contain scale-x-[-2.8] scale-y-[2.8]">
+                    </div>
+                    <div class="flex-1 space-y-2 text-center sm:text-left w-full">
+                        <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                            <span id="charWorld" class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">-</span>
+                            <h3 id="charName" class="text-lg font-black text-gray-900">-</h3>
+                        </div>
+                        <div class="text-xs text-gray-600 space-x-2">
+                            <span>Lv. <strong id="charLevel" class="text-gray-900">0</strong></span>
+                            <span>|</span>
+                            <span id="charClass" class="text-gray-900 font-semibold">-</span>
+                        </div>
+                        <div>
+                            <span id="charGuild" class="text-xs text-gray-500 font-medium">길드: -</span>
+                        </div>
+                        <div class="pt-2 border-t border-gray-100 flex flex-wrap justify-between items-center text-xs">
+                            <span class="text-gray-500 font-bold">전투력</span>
+                            <span id="charStat" class="text-sm font-extrabold text-blue-600">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="charError" class="hidden text-xs text-red-500 font-bold p-2 text-center bg-red-50 rounded-lg border border-red-200"></div>
+        </div>
+
+        <!-- 스케줄러 영역 -->
+        <div class="grid gap-4 p-4 md:p-5 bg-emerald-50/40 rounded-xl border border-emerald-200">
+            <h2 class="text-base font-bold text-emerald-950 border-b border-emerald-200 pb-2.5 flex items-center justify-between">
+                <span class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-600 inline-block"></span>
+                    인게임 스케줄러 현황
+                    <span id="schedulerDate" class="text-xs text-emerald-700 font-normal"></span>
+                </span>
+                <button onclick="resetScheduler()" class="text-xs font-semibold text-red-600 hover:text-red-800 bg-white px-2 py-1 border border-red-200 rounded transition-colors">
+                    체크 초기화
+                </button>
+            </h2>
+
+            <!-- 1행: 일간 콘텐츠 & 주간 콘텐츠 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- 일일 과제 -->
+                <div class="bg-white p-4 rounded-xl border border-emerald-200 space-y-3">
+                    <h3 class="text-xs font-bold text-emerald-900 border-b border-gray-100 pb-2 flex justify-between items-center">
+                        <span>일일 콘텐츠 (Daily)</span>
+                        <span id="dailyProgress" class="text-emerald-600 font-extrabold">0/0</span>
+                    </h3>
+                    <div id="dailyList" class="space-y-1 text-xs text-gray-700 max-h-80 overflow-y-auto"></div>
+                </div>
+
+                <!-- 주간 과제 -->
+                <div class="bg-white p-4 rounded-xl border border-emerald-200 space-y-3">
+                    <h3 class="text-xs font-bold text-emerald-900 border-b border-gray-100 pb-2 flex justify-between items-center">
+                        <span>주간 콘텐츠 (Weekly)</span>
+                        <span id="weeklyProgress" class="text-emerald-600 font-extrabold">0/0</span>
+                    </h3>
+                    <div id="weeklyList" class="space-y-1 text-xs text-gray-700 max-h-80 overflow-y-auto"></div>
+                </div>
+            </div>
+
+            <!-- 2행: 주간 보스 처치 현황 요약 바 -->
+            <div id="bossSummaryBar" class="hidden bg-white p-3 rounded-xl border border-emerald-300 shadow-sm flex justify-between items-center text-xs font-bold text-emerald-950">
+                <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                    주간 보스 처치 현황
+                </span>
+                <span class="text-emerald-800"><strong id="bossClearCount" class="text-emerald-600 text-sm font-black">0</strong> / <span id="bossClearLimit">12</span> 회</span>
+            </div>
+
+            <!-- 2.5행: 보스 수익 요약 카드 (주간 보스 처치 현황 아래) -->
+            <div id="bossRevenueBar" class="bg-white p-3.5 rounded-xl border border-emerald-300 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                <div class="flex flex-col justify-center items-center p-2 bg-blue-50/60 rounded-lg border border-blue-100">
+                    <span class="text-blue-900 font-bold mb-1">일간 보스 수익</span>
+                    <span id="dailyBossRevenue" class="text-sm font-black text-blue-600">0 메소</span>
+                </div>
+                <div class="flex flex-col justify-center items-center p-2 bg-purple-50/60 rounded-lg border border-purple-100">
+                    <span class="text-purple-900 font-bold mb-1">주간 보스 수익</span>
+                    <span id="weeklyBossRevenue" class="text-sm font-black text-purple-600">0 메소</span>
+                </div>
+                <div class="flex flex-col justify-center items-center p-2 bg-rose-50/60 rounded-lg border border-rose-100">
+                    <span class="text-rose-900 font-bold mb-1">월간 보스 수익</span>
+                    <span id="monthlyBossRevenue" class="text-sm font-black text-rose-600">0 메소</span>
+                </div>
+            </div>
+
+            <!-- 3행: 보스 콘텐츠 영역 -->
+            <div class="space-y-4">
+                <!-- 3-1행: 주간 보스 -->
+                <div class="bg-white p-3.5 rounded-xl border border-emerald-200 space-y-2">
+                    <h3 class="text-xs font-bold text-purple-900 border-b border-gray-100 pb-2 flex justify-between items-center">
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                            주간 보스
+                        </span>
+                        <span id="weeklyBossProgress" class="text-purple-600 font-extrabold">0/0</span>
+                    </h3>
+                    <div class="flex justify-between gap-1 text-[10px] font-bold text-gray-400 border-b border-gray-100 pr-3 pb-1 text-center">
+                        <span class="col-span-5 text-left pl-1">보스</span>
+                        <div class="flex gap-6 items-center">
+                            <span class="w-12 text-center">인원수</span>
+                            <span>이지</span>
+                            <span>노말</span>
+                            <span>하드</span>
+                            <span>카오스</span>
+                            <span>익스</span>
+                        </div>
+                    </div>
+                    <div id="weeklyBossList" class="space-y-1 text-xs text-gray-700 max-h-96 overflow-y-auto"></div>
+                </div>
+                <!-- 3-2행: 일간 보스 (2/3) & 월간 보스 (1/3) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- 일간 보스 -->
+                    <div class="md:col-span-1 bg-white p-3.5 rounded-xl border border-emerald-200 space-y-2">
+                        <h3 class="text-xs font-bold text-blue-900 border-b border-gray-100 pb-2 flex justify-between items-center">
+                            <span class="flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                일간 보스
+                            </span>
+                            <span id="dailyBossProgress" class="text-blue-600 font-extrabold">0/0</span>
+                        </h3>
+                        <div class="flex justify-between gap-1 text-[10px] font-bold text-gray-400 border-b border-gray-100 pr-3 pb-1 text-center">
+                            <span class="col-span-5 text-left pl-1">보스</span>
+                            <div class="flex gap-6">
+                                <span>이지</span>
+                                <span>노말</span>
+                                <span>하드</span>
+                                <span>카오스</span>
+                            </div>
+                        </div>
+                        <div id="dailyBossList" class="space-y-1 text-xs text-gray-700 max-h-60 overflow-y-auto"></div>
+                    </div>
+
+                    <!-- 월간 보스 -->
+                    <div class="md:col-span-1 bg-white p-3.5 rounded-xl border border-emerald-200 space-y-2">
+                        <h3 class="text-xs font-bold text-rose-900 border-b border-gray-100 pb-2 flex justify-between items-center">
+                            <span class="flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                월간 보스
+                            </span>
+                            <span id="monthlyBossProgress" class="text-rose-600 font-extrabold">0/0</span>
+                        </h3>
+                        <div class="flex justify-between gap-1 text-[10px] font-bold text-gray-400 border-b border-gray-100 pr-3 pb-1 text-center">
+                            <span class="col-span-6 text-left pl-1">보스</span>
+                            <div class="flex gap-6 items-center">
+                                <span class="w-12 text-center">인원수</span>
+                                <span>하드</span>
+                                <span>익스</span>
+                            </div>
+                        </div>
+                        <div id="monthlyBossList" class="space-y-1 text-xs text-gray-700 max-h-60 overflow-y-auto"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     
 
     <script>
+        // 보스 메소 수익 데이터베이스
+        const BOSS_PRICES = {
+            // 일간 보스
+            '이지 자쿰': 114000,
+            '노말 자쿰': 349000,
+            '노멀 자쿰': 349000,
+            '이지 파풀라투스': 390000,
+            '이지 매그너스': 411000,
+            '노말 힐라': 455000,
+            '노멀 힐라': 455000,
+            '이지 혼테일': 502000,
+            '노말 블러디퀸': 551000,
+            '노멀 블러디퀸': 551000,
+            '노말 반반': 551000,
+            '노멀 반반': 551000,
+            '노말 피에르': 551000,
+            '노멀 피에르': 551000,
+            '노말 벨룸': 551000,
+            '노멀 벨룸': 551000,
+            '노말 혼테일': 576000,
+            '노멀 혼테일': 576000,
+            '이지 반 레온': 602000,
+            '이지 아카이럼': 656000,
+            '노말 카웅': 712000,
+            '노멀 카웅': 712000,
+            '카오스 혼테일': 770000,
+            '노말 핑크빈': 799000,
+            '노멀 핑크빈': 799000,
+            '노말 반 레온': 830000,
+            '노멀 반 레온': 830000,
+            '하드 반 레온': 1070000,
+            '노말 아카이럼': 1110000,
+            '노멀 아카이럼': 1110000,
+            '노말 매그너스': 1160000,
+            '노멀 매그너스': 1160000,
+            '노말 파풀라투스': 1200000,
+            '노멀 파풀라투스': 1200000,
+            '하드 힐라': 1280000,
+            '카오스 핑크빈': 1320000,
+            '노말 시그너스': 1360000,
+            '노멀 시그너스': 1360000,
+
+            // 주간 보스
+            '카오스 자쿰': 4040000,
+            '카오스 블러디퀸': 4070000,
+            '카오스 반반': 4070000,
+            '카오스 피에르': 4080000,
+            '하드 매그너스': 4280000,
+            '카오스 벨룸': 4640000,
+            '카오스 파풀라투스': 6550000,
+            '노말 스우': 8350000,
+            '노멀 스우': 8350000,
+            '노말 데미안': 8750000,
+            '노멀 데미안': 8750000,
+            '노말 가디언 엔젤 슬라임': 12700000,
+            '노멀 가디언 엔젤 슬라임': 12700000,
+            '이지 루시드': 14900000,
+            '이지 윌': 16100000,
+            '노말 루시드': 17800000,
+            '노멀 루시드': 17800000,
+            '노말 윌': 20500000,
+            '노멀 윌': 20500000,
+            '노말 더스크': 22000000,
+            '노멀 더스크': 22000000,
+            '노말 듄켈': 23700000,
+            '노멀 듄켈': 23700000,
+            '하드 데미안': 46400000,
+            '하드 스우': 48900000,
+            '하드 루시드': 59700000,
+            '카오스 더스크': 66300000,
+            '노말 진 힐라': 67600000,
+            '노멀 진 힐라': 67600000,
+            '카오스 가디언 엔젤 슬라임': 71300000,
+            '하드 윌': 73200000,
+            '하드 듄켈': 89600000,
+            '하드 진 힐라': 100000000,
+            '노말 선택받은 세렌': 167000000,
+            '노멀 선택받은 세렌': 167000000,
+            '이지 감시자 칼로스': 238000000,
+            '이지 최초의 대적자': 261000000,
+            '하드 선택받은 세렌': 302000000,
+            '이지 카링': 320000000,
+            '이지 벨로나': 396000000,
+            '노말 감시자 칼로스': 479000000,
+            '노멀 감시자 칼로스': 479000000,
+            '노말 최초의 대적자': 532000000,
+            '노멀 최초의 대적자': 532000000,
+            '익스트림 스우': 545000000,
+            '노말 찬란한 흉성': 576000000,
+            '노멀 찬란한 흉성': 576000000,
+            '노말 카링': 593000000,
+            '노멀 카링': 593000000,
+            '노말 벨로나': 824000000,
+            '노멀 벨로나': 824000000,
+            '노말 림보': 995000000,
+            '노멀 림보': 995000000,
+            '카오스 감시자 칼로스': 1230000000,
+            '노말 발드릭스': 1320000000,
+            '노멀 발드릭스': 1320000000,
+            '하드 최초의 대적자': 1390000000,
+            '노말 유피테르': 1560000000,
+            '노멀 유피테르': 1560000000,
+            '하드 카링': 1560000000,
+            '익스트림 선택받은 세렌': 1840000000,
+            '하드 림보': 2385000000,
+            '하드 찬란한 흉성': 2678000000,
+            '하드 벨로나': 2950000000,
+            '하드 발드릭스': 3078000000,
+            '익스트림 감시자 칼로스': 4104000000,
+            '익스트림 최초의 대적자': 4712000000,
+            '하드 유피테르': 4845000000,
+            '익스트림 카링': 5387000000,
+
+            // 월간 보스
+            '하드 검은 마법사': 465000000,
+            '익스트림 검은 마법사': 5680000000
+        };
+
+        // 보스 가격 조회 헬퍼 함수
+        function getBossPrice(diffKey, bossName) {
+            const diffMap = {
+                'easy': '이지',
+                'normal': '노말',
+                'hard': '하드',
+                'chaos': '카오스',
+                'extreme': '익스트림'
+            };
+            const diffKor = diffMap[diffKey] || '노말';
+            
+            let key = `${diffKor} ${bossName}`;
+            if (BOSS_PRICES[key] !== undefined) return BOSS_PRICES[key];
+
+            key = `${diffKor === '노말' ? '노멀' : diffKor} ${bossName}`;
+            if (BOSS_PRICES[key] !== undefined) return BOSS_PRICES[key];
+
+            return 0;
+        }
+
+        // localStorage에 저장할 입력 필드 ID 목록
+        const INPUT_IDS = [
+            'seedPrice', 'oilPrice', 'potionPrice', 'dailyFatigue', 'toolPrice', 'recipePrice', 'crystalPrice', 'harvestedSeeds',
+            't2ShiningTwilightPrice', 't2SmallExpPotionPrice', 't2SmallHighExpPotionPrice', 't2DailyFatigue', 't2HeroPotionPrice',
+            't2AdvHeroPotionPrice', 't2HyssopFlowerPrice', 't2TwistedTimePrice', 't2MagicCrystalPrice', 't2AdvSpellPrice',
+            't2TwilightPrice', 't2RecipePrice', 't2OwnedEssence', 'character_name'
+        ];
+
+        // 입력값 localStorage 저장
+        function saveInputs() {
+            INPUT_IDS.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    localStorage.setItem(`input_${id}`, el.value);
+                }
+            });
+        }
+
+        // 저장된 입력값 localStorage에서 불러오기
+        function loadInputs() {
+            INPUT_IDS.forEach(id => {
+                const el = document.getElementById(id);
+                const savedVal = localStorage.getItem(`input_${id}`);
+                if (el && savedVal !== null) {
+                    el.value = savedVal;
+                }
+            });
+
+            const apiKeyEl = document.getElementById('apiKey');
+            const savedApiKey = localStorage.getItem('nexon_api_key');
+            if (apiKeyEl && savedApiKey) {
+                apiKeyEl.value = savedApiKey;
+            }
+        }
+
         // 탭 전환 함수
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -428,23 +793,34 @@
 
             const btn1 = document.getElementById('tabBtn1');
             const btn2 = document.getElementById('tabBtn2');
+            const btn3 = document.getElementById('tabBtn3');
 
             const tab1activeClass = "flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-blue-600 text-blue-600 bg-white rounded-tl-xl transition-all";
             const tab1inactiveClass = "flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-800 hover:bg-white/50 rounded-tl-xl transition-all";
-            const tab2activeClass = "flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-blue-600 text-blue-600 bg-white rounded-tr-xl transition-all";
-            const tab2inactiveClass = "flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-800 hover:bg-white/50 rounded-tr-xl transition-all";
+            const tab2activeClass = "flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-blue-600 text-blue-600 bg-white transition-all";
+            const tab2inactiveClass = "flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-800 hover:bg-white/50 transition-all";
+            const tab3activeClass = "flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-blue-600 text-blue-600 bg-white rounded-tr-xl transition-all";
+            const tab3inactiveClass = "flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-800 hover:bg-white/50 rounded-tr-xl transition-all";
 
             if (tabId === 'tab1') {
                 btn1.className = tab1activeClass;
                 btn2.className = tab2inactiveClass;
-            } else {
+                btn3.className = tab3inactiveClass;
+            } else if (tabId === 'tab2'){
                 btn1.className = tab1inactiveClass;
                 btn2.className = tab2activeClass;
+                btn3.className = tab3inactiveClass;
+            } else {
+                btn1.className = tab1inactiveClass;
+                btn2.className = tab2inactiveClass;
+                btn3.className = tab3activeClass;
             }
 
             if (document.activeElement instanceof HTMLElement) {
                 document.activeElement.blur();
             }
+
+            if (tabId === 'tab3') renderScheduler();
         }
 
         // 숫자를 한글 메소 단위로 변환
@@ -513,6 +889,7 @@
         // 통합 핸들러
         function handleInput(input) {
             if (input) formatNumber(input);
+            saveInputs();
             calculate();
         }
 
@@ -530,10 +907,8 @@
             const twilight = getVal('t2TwilightPrice');
             const recipe = getVal('t2RecipePrice');
 
-            // 히솝 꽃 오일 1개당 기댓값 원가 계산 (히솝 꽃 6개 + 포션병 1,000메소, 90% 성공률)
             const hyssopOilCost = ((hyssopFlower * 6) + 1000) / 0.9;
 
-            // 한글 금액 표기
             if (document.getElementById('t2ShiningTwilightPriceKor')) document.getElementById('t2ShiningTwilightPriceKor').textContent = formatKoreanMoney(shiningTwilight);
             if (document.getElementById('t2SmallExpPotionPriceKor')) document.getElementById('t2SmallExpPotionPriceKor').textContent = formatKoreanMoney(smallExp);
             if (document.getElementById('t2SmallHighExpPotionPriceKor')) document.getElementById('t2SmallHighExpPotionPriceKor').textContent = formatKoreanMoney(smallHighExp);
@@ -547,35 +922,26 @@
             if (document.getElementById('t2TwilightPriceKor')) document.getElementById('t2TwilightPriceKor').textContent = formatKoreanMoney(twilight);
             if (document.getElementById('t2RecipePriceKor')) document.getElementById('t2RecipePriceKor').textContent = formatKoreanMoney(recipe);
 
-            // 1. 소형 고농축 경험 축적의 비약 (1회 제작시 4개 완성 / 피로도 5)
-            // 재료: 소경축 4 + 영황정 2 + 히솝 오일 10 + 마결 1000 + 레시피 1
             const costSmallHighExp = (smallExp * 4) + (shiningTwilight * 2) + (hyssopOilCost * 10) + (magicCrystal * 1000) + recipe;
             const revSmallHighExp = smallHighExp * 4;
             const marginSmallHighExp = revSmallHighExp - costSmallHighExp;
             const s1Count = Math.floor(fatigue / 5);
             const s1Profit = marginSmallHighExp * s1Count;
 
-            // 2. 대영웅의 비약 1회 제작비 (1회 제작시 2개 완성 / 피로도 5)
-            // 재료: 마결 10 + 히솝 오일 10 + 뒤틀린시간 15 + 빈 병 800 + 황정 3
             const costHeroPotionOneCraft = (magicCrystal * 10) + (hyssopOilCost * 10) + (twistedTime * 15) + 800 + (twilight * 3);
-            const costPerHeroPotionSelf = costHeroPotionOneCraft / 2; // 개당 직접 제작비
+            const costPerHeroPotionSelf = costHeroPotionOneCraft / 2;
 
-            // 3. 고급 대영웅의 비약 (직접 제작 루트: 대영웅 1개 직접제작 + 고대비 1회(2개) 제작)
-            // 대영웅 1개 제작 피로도 = 2.5, 고대비 1회 제작 피로도 = 10 -> 회당 총 12.5 피로도 소모
-            // 고대비 1회 제작 재료: 대영웅의 비약 1개(직접 제작) + 히솝 오일 10 + 상주정 1 + 영황정 1
             const costAdvHeroSelf = costPerHeroPotionSelf + (hyssopOilCost * 10) + advSpell + shiningTwilight;
-            const revAdvHero = advHeroPotion * 2; // 1회 제작시 2개 완성
+            const revAdvHero = advHeroPotion * 2;
             const marginAdvHeroSelf = revAdvHero - costAdvHeroSelf;
             const s2Count = Math.floor(fatigue / 12.5);
             const s2Profit = marginAdvHeroSelf * s2Count;
 
-            // 4. 고급 대영웅의 비약 (구매 루트: 대영웅 경매장 구매 1개 + 고대비 1회(2개) 제작 / 피로도 10)
             const costAdvHeroBuy = heroPotion + (hyssopOilCost * 10) + advSpell + shiningTwilight;
             const marginAdvHeroBuy = revAdvHero - costAdvHeroBuy;
             const s3Count = Math.floor(fatigue / 10);
             const s3Profit = marginAdvHeroBuy * s3Count;
 
-            // DOM 출력 - 1회 마진
             if (document.getElementById('t2SmallHighExpMargin')) {
                 const el = document.getElementById('t2SmallHighExpMargin');
                 el.textContent = formatKoreanMoney(marginSmallHighExp);
@@ -592,7 +958,6 @@
                 el.className = marginAdvHeroBuy >= 0 ? "font-bold text-sm text-red-600" : "font-bold text-sm text-blue-600";
             }
 
-            // DOM 출력 - 하루 피로도 시나리오 결과
             if (document.getElementById('t2Scenario1Kor')) document.getElementById('t2Scenario1Kor').textContent = formatKoreanMoney(s1Profit);
             if (document.getElementById('t2S1Desc')) document.getElementById('t2S1Desc').textContent = `제작 ${s1Count.toLocaleString()}회 (${(s1Count * 4).toLocaleString()}개 완성 / 피로도 ${s1Count * 5} 소모)`;
 
@@ -602,7 +967,6 @@
             if (document.getElementById('t2Scenario3Kor')) document.getElementById('t2Scenario3Kor').textContent = formatKoreanMoney(s3Profit);
             if (document.getElementById('t2S3Desc')) document.getElementById('t2S3Desc').textContent = `대영웅 구매 후 고대비 제작 ${s3Count.toLocaleString()}회 (${(s3Count * 2).toLocaleString()}개 완성 / 피로도 ${s3Count * 10} 소모)`;
 
-            // 최적 시나리오 녹색 하이라이트
             const box1 = document.getElementById('t2BoxScenario1');
             const box2 = document.getElementById('t2BoxScenario2');
             const box3 = document.getElementById('t2BoxScenario3');
@@ -622,21 +986,17 @@
                 }
             }
 
-            // 보유 영황정 계산 (영황정 원가 0원 적용)
             const ownedEssence = getVal('t2OwnedEssence');
 
-            // 1. 소형 고농축 경축 (영황정 2개 소모)
             const owned1Crafts = Math.floor(ownedEssence / 2);
             const owned1Leftover = ownedEssence % 2;
             const owned1ProfitPerCraft = (smallHighExp * 4) - ((smallExp * 4) + (hyssopOilCost * 10) + (magicCrystal * 1000) + recipe);
             const owned1TotalProfit = owned1ProfitPerCraft * owned1Crafts;
 
-            // 2. 고대비 직접제작 루트 (영황정 1개 소모)
             const owned2Crafts = ownedEssence;
             const owned2ProfitPerCraft = (advHeroPotion * 2) - (costPerHeroPotionSelf + (hyssopOilCost * 10) + advSpell);
             const owned2TotalProfit = owned2ProfitPerCraft * owned2Crafts;
 
-            // 3. 고대비 구매 루트 (영황정 1개 소모)
             const owned3Crafts = ownedEssence;
             const owned3ProfitPerCraft = (advHeroPotion * 2) - (heroPotion + (hyssopOilCost * 10) + advSpell);
             const owned3TotalProfit = owned3ProfitPerCraft * owned3Crafts;
@@ -659,7 +1019,6 @@
                 document.getElementById('t2Owned3Profit').className = owned3TotalProfit >= 0 ? "font-bold text-right text-sm text-red-600" : "font-bold text-right text-sm text-blue-600";
             }
 
-            // 보유 영황정 기준 최고 수익 박스 주황색 테두리 하이라이트
             const oBox1 = document.getElementById('t2OwnedBox1');
             const oBox2 = document.getElementById('t2OwnedBox2');
             const oBox3 = document.getElementById('t2OwnedBox3');
@@ -697,7 +1056,6 @@
             const crystalPrice = getVal('crystalPrice');
             const harvestedSeeds = getVal('harvestedSeeds');
 
-            // 한글 금액 레이블 표기
             document.getElementById('seedPriceKor').textContent = formatKoreanMoney(seedPrice);
             document.getElementById('oilPriceKor').textContent = formatKoreanMoney(oilPrice);
             document.getElementById('potionPriceKor').textContent = formatKoreanMoney(potionPrice);
@@ -706,10 +1064,8 @@
             document.getElementById('recipePriceKor').textContent = formatKoreanMoney(recipePrice);
             document.getElementById('crystalPriceKor').textContent = formatKoreanMoney(crystalPrice);
 
-            // 도구 비용: 500 피로도당 toolPrice 적용
             const totalToolCost = (dailyFatigue / 500) * toolPrice;
 
-            // 1회 제작 기댓값 계산
             const oilCraftCost = (seedPrice * 6) + 1000;
             const oilCraftExpect = oilPrice * 0.9;
             const oilMargin = oilCraftExpect - oilCraftCost;
@@ -717,7 +1073,6 @@
             document.getElementById('oilMargin').textContent = formatKoreanMoney(oilMargin);
             document.getElementById('oilMargin').className = oilMargin >= 0 ? "font-bold text-sm text-red-600" : "font-bold text-sm text-blue-600";
 
-            // 비약 제작 기댓값 (피로도 5 소모)
             const potionCraftCost = (oilPrice * 5) + (crystalPrice * 2);
             const potionCraftRev = potionPrice * 6;
             const potionMargin = potionCraftRev - potionCraftCost;
@@ -725,13 +1080,10 @@
             document.getElementById('potionMargin').textContent = formatKoreanMoney(potionMargin);
             document.getElementById('potionMargin').className = potionMargin >= 0 ? "font-bold text-sm text-red-600" : "font-bold text-sm text-blue-600";
 
-            // 피로도 시나리오 계산
-            // 시나리오 1: 단순 채집
             const s1Profit = (dailyFatigue * seedPrice) - totalToolCost;
             document.getElementById('scenario1Kor').textContent = formatKoreanMoney(s1Profit);
             document.getElementById('s1Desc').textContent = `씨앗 ${dailyFatigue.toLocaleString()}개 판매 (도구 ${formatKoreanMoney(totalToolCost)} 차감)`;
 
-            // 시나리오 2: 채집 후 오일 제작
             const oilAttempts = Math.floor(dailyFatigue / 6);
             const leftoverSeeds = dailyFatigue % 6;
             const expectedOil = oilAttempts * 0.9;
@@ -739,7 +1091,6 @@
             document.getElementById('scenario2Kor').textContent = formatKoreanMoney(s2Profit);
             document.getElementById('s2Desc').textContent = `오일 약 ${expectedOil.toFixed(1)}개 + 남은 씨앗 ${leftoverSeeds}개`;
 
-            // 시나리오 3: 연금술 (채집 + 오일 가공 + 비약 제작)
             let s3PotionCrafts = Math.floor(dailyFatigue / 38.3333);
             let s3GatherFatigue = 0;
             let s3Seeds = 0;
@@ -804,7 +1155,6 @@
                 document.getElementById('boxScenario3').classList.add('border-2', 'border-green-500', 'bg-green-50/30');
             }
 
-            // 보유 씨앗 계산기
             const seedSellTotal = harvestedSeeds * seedPrice;
             document.getElementById('seedSellTotal').textContent = '씨앗 '+ harvestedSeeds.toLocaleString() + ' 개';
             document.getElementById('seedSellTotalKor').textContent = formatKoreanMoney(seedSellTotal);
@@ -835,8 +1185,374 @@
             document.getElementById('craftPotionDiff').className = craftPotionDiff >= 0 ? "text-xs font-bold text-red-600" : "text-xs font-bold text-blue-600";
         }
 
+        // --- 3번 탭 전용 스크립트 ---
+        const DAILY_DIFF_KEYS = ['easy', 'normal', 'hard', 'chaos'];
+        const WEEKLY_DIFF_KEYS = ['easy', 'normal', 'hard', 'chaos', 'extreme'];
+        const MONTHLY_DIFF_KEYS = ['hard', 'extreme'];
+
+        let cachedSchedulerData = null;
+
+        function initTab3() {
+            const savedApiKey = localStorage.getItem('nexon_api_key') || '';
+            const apiKeyEl = document.getElementById('apiKey');
+            if (apiKeyEl) apiKeyEl.value = savedApiKey;
+
+            renderScheduler();
+        }
+
+        function saveApiKey(val) {
+            localStorage.setItem('nexon_api_key', val.trim());
+        }
+
+        async function fetchCharacterInfo() {
+            localStorage.removeItem('maple_scheduler_state');
+            cachedSchedulerData = null;
+
+            const apiKey = (localStorage.getItem('nexon_api_key') || '').trim();
+            const charName = document.getElementById('character_name').value.trim();
+            const charCard = document.getElementById('charCard');
+            const charError = document.getElementById('charError');
+
+            charCard.classList.add('hidden');
+            charError.classList.add('hidden');
+
+            if (!apiKey) {
+                charError.textContent = 'Nexon Open API Key를 입력해주세요.';
+                charError.classList.remove('hidden');
+                return;
+            }
+
+            if (!charName) {
+                charError.textContent = '캐릭터 닉네임을 입력해주세요.';
+                charError.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const idRes = await fetch(`https://open.api.nexon.com/maplestory/v1/id?character_name=${encodeURIComponent(charName)}`, {
+                    headers: { 'x-nxopen-api-key': apiKey }
+                });
+                const idData = await idRes.json();
+
+                if (!idRes.ok || !idData.ocid) {
+                    throw new Error(idData.error?.message || '캐릭터를 찾을 수 없습니다.');
+                }
+
+                const ocid = idData.ocid;
+
+                const [basicRes, statRes, schedulerRes] = await Promise.all([
+                    fetch(`https://open.api.nexon.com/maplestory/v1/character/basic?ocid=${ocid}`, { headers: { 'x-nxopen-api-key': apiKey } }),
+                    fetch(`https://open.api.nexon.com/maplestory/v1/character/stat?ocid=${ocid}`, { headers: { 'x-nxopen-api-key': apiKey } }),
+                    fetch(`https://open.api.nexon.com/maplestory/v1/scheduler/character-state?ocid=${ocid}`, { headers: { 'x-nxopen-api-key': apiKey } })
+                ]);
+
+                const basicData = await basicRes.json();
+                const statData = await statRes.json();
+                const schedulerData = await schedulerRes.json();
+
+                if (!basicRes.ok) throw new Error(basicData.error?.message || '캐릭터 정보 조회 실패');
+
+                document.getElementById('charImg').src = basicData.character_image || '';
+                document.getElementById('charWorld').textContent = basicData.world_name || '-';
+                document.getElementById('charName').textContent = basicData.character_name || charName;
+                document.getElementById('charGuild').textContent = basicData.character_guild_name ? `길드: ${basicData.character_guild_name}` : '길드: 없음';
+                document.getElementById('charLevel').textContent = basicData.character_level || '0';
+                document.getElementById('charClass').textContent = basicData.character_class || '-';
+
+                let combatPower = '0';
+                if (statData.final_stat) {
+                    const cpStat = statData.final_stat.find(s => s.stat_name === '전투력');
+                    if (cpStat && cpStat.stat_value) {
+                        combatPower = formatKoreanMoney(Number(cpStat.stat_value)).replace('메소', '').trim();
+                    }
+                }
+                document.getElementById('charStat').textContent = combatPower;
+
+                if (schedulerRes.ok && schedulerData) {
+                    cachedSchedulerData = schedulerData;
+                    renderScheduler(schedulerData);
+                } else {
+                    renderScheduler();
+                }
+
+                charCard.classList.remove('hidden');
+            } catch (err) {
+                charError.textContent = err.message || '데이터를 불러오는 중 오류가 발생했습니다.';
+                charError.classList.remove('hidden');
+            }
+        }
+
+        function isTaskCompleted(item, type) {
+            if (!item) return false;
+            if (type === 'boss') {
+                return item.complete_flag === 'true' || item.complete_flag === true;
+            }
+            if (item.content_name && (item.content_name.includes('지하 수로') || item.content_name.includes('플래그'))) {
+                return (item.now_count || 0) >= 1;
+            }
+            if (item.content_name && item.content_name.includes('에픽 던전')) {
+                return (item.now_count || 0) >= 5;
+            }
+            if (item.quest_state === '2') return true;
+            if (item.max_count && item.now_count >= item.max_count) return true;
+            return false;
+        }
+
+        function groupBossContentsByCycle(bossItems, targetCycle) {
+            const grouped = {};
+
+            (bossItems || []).forEach((item, originalIdx) => {
+                const name = item.content_name.trim();
+                if (name.includes('메이린')) return;
+
+                const cycleStr = (item.cycle || item.boss_type || '').toLowerCase();
+                let isTarget = false;
+
+                if (targetCycle === 'daily' && (cycleStr.includes('일간') || cycleStr.includes('daily'))) {
+                    isTarget = true;
+                } else if (targetCycle === 'weekly' && (cycleStr.includes('주간') || cycleStr.includes('weekly'))) {
+                    isTarget = true;
+                } else if (targetCycle === 'monthly' && (cycleStr.includes('월간') || cycleStr.includes('monthly'))) {
+                    isTarget = true;
+                }
+
+                if (!isTarget) return;
+
+                if (!grouped[name]) {
+                    grouped[name] = {
+                        name: name,
+                        cycle: item.cycle || item.boss_type,
+                        difficulties: {}
+                    };
+                }
+
+                const diff = (item.difficulty || 'normal').toLowerCase();
+                grouped[name].difficulties[diff] = {
+                    ...item,
+                    originalIdx: originalIdx
+                };
+            });
+
+            return Object.values(grouped);
+        }
+
+        function toggleTask(key, checked) {
+            const savedState = JSON.parse(localStorage.getItem('maple_scheduler_state') || '{}');
+            savedState[key] = checked;
+            localStorage.setItem('maple_scheduler_state', JSON.stringify(savedState));
+            renderScheduler();
+        }
+
+        function updatePartyCount(bossName, count) {
+            const savedState = JSON.parse(localStorage.getItem('maple_scheduler_state') || '{}');
+            savedState[`party_${bossName}`] = Number(count);
+            localStorage.setItem('maple_scheduler_state', JSON.stringify(savedState));
+            renderScheduler();
+        }
+
+        function resetScheduler() {
+            if (confirm('모든 체크 및 파티 인원 설정을 초기화하시겠습니까?')) {
+                localStorage.removeItem('maple_scheduler_state');
+                renderScheduler();
+            }
+        }
+
+        function renderScheduler(apiData = cachedSchedulerData) {
+            const savedState = JSON.parse(localStorage.getItem('maple_scheduler_state') || '{}');
+
+            const dailyListEl = document.getElementById('dailyList');
+            const weeklyListEl = document.getElementById('weeklyList');
+            const dailyBossListEl = document.getElementById('dailyBossList');
+            const weeklyBossListEl = document.getElementById('weeklyBossList');
+            const monthlyBossListEl = document.getElementById('monthlyBossList');
+            const schedulerDateEl = document.getElementById('schedulerDate');
+            const bossSummaryBar = document.getElementById('bossSummaryBar');
+
+            if (!dailyListEl || !weeklyListEl || !dailyBossListEl || !weeklyBossListEl || !monthlyBossListEl) return;
+
+            if (apiData) {
+                if (schedulerDateEl && apiData.date) {
+                    schedulerDateEl.textContent = `(${apiData.date} 기준)`;
+                }
+
+                if (bossSummaryBar && apiData.weekly_boss_clear_count !== undefined) {
+                    document.getElementById('bossClearCount').textContent = apiData.weekly_boss_clear_count;
+                    document.getElementById('bossClearLimit').textContent = apiData.weekly_boss_clear_limit_count || 12;
+                    bossSummaryBar.classList.remove('hidden');
+                }
+
+                // 1. 일일 콘텐츠
+                const dailyItems = (apiData.daily_contents || [])
+                    .filter(item => (item.registration_flag === 'true' || item.registration_flag === true));
+
+                let dailyDone = 0;
+                dailyListEl.innerHTML = dailyItems.length === 0 ? '<p class="text-gray-400 p-2">등록된 일일 콘텐츠가 없습니다.</p>' : dailyItems.map((item) => {
+                    const isMonsterPark = item.content_name.includes('몬스터') && item.content_name.includes('파크');
+                    const apiDone = isTaskCompleted(item, 'daily');
+                    
+                    const storageKey = `d_api_${item.content_name}`;
+                    const isChecked = savedState[storageKey] !== undefined ? savedState[storageKey] : apiDone;
+                    if (isChecked) dailyDone++;
+
+                    if (isMonsterPark) {
+                        const now = item.now_count ?? 0;
+                        const max = item.max_count ?? 14;
+                        return `
+                            <div class="flex items-center justify-between p-2 rounded bg-emerald-50/60 border border-emerald-200">
+                                <span class="text-emerald-950 font-bold truncate">${item.content_name}</span>
+                                <span class="text-xs font-black text-emerald-700 bg-white px-2.5 py-0.5 rounded-full border border-emerald-300 shadow-sm whitespace-nowrap ml-1">
+                                    ${now} / ${max} 판
+                                </span>
+                            </div>
+                        `;
+                    }
+
+                    return `
+                        <label class="flex items-center justify-between p-2 rounded hover:bg-gray-50 cursor-pointer border border-transparent hover:border-gray-200 transition-all">
+                            <div class="flex items-center gap-2 overflow-hidden">
+                                <input type="checkbox" onchange="toggleTask('${storageKey}', this.checked)" ${isChecked ? 'checked' : ''} class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500">
+                                <span class="${isChecked ? 'line-through text-gray-400' : 'text-gray-800 font-medium'} truncate">${item.content_name}</span>
+                            </div>
+                            ${item.max_count ? `<span class="text-[11px] text-gray-500 font-bold whitespace-nowrap ml-1">(${item.now_count}/${item.max_count})</span>` : ''}
+                        </label>
+                    `;
+                }).join('');
+                document.getElementById('dailyProgress').textContent = `${dailyDone}/${dailyItems.length}`;
+
+                // 2. 주간 콘텐츠
+                const excludeKeywords = ['PC방', '크리티아스', '세계수', '헤이븐', '꾸준한'];
+                const weeklyItems = (apiData.weekly_contents || [])
+                    .filter(item => (item.registration_flag === 'true' || item.registration_flag === true) && !excludeKeywords.some(keyword => item.content_name.includes(keyword)));
+
+                let weeklyDone = 0;
+                weeklyListEl.innerHTML = weeklyItems.length === 0 ? '<p class="text-gray-400 p-2">등록된 주간 콘텐츠가 없습니다.</p>' : weeklyItems.map((item) => {
+                    const isScoreContent = item.content_name.includes('지하 수로') || item.content_name.includes('플래그');
+                    const isEpicDungeon = item.content_name.includes('에픽 던전');
+                    const apiDone = isTaskCompleted(item, 'weekly');
+                    const storageKey = `w_api_${item.content_name}`;
+                    const isChecked = savedState[storageKey] !== undefined ? savedState[storageKey] : apiDone;
+                    if (isChecked) weeklyDone++;
+
+                    let rightHtml = '';
+                    if (isScoreContent) {
+                        const score = item.now_count || 0;
+                        rightHtml = `<span class="text-xs font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 whitespace-nowrap ml-1">${score.toLocaleString()}점</span>`;
+                    } else if (isEpicDungeon) {
+                        const stage = item.now_count || 0;
+                        rightHtml = `<span class="text-[11px] text-gray-500 font-bold whitespace-nowrap ml-1">(${stage} / 5 단계)</span>`;
+                    } else if (item.max_count) {
+                        rightHtml = `<span class="text-[11px] text-gray-500 font-bold whitespace-nowrap ml-1">(${item.now_count}/${item.max_count})</span>`;
+                    }
+
+                    return `
+                        <label class="flex items-center justify-between p-2 rounded hover:bg-gray-50 cursor-pointer border border-transparent hover:border-gray-200 transition-all">
+                            <div class="flex items-center gap-2 overflow-hidden">
+                                <input type="checkbox" onchange="toggleTask('${storageKey}', this.checked)" ${isChecked ? 'checked' : ''} class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500">
+                                <span class="${isChecked ? 'line-through text-gray-400' : 'text-gray-800 font-medium'} truncate">${item.content_name}</span>
+                            </div>
+                            ${rightHtml}
+                        </label>
+                    `;
+                }).join('');
+                document.getElementById('weeklyProgress').textContent = `${weeklyDone}/${weeklyItems.length}`;
+
+                // 3. 보스 콘텐츠 렌더링 (주기별 분류)
+                const dailyBosses = groupBossContentsByCycle(apiData.boss_contents, 'daily');
+                const weeklyBosses = groupBossContentsByCycle(apiData.boss_contents, 'weekly');
+                const monthlyBosses = groupBossContentsByCycle(apiData.boss_contents, 'monthly');
+
+                // 보스 그리드 생성 및 수익 계산 헬퍼 함수
+                const renderBossGrid = (bossList, diffKeys, showPartySelect = false) => {
+                    if (bossList.length === 0) return { html: '<p class="text-gray-400 p-2 text-center text-xs">해당 보스 없음</p>', clearedBossCount: 0, totalRevenue: 0 };
+
+                    let clearedBossCount = 0;
+                    let totalRevenue = 0;
+
+                    const html = bossList.map(boss => {
+                        let isBossCleared = false;
+                        const imgName = boss.name.replace(/\s+/g, '');
+                        const imgSrc = `icon/boss/${imgName}.png`;
+
+                        const partyCount = showPartySelect ? (savedState[`party_${boss.name}`] || 1) : 1;
+
+                        const colsHtml = diffKeys.map(diff => {
+                            const item = boss.difficulties[diff];
+                            if (!item) {
+                                return `<div class="w-5 h-5 text-center text-gray-600 font-normal">-</div>`;
+                            }
+
+                            const apiDone = isTaskCompleted(item, 'boss');
+                            const storageKey = `b_api_${item.originalIdx}`;
+                            const isChecked = savedState[storageKey] !== undefined ? savedState[storageKey] : apiDone;
+
+                            if (isChecked) {
+                                isBossCleared = true;
+                                const rawPrice = getBossPrice(diff, boss.name);
+                                totalRevenue += (rawPrice / partyCount);
+                            }
+
+                            return `
+                                <div class="flex justify-center items-center">
+                                    <input type="checkbox" onchange="toggleTask('${storageKey}', this.checked)" ${isChecked ? 'checked' : ''} class="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500 cursor-pointer">
+                                </div>
+                            `;
+                        }).join('');
+
+                        if (isBossCleared) clearedBossCount++;
+
+                        const partySelectHtml = showPartySelect ? `
+                            <div class="flex items-center justify-center min-w-[50px]">
+                                <select onchange="updatePartyCount('${boss.name}', this.value)" class="text-[11px] font-bold border border-gray-300 rounded px-1 py-0.5 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                                    <option value="1" ${partyCount === 1 ? 'selected' : ''}>1인</option>
+                                    <option value="2" ${partyCount === 2 ? 'selected' : ''}>2인</option>
+                                    <option value="3" ${partyCount === 3 ? 'selected' : ''}>3인</option>
+                                    <option value="4" ${partyCount === 4 ? 'selected' : ''}>4인</option>
+                                    <option value="5" ${partyCount === 5 ? 'selected' : ''}>5인</option>
+                                    <option value="6" ${partyCount === 6 ? 'selected' : ''}>6인</option>
+                                </select>
+                            </div>
+                        ` : '';
+
+                        return `
+                            <div class="flex justify-between gap-1 items-center p-1.5 rounded hover:bg-gray-50 border-b border-gray-100 text-xs">
+                                <div class="font-bold ${isBossCleared ? 'text-gray-400 line-through' : 'text-gray-800'} truncate text-[14px] flex items-center gap-2" title="${boss.name}">
+                                    <img src="${imgSrc}" alt="${boss.name}" class="w-8 h-8 rounded object-contain flex-shrink-0" onerror="this.style.display='none'">
+                                    <span>${boss.name}</span>
+                                </div>
+                                <div class="flex gap-6 items-center">
+                                    ${partySelectHtml}
+                                    ${colsHtml}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    return { html, clearedBossCount, totalRevenue };
+                };
+
+                const dailyRes = renderBossGrid(dailyBosses, DAILY_DIFF_KEYS, false);
+                dailyBossListEl.innerHTML = dailyRes.html;
+                document.getElementById('dailyBossProgress').textContent = `${dailyRes.clearedBossCount}/${dailyBosses.length}`;
+
+                const weeklyRes = renderBossGrid(weeklyBosses, WEEKLY_DIFF_KEYS, true);
+                weeklyBossListEl.innerHTML = weeklyRes.html;
+                document.getElementById('weeklyBossProgress').textContent = `${weeklyRes.clearedBossCount}/${weeklyBosses.length}`;
+
+                const monthlyRes = renderBossGrid(monthlyBosses, MONTHLY_DIFF_KEYS, true);
+                monthlyBossListEl.innerHTML = monthlyRes.html;
+                document.getElementById('monthlyBossProgress').textContent = `${monthlyRes.clearedBossCount}/${monthlyBosses.length}`;
+
+                // 수익 출력 업데이트
+                document.getElementById('dailyBossRevenue').textContent = formatKoreanMoney(dailyRes.totalRevenue);
+                document.getElementById('weeklyBossRevenue').textContent = formatKoreanMoney(weeklyRes.totalRevenue);
+                document.getElementById('monthlyBossRevenue').textContent = formatKoreanMoney(monthlyRes.totalRevenue);
+            }
+        }
+
         window.onload = function() {
+            loadInputs();
             calculate();
+            initTab3();
         };
     </script>
 </body>
