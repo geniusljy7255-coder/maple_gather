@@ -443,7 +443,7 @@
                 <div class="md:col-span-2 bg-white p-3 rounded-xl border border-blue-200 flex items-end gap-2">
                     <div class="flex-1">
                         <label class="block text-xs font-bold text-gray-700 mb-1">캐릭터 닉네임</label>
-                        <input type="text" id="character_name" placeholder="닉네임을 입력하세요" class="w-full p-2 text-sm font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" onkeyup="if(event.key==='Enter') fetchCharacterInfo()">
+                        <input type="text" id="character_name" placeholder="닉네임을 입력하세요" class="w-full p-2 text-sm font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" onchange="saveCharacterName(this.value)" onkeyup="if(event.key==='Enter') fetchCharacterInfo()">
                     </div>
                     <button onclick="fetchCharacterInfo()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-lg transition-colors h-[38px] flex items-center justify-center min-w-[70px]">
                         조회
@@ -759,30 +759,15 @@
             't2TwilightPrice', 't2RecipePrice', 't2OwnedEssence', 'character_name'
         ];
 
-        // 입력값 localStorage 저장
-        function saveInputs() {
-            INPUT_IDS.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    localStorage.setItem(`input_${id}`, el.value);
-                }
-            });
-        }
-
-        // 저장된 입력값 localStorage에서 불러오기
         function loadInputs() {
-            INPUT_IDS.forEach(id => {
-                const el = document.getElementById(id);
-                const savedVal = localStorage.getItem(`input_${id}`);
-                if (el && savedVal !== null) {
-                    el.value = savedVal;
-                }
-            });
+            const apiKey = localStorage.getItem('nexon_api_key') || '';
+            const characterName = localStorage.getItem('nexon_character_name') || '';
 
-            const apiKeyEl = document.getElementById('apiKey');
-            const savedApiKey = localStorage.getItem('nexon_api_key');
-            if (apiKeyEl && savedApiKey) {
-                apiKeyEl.value = savedApiKey;
+            if (document.getElementById('apiKey')) {
+                document.getElementById('apiKey').value = apiKey;
+            }
+            if (document.getElementById('character_name')) {
+                document.getElementById('character_name').value = characterName;
             }
         }
 
@@ -1204,6 +1189,10 @@
             localStorage.setItem('nexon_api_key', val.trim());
         }
 
+        function saveCharacterName(val) {
+            localStorage.setItem('nexon_character_name', val.trim());
+        }
+
         async function fetchCharacterInfo() {
             localStorage.removeItem('maple_scheduler_state');
             cachedSchedulerData = null;
@@ -1291,7 +1280,8 @@
                 return (item.now_count || 0) >= 1;
             }
             if (item.content_name && item.content_name.includes('에픽 던전')) {
-                return (item.now_count || 0) >= 5;
+                const max = item.max_count || 5;
+                return (item.now_count || 0) >= max;
             }
             if (item.quest_state === '2') return true;
             if (item.max_count && item.now_count >= item.max_count) return true;
@@ -1422,14 +1412,21 @@
                 // 2. 주간 콘텐츠
                 const excludeKeywords = ['PC방', '크리티아스', '세계수', '헤이븐', '꾸준한'];
                 const weeklyItems = (apiData.weekly_contents || [])
-                    .filter(item => (item.registration_flag === 'true' || item.registration_flag === true) && !excludeKeywords.some(keyword => item.content_name.includes(keyword)));
+                    .map((item, idx) => ({ ...item, _idx: idx }))
+                    .filter(item => {
+                        const isEpic = item.content_name.includes('에픽 던전');
+                        const isRegistered = item.registration_flag === 'true' || item.registration_flag === true;
+                        const isExcluded = excludeKeywords.some(k => item.content_name.includes(k));
+                        return (isEpic || isRegistered) && !isExcluded;
+                    });
 
                 let weeklyDone = 0;
                 weeklyListEl.innerHTML = weeklyItems.length === 0 ? '<p class="text-gray-400 p-2">등록된 주간 콘텐츠가 없습니다.</p>' : weeklyItems.map((item) => {
                     const isScoreContent = item.content_name.includes('지하 수로') || item.content_name.includes('플래그');
                     const isEpicDungeon = item.content_name.includes('에픽 던전');
                     const apiDone = isTaskCompleted(item, 'weekly');
-                    const storageKey = `w_api_${item.content_name}`;
+                    const label = isEpicDungeon && item.content_name ? `${item.content_name} - ${item.content_name}` : item.content_name;
+                    const storageKey = `w_api_${item._idx}_${item.content_name}`;
                     const isChecked = savedState[storageKey] !== undefined ? savedState[storageKey] : apiDone;
                     if (isChecked) weeklyDone++;
 
