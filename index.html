@@ -758,8 +758,27 @@
             't2AdvHeroPotionPrice', 't2HyssopFlowerPrice', 't2TwistedTimePrice', 't2MagicCrystalPrice', 't2AdvSpellPrice',
             't2TwilightPrice', 't2RecipePrice', 't2OwnedEssence', 'character_name'
         ];
+        
+
+        // 입력값 localStorage 저장
+        function saveInputs() {
+            INPUT_IDS.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    localStorage.setItem(`input_${id}`, el.value);
+                }
+            });
+        }
 
         function loadInputs() {
+            INPUT_IDS.forEach(id => {
+                const el = document.getElementById(id);
+                const savedVal = localStorage.getItem(`input_${id}`);
+                if (el && savedVal !== null) {
+                    el.value = savedVal;
+                }
+            });
+            
             const apiKey = localStorage.getItem('nexon_api_key') || '';
             const characterName = localStorage.getItem('nexon_character_name') || '';
 
