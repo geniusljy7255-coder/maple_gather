@@ -1,1575 +1,903 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f341.svg" type="image/svg+xml">
-    <title>땅캐라</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        input[type="text"], input[type="number"] {
-            text-align: right;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f341.svg" type="image/svg+xml">
+<title>땅캐라</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style type="text/tailwindcss">
+  @layer components {
+    .panel   { @apply rounded-2xl border border-slate-200 bg-slate-50/70 p-4 md:p-5 space-y-4; }
+    .panel-h { @apply flex items-center justify-between gap-3 border-b border-slate-200 pb-3 text-sm font-bold text-slate-900; }
+    .panel-h .dot { @apply mr-2 inline-block h-2 w-2 rounded-full bg-indigo-500; }
+    .hint    { @apply text-xs font-normal text-slate-500; }
+    .card    { @apply rounded-xl border border-slate-200 bg-white p-3.5 transition; }
+    .sub-h   { @apply mb-2 block text-xs font-bold text-slate-500; }
+    .label   { @apply text-xs font-bold text-slate-700; }
+    .input   { @apply w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-right text-sm font-bold text-slate-900 transition focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500; }
+    .input.lg { @apply text-base; }
+    .kor     { @apply mt-1.5 text-right text-xs font-semibold text-indigo-600; }
+    .value   { @apply text-right text-base font-extrabold text-slate-900; }
+    .pos     { @apply text-red-600; }
+    .neg     { @apply text-blue-600; }
+    .tab-btn { @apply flex-1 border-b-2 border-transparent px-3 py-3 text-sm font-bold text-slate-500 transition hover:text-slate-800 md:text-base; }
+    .tab-btn[aria-selected="true"] { @apply border-indigo-600 bg-white text-indigo-600; }
+    .chip    { @apply whitespace-nowrap rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-bold text-slate-600; }
+    .row     { @apply flex items-center justify-between gap-2 rounded-lg border border-transparent p-2 transition hover:border-slate-200 hover:bg-slate-50; }
+    .cb      { @apply h-4 w-4 cursor-pointer rounded accent-indigo-600; }
+  }
+  .no-scrollbar { scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+</style>
 </head>
-<body class="bg-gray-100 text-gray-800 p-3 sm:p-6 min-h-screen font-sans">
-    
-    <!-- 상단 타이틀 바 -->
-    <header class="max-w-4xl mx-auto py-3 px-1">
-        <h1 class="text-xl md:text-2xl font-black text-blue-900 tracking-tight">땅캐라</h1>
-    </header>
+<body class="min-h-screen bg-slate-100 p-3 font-sans text-slate-800 sm:p-6">
 
-    <!-- 탭 버튼 영역 -->
-    <div class="max-w-4xl mx-auto flex bg-gray-200/80 rounded-t-xl border-t border-x border-gray-300">
-        <button id="tabBtn1" onclick="switchTab('tab1')" class="flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-blue-600 text-blue-600 bg-white rounded-tl-xl transition-all">
-            쥬니퍼베리 씨앗 계산기
-        </button>
-        <button id="tabBtn2" onclick="switchTab('tab2')" class="flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-800 hover:bg-white/50 transition-all">
-            영롱한 황혼의 정수 계산기
-        </button>
-        <button id="tabBtn3" onclick="switchTab('tab3')" class="flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-800 hover:bg-white/50 rounded-tr-xl transition-all">
-            스케줄러
-        </button>
+<div id="page">
+<header class="mx-auto max-w-4xl px-1 py-3">
+  <h1 class="text-2xl font-black tracking-tight text-slate-900">땅캐라</h1>
+</header>
+
+<nav class="mx-auto flex max-w-4xl overflow-hidden rounded-t-2xl border border-b-0 border-slate-200 bg-slate-100" role="tablist">
+  <button class="tab-btn" id="tabBtn1" role="tab" aria-selected="true"  onclick="switchTab('tab1')">제작 계산기</button>
+  <button class="tab-btn" id="tabBtn3" role="tab" aria-selected="false" onclick="switchTab('tab3')">스케줄러</button>
+</nav>
+
+<!-- 왼쪽 슬라이드 패널: 시세 · 보유 수량 -->
+<div id="drawerBackdrop" class="fixed inset-0 z-30 hidden bg-black/30 md:hidden" onclick="toggleDrawer()"></div>
+<div id="drawerWrap" class="fixed left-0 top-0 z-40 h-full w-80 max-w-[85vw] transition-transform duration-300 ease-out">
+  <aside class="relative flex h-full w-full flex-col border-r border-slate-200 bg-slate-50 shadow-xl">
+    <div id="drawerScroll" class="no-scrollbar flex-1 space-y-4 overflow-y-auto p-4 pb-16">
+      <h2 class="text-sm font-bold text-slate-900">시세 · 보유 수량</h2>
+      <div id="drawerBody" class="space-y-4"></div>
+    </div>
+    <div id="drawerFade" class="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-slate-50 via-slate-50/80 to-transparent transition-opacity duration-200"></div>
+  </aside>
+  <button id="drawerToggle" onclick="toggleDrawer()"
+          class="absolute left-full top-1/2 -translate-y-1/2 rounded-r-xl bg-indigo-600 px-2 py-8 text-xs font-bold text-white shadow-lg transition-all duration-300 hover:bg-indigo-700 [writing-mode:vertical-rl]">접기</button>
+</div>
+
+<main class="mx-auto max-w-4xl rounded-b-2xl border border-slate-200 bg-white p-4 md:p-6">
+  <section id="tab1" class="tab-content space-y-3">
+    <p id="craftHint" class="hint text-right"></p>
+    <div id="recipeList" class="space-y-7"></div>
+  </section>
+
+  <section id="tab3" class="tab-content hidden space-y-5">
+    <div class="panel">
+      <h2 class="panel-h">
+        <span><span class="dot"></span>캐릭터 정보 조회</span>
+        <span class="hint">Nexon Open API 연동</span>
+      </h2>
+
+      <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <div class="card">
+          <label class="label mb-1.5 block" for="apiKey">Nexon Open API Key (본인 api)</label>
+          <input type="password" id="apiKey" placeholder="API Key 입력" class="input text-left" onchange="saveApiKey(this.value)">
+        </div>
+        <div class="card flex items-end gap-2 md:col-span-2">
+          <div class="flex-1">
+            <label class="label mb-1.5 block" for="character_name">캐릭터 닉네임</label>
+            <input type="text" id="character_name" placeholder="닉네임을 입력하세요" class="input text-left"
+                   onchange="saveCharacterName(this.value)" onkeyup="if(event.key==='Enter') fetchCharacterInfo()">
+          </div>
+          <button onclick="fetchCharacterInfo()" class="h-[38px] min-w-[70px] rounded-lg bg-indigo-600 px-5 text-sm font-bold text-white transition hover:bg-indigo-700">조회</button>
+        </div>
+      </div>
+
+      <div id="charCard" class="card hidden">
+        <div class="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+          <div class="flex h-32 w-32 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
+            <img id="charImg" src="" alt="캐릭터 이미지" class="h-full w-full scale-x-[-2.8] scale-y-[2.8] object-contain">
+          </div>
+          <div class="w-full flex-1 space-y-2 text-center sm:text-left">
+            <div class="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+              <span id="charWorld" class="rounded bg-indigo-100 px-2.5 py-0.5 text-xs font-bold text-indigo-700">-</span>
+              <h3 id="charName" class="text-lg font-black text-slate-900">-</h3>
+            </div>
+            <div class="space-x-2 text-xs text-slate-600">
+              <span>Lv. <strong id="charLevel" class="text-slate-900">0</strong></span><span>|</span>
+              <span id="charClass" class="font-semibold text-slate-900">-</span>
+            </div>
+            <div id="charGuild" class="text-xs font-medium text-slate-500">길드: -</div>
+            <div class="flex items-center justify-between border-t border-slate-100 pt-2 text-xs">
+              <span class="font-bold text-slate-500">전투력</span>
+              <span id="charStat" class="text-sm font-extrabold text-indigo-600">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="charError" class="hidden rounded-lg border border-red-200 bg-red-50 p-2 text-center text-xs font-bold text-red-500"></div>
     </div>
 
-    <!-- 1번 탭: 기존 피로도 계산기 컨텐츠 -->
-    <div id="tab1" class="tab-content max-w-4xl mx-auto bg-white rounded-b-xl border-x border-b border-gray-300 p-4 md:p-6 space-y-6">
-        
-        <!-- 시세 및 비용 설정 -->
-        <div class="grid gap-4 p-4 md:p-5 bg-blue-50/50 rounded-xl border border-blue-200">
-            <h2 class="text-base font-bold text-blue-950 border-b border-blue-200 pb-2.5 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-blue-600 inline-block"></span>
-                시세 및 비용 설정
-            </h2>
-            
-            <!-- 주요 아이템 단가 (강조) -->
-            <div>
-                <span class="text-xs font-bold text-blue-800 mb-2 block tracking-tight">주요 아이템 단가</span>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
-                        <label class="block text-xs font-bold text-gray-700 mb-1.5">쥬니퍼베리 씨앗</label>
-                        <input type="text" id="seedPrice" value="710,000" class="w-full p-2 text-base font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="seedPriceKor" class="text-xs text-blue-600 mt-1.5 text-right font-bold">71만 메소</div>
-                    </div>
+    <div class="panel">
+      <h2 class="panel-h">
+        <span><span class="dot"></span>인게임 스케줄러 현황 <span id="schedulerDate" class="hint ml-1"></span></span>
+        <button onclick="resetScheduler()" class="rounded-lg border border-red-200 bg-white px-2.5 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50">체크 초기화</button>
+      </h2>
 
-                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
-                        <label class="block text-xs font-bold text-gray-700 mb-1.5">쥬니퍼베리 씨앗 오일</label>
-                        <input type="text" id="oilPrice" value="5,000,000" class="w-full p-2 text-base font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="oilPriceKor" class="text-xs text-blue-600 mt-1.5 text-right font-bold">500만 메소</div>
-                    </div>
-
-                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
-                        <label class="block text-xs font-bold text-gray-700 mb-1.5">소형 재물 획득의 비약</label>
-                        <input type="text" id="potionPrice" value="4,500,000" class="w-full p-2 text-base font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="potionPriceKor" class="text-xs text-blue-600 mt-1.5 text-right font-bold">450만 메소</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 부가 설정 (작게) -->
-            <div class="pt-3 border-t border-blue-200/60">
-                <span class="text-xs font-bold text-gray-600 mb-2 block">활동 및 제작 비용 설정</span>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">하루 사용 피로도</label>
-                        <input type="text" id="dailyFatigue" value="500" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="dailyFatigueKor" class="text-xs text-gray-500 mt-1 text-right font-medium">500 피로도</div>
-                    </div>
-
-                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">채집 도구 (500피로도당)</label>
-                        <input type="text" id="toolPrice" value="100,000,000" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="toolPriceKor" class="text-xs text-gray-500 mt-1 text-right font-medium">1억 메소</div>
-                    </div>
-
-                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">비약 제작 레시피 가격</label>
-                        <input type="text" id="recipePrice" value="7,000,000" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="recipePriceKor" class="text-xs text-gray-500 mt-1 text-right font-medium">700만 메소</div>
-                    </div>
-
-                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">최상급 아이템 결정</label>
-                        <input type="text" id="crystalPrice" value="200,000" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="crystalPriceKor" class="text-xs text-gray-500 mt-1 text-right font-medium">20만 메소</div>
-                    </div>
-                </div>
-            </div>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div class="card space-y-2">
+          <h3 class="flex justify-between border-b border-slate-100 pb-2 text-xs font-bold text-slate-900"><span>일일 콘텐츠 (Daily)</span><span id="dailyProgress" class="text-indigo-600">0/0</span></h3>
+          <div id="dailyList" class="max-h-80 space-y-1 overflow-y-auto text-xs"></div>
         </div>
-
-        <!-- 순이익 비교 -->
-        <div class="grid gap-4 p-4 md:p-5 bg-emerald-50/40 rounded-xl border border-emerald-200">
-            <h2 class="text-base font-bold text-emerald-950 border-b border-emerald-200 pb-2.5 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-600 inline-block"></span>
-                순이익 비교
-            </h2>
-
-            <!-- 1회 제작 기댓값 요약 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div class="flex flex-col justify-between items-end bg-white p-3 rounded-xl border border-emerald-200/80">
-                    <span class="text-xs font-bold text-gray-700 w-full">오일 1회 제작 기댓값 (씨앗 6개, 90%)</span>
-                    <span id="oilMargin" class="font-bold text-sm">0</span>
-                </div>
-                <div class="flex flex-col justify-between items-end bg-white p-3 rounded-xl border border-emerald-200/80">
-                    <span class="text-xs font-bold text-gray-700 w-full">비약 1회 제작 순이익 (오일 5개 → 6개, 5피로도)</span>
-                    <span id="potionMargin" class="font-bold text-sm">0</span>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <!-- 시나리오 1 -->
-                <div class="bg-white border border-gray-200 p-4 rounded-xl flex flex-col justify-between transition-all" id="boxScenario1">
-                    <div>
-                        <h3 class="font-bold text-gray-800 text-sm mb-1">단순 채집</h3>
-                        <p id="s1Desc" class="text-xs text-gray-500 mb-2 leading-relaxed">채집 후 씨앗 전량 판매</p>
-                    </div>
-                    <div class="border-t border-gray-100 pt-2.5 mt-2">
-                        <div id="scenario1Kor" class="font-extrabold text-base text-gray-900 text-right">0 메소</div>
-                    </div>
-                </div>
-
-                <!-- 시나리오 2 -->
-                <div class="bg-white border border-gray-200 p-4 rounded-xl flex flex-col justify-between transition-all" id="boxScenario2">
-                    <div>
-                        <h3 class="font-bold text-gray-800 text-sm mb-1">채집 + 오일 제작</h3>
-                        <p id="s2Desc" class="text-xs text-gray-500 mb-2 leading-relaxed">채집 후 오일 가공 판매</p>
-                    </div>
-                    <div class="border-t border-gray-100 pt-2.5 mt-2">
-                        <div id="scenario2Kor" class="font-extrabold text-base text-gray-900 text-right">0 메소</div>
-                    </div>
-                </div>
-
-                <!-- 시나리오 3 -->
-                <div class="bg-white border border-gray-200 p-4 rounded-xl flex flex-col justify-between transition-all" id="boxScenario3">
-                    <div>
-                        <h3 class="font-bold text-gray-800 text-sm mb-1">소재비 제작(채집 > 오일 > 제작)</h3>
-                        <p id="s3Desc" class="text-xs text-gray-500 mb-2 leading-relaxed">채집 및 오일 가공 후 비약 제작 (5피로도 소모)</p>
-                    </div>
-                    <div class="border-t border-gray-100 pt-2.5 mt-2">
-                        <div id="scenario3Kor" class="font-extrabold text-base text-gray-900 text-right">0 메소</div>
-                    </div>
-                </div>
-            </div>
+        <div class="card space-y-2">
+          <h3 class="flex justify-between border-b border-slate-100 pb-2 text-xs font-bold text-slate-900"><span>주간 콘텐츠 (Weekly)</span><span id="weeklyProgress" class="text-indigo-600">0/0</span></h3>
+          <div id="weeklyList" class="max-h-80 space-y-1 overflow-y-auto text-xs"></div>
         </div>
+      </div>
 
-        <!-- 보유 씨앗 계산기 -->
-        <div class="bg-amber-50/50 p-4 md:p-5 rounded-xl border border-amber-200 space-y-4">
-            <h2 class="text-base font-bold text-amber-950 border-b border-amber-200/80 pb-2.5 flex justify-between items-center gap-3">
-                <span class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
-                    보유 씨앗 계산기
-                </span>
-                <p class="text-xs font-normal text-amber-800">채집한 씨앗 수량으로 비교합니다.</p>
-            </h2>
+      <div id="bossSummaryBar" class="card hidden flex items-center justify-between text-xs font-bold text-slate-900">
+        <span>주간 보스 처치 현황</span>
+        <span><strong id="bossClearCount" class="text-sm font-black text-indigo-600">0</strong> / <span id="bossClearLimit">12</span> 회</span>
+      </div>
 
-            <div class="flex items-center gap-3 justify-end bg-white/80 p-2.5 rounded-lg border border-amber-200/60">
-                <label class="block text-xs font-bold text-amber-900">보유 씨앗 수량 (개)</label>
-                <input type="text" id="harvestedSeeds" value="500" class="w-full md:w-1/3 p-1.5 text-base font-bold border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white" oninput="handleInput(this)">
-                <span class="block text-sm font-bold text-amber-900">개</span>
-            </div>
+      <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <div class="card text-center"><div class="label mb-1">일간 보스 수익</div><div id="dailyBossRevenue" class="text-sm font-black text-indigo-600">0 메소</div></div>
+        <div class="card text-center"><div class="label mb-1">주간 보스 수익</div><div id="weeklyBossRevenue" class="text-sm font-black text-indigo-600">0 메소</div></div>
+        <div class="card text-center"><div class="label mb-1">월간 보스 수익</div><div id="monthlyBossRevenue" class="text-sm font-black text-indigo-600">0 메소</div></div>
+      </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <!-- 1. 씨앗 그대로 판매 -->
-                <div class="bg-white p-3.5 rounded-xl border border-amber-200 flex flex-col justify-between">
-                    <div>
-                        <span class="text-xs text-gray-600 block font-bold mb-1">1. 씨앗 그대로 판매</span>
-                        <span id="seedSellTotal" class="text-xs text-gray-500 block min-h-[32px]">0</span>
-                    </div>
-                    <div class="border-t border-amber-100 pt-2 text-right">
-                        <div id="seedSellTotalKor" class="font-extrabold text-sm text-gray-800">0 메소</div>
-                        <div class="border-t border-transparent mt-1 pt-1 text-right"></div>
-                    </div>
-                </div>
+      <div class="card space-y-2">
+        <h3 class="flex justify-between border-b border-slate-100 pb-2 text-xs font-bold text-slate-900"><span>주간 보스</span><span id="weeklyBossProgress" class="text-indigo-600">0/0</span></h3>
+        <div id="weeklyBossHead"></div>
+        <div id="weeklyBossList" class="max-h-96 space-y-1 overflow-y-auto text-xs"></div>
+      </div>
 
-                <!-- 2. 오일 가공 판매 -->
-                <div class="bg-white p-3.5 rounded-xl border border-amber-200 flex flex-col justify-between">
-                    <div>
-                        <span class="text-xs text-gray-600 block font-bold mb-1">2. 오일 가공 판매 (기댓값)</span>
-                        <span id="oilSellTotal" class="text-xs text-gray-500 block min-h-[32px]">0</span>
-                    </div>
-                    <div class="border-t border-amber-100 pt-2 text-right">
-                        <div id="oilSellTotalKor" class="font-extrabold text-sm text-gray-800">0 메소</div>
-                        <div class="border-t border-gray-100 mt-1 pt-1 text-right">
-                            <span id="craftOilDiff" class="text-xs font-bold">0</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 3. 소재비 제작 판매 -->
-                <div class="bg-white p-3.5 rounded-xl border border-amber-200 flex flex-col justify-between">
-                    <div>
-                        <span class="text-xs text-gray-600 block font-bold mb-1">3. 소재비 제작 판매 (기댓값)</span>
-                        <span id="potionSellTotal" class="text-xs text-gray-500 block min-h-[32px]">0</span>
-                    </div>
-                    <div class="border-t border-amber-100 pt-2 text-right">
-                        <div id="potionSellTotalKor" class="font-extrabold text-sm text-gray-800">0 메소</div>
-                        <div class="border-t border-gray-100 mt-1 pt-1 text-right">
-                            <span id="craftPotionDiff" class="text-xs font-bold">0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div class="card space-y-2">
+          <h3 class="flex justify-between border-b border-slate-100 pb-2 text-xs font-bold text-slate-900"><span>일간 보스</span><span id="dailyBossProgress" class="text-indigo-600">0/0</span></h3>
+          <div id="dailyBossHead"></div>
+          <div id="dailyBossList" class="max-h-60 space-y-1 overflow-y-auto text-xs"></div>
         </div>
-
+        <div class="card space-y-2">
+          <h3 class="flex justify-between border-b border-slate-100 pb-2 text-xs font-bold text-slate-900"><span>월간 보스</span><span id="monthlyBossProgress" class="text-indigo-600">0/0</span></h3>
+          <div id="monthlyBossHead"></div>
+          <div id="monthlyBossList" class="max-h-60 space-y-1 overflow-y-auto text-xs"></div>
+        </div>
+      </div>
     </div>
+  </section>
+</main>
+</div>
 
-    <!-- 2번 탭: 연금술 비약 계산기 컨텐츠 -->
-    <div id="tab2" class="tab-content hidden max-w-4xl mx-auto bg-white rounded-b-xl border-x border-b border-gray-300 p-4 md:p-6 space-y-6">
-        <!-- 시세 및 비용 설정 -->
-        <div class="grid gap-4 p-4 md:p-5 bg-blue-50/50 rounded-xl border border-blue-200">
-            <h2 class="text-base font-bold text-blue-950 border-b border-blue-200 pb-2.5 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-blue-600 inline-block"></span>
-                시세 및 비용 설정
-            </h2>
-            
-            <div>
-                <span class="text-xs font-bold text-blue-800 mb-2 block tracking-tight">주요 완제품 및 정수 단가</span>
+<script>
+/* ============================================================
+ * 공통 유틸
+ * ============================================================ */
+const $ = id => document.getElementById(id);
+const setText = (id, text) => { const el = $(id); if (el) el.textContent = text; };
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+const readJSON = (key, fallback = {}) => JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
-                        <label class="block text-xs font-bold text-gray-700 mb-1.5">영롱한 황혼의 정수</label>
-                        <input type="text" id="t2ShiningTwilightPrice" value="7,000,000" class="w-full p-2 text-base font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="t2ShiningTwilightPriceKor" class="text-xs text-blue-600 mt-1.5 text-right font-bold">700만 메소</div>
-                    </div>
+function getVal(id) {
+  const el = $(id);
+  return el ? Number(el.value.replace(/,/g, '')) || 0 : 0;
+}
 
-                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
-                        <label class="block text-xs font-bold text-gray-700 mb-1.5">소형 경험 축적의 비약</label>
-                        <input type="text" id="t2SmallExpPotionPrice" value="800,000" class="w-full p-2 text-base font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="t2SmallExpPotionPriceKor" class="text-xs text-blue-600 mt-1.5 text-right font-bold">80만 메소</div>
-                    </div>
-                    
-                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
-                        <label class="block text-xs font-bold text-gray-700 mb-1.5">소형 고농축 경험 축적의 비약</label>
-                        <input type="text" id="t2SmallHighExpPotionPrice" value="5,500,000" class="w-full p-2 text-base font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="t2SmallHighExpPotionPriceKor" class="text-xs text-blue-600 mt-1.5 text-right font-bold">550만 메소</div>
-                    </div>
-                </div>
+/** 숫자 → "1억 2,000만 500 메소" */
+function formatKoreanMoney(num) {
+  if (isNaN(num) || num === 0) return '0 메소';
+  const abs = Math.abs(Math.round(num));
+  const eok = Math.floor(abs / 1e8);
+  const man = Math.floor((abs % 1e8) / 1e4);
+  const rest = abs % 1e4;
+  let out = '';
+  if (eok > 0) out += `${eok.toLocaleString()}억 `;
+  if (man > 0) out += `${man.toLocaleString()}만 `;
+  if (rest > 0 || (!eok && !man)) out += rest.toLocaleString();
+  return `${num < 0 ? '-' : ''}${out.trim()} 메소`;
+}
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
-                        <label class="block text-xs font-bold text-gray-700 mb-1.5">하루 사용 피로도</label>
-                        <input type="text" id="t2DailyFatigue" value="500" class="w-full p-2 text-base font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="t2DailyFatigueKor" class="text-xs text-blue-600 mt-1.5 text-right font-bold">500 피로도</div>
-                    </div>
+/** 손익 표시: 이익=빨강, 손해=파랑 */
+function setProfit(id, value, text = formatKoreanMoney(value)) {
+  const el = $(id);
+  if (!el) return;
+  el.textContent = text;
+  el.classList.toggle('pos', value >= 0);
+  el.classList.toggle('neg', value < 0);
+}
 
-                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
-                        <label class="block text-xs font-bold text-gray-700 mb-1.5">대영웅의 비약 </label>
-                        <input type="text" id="t2HeroPotionPrice" value="310,000" class="w-full p-2 text-base font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="t2HeroPotionPriceKor" class="text-xs text-blue-600 mt-1.5 text-right font-bold">31만 메소</div>
-                    </div>
+/* ============================================================
+ * 제작 계산기: 데이터
+ * ============================================================ */
+// g: 0=제작 결과물, 1=재료, 2=고정가(fixed=[기본가, 길드가입가])
+const ITEMS = [
+  { g: 0, id: 'oilPrice',                  name: '쥬니퍼베리 씨앗 오일',          icon: '쥬니퍼베리씨앗오일',   price: '5,000,000' },
+  { g: 0, id: 'potionPrice',               name: '소형 재물 획득의 비약',         icon: '재물획득의비약',       price: '4,400,000' },
+  { g: 0, id: 't2SmallHighExpPotionPrice', name: '소형 고농축 경험 축적의 비약',  icon: '고농축경험축적의비약', price: '5,600,000' },
+  { g: 0, id: 't2HeroPotionPrice',         name: '대영웅의 비약',                 icon: '대영웅의비약',         price: '290,000' },
+  { g: 0, id: 't2AdvHeroPotionPrice',      name: '고급 대영웅의 비약',            icon: '고급대영웅의비약',     price: '4,500,000' },
+  { g: 0, id: 'stonePrice',                name: '마법의 숫돌',                   icon: '마법의숫돌',           price: '4,100,000' },
+  { g: 1, id: 'seedPrice',                 name: '쥬니퍼베리 씨앗',               icon: '쥬니퍼베리씨앗',       price: '730,000' },
+  { g: 1, id: 't2SmallExpPotionPrice',     name: '소형 경험 축적의 비약',         icon: '경험축적의비약',       price: '1,000,000' },
+  { g: 1, id: 't2ShiningTwilightPrice',    name: '영롱한 황혼의 정수',            icon: '영롱한황혼의정수',     price: '7,100,000' },
+  { g: 1, id: 't2TwilightPrice',           name: '황혼의 정수',                   icon: '황혼의정수',           price: '14,000' },
+  { g: 1, id: 't2HyssopFlowerPrice',       name: '히솝 꽃',                       icon: '히솝꽃',               price: '1,100' },
+  { g: 1, id: 'hyssopOilPrice',            name: '히솝 꽃 오일',                  icon: '히솝꽃오일',           price: '8,700' },
+  { g: 1, id: 'crystalPrice',              name: '최상급 아이템 결정',            icon: '최상급아이템결정',     price: '280,000' },
+  { g: 1, id: 't2AdvSpellPrice',           name: '상급 주문의 정수',              icon: '상급주문의정수',       price: '78,000' },
+  { g: 1, id: 't2MagicCrystalPrice',       name: '마력 결정',                     icon: '마력결정',             price: '50' },
+  { g: 1, id: 't2TwistedTimePrice',        name: '뒤틀린 시간의 정수',            icon: '뒤틀린시간의정수',     price: '8,400' },
+  { g: 1, id: 'recipePrice',               name: '현자의 돌',                     icon: '현자의돌',             price: '7,000,000' },
+  { g: 2, id: 'herbOilPrice',              name: '최고급 허브오일병',             icon: '최고급허브오일병',       fixed: [1000, 960] },
+  { g: 2, id: 'bottlePrice',               name: '최고급 포션 빈 병',             icon: '최고급포션빈병',       fixed: [800, 768] },
+  { g: 2, id: 'toolPrice',                 name: '채집 도구 (500피로도당)',       icon: '채집도구',             fixed: [100000000, 96000000] }
+];
+const ITEM = Object.fromEntries(ITEMS.map(i => [i.id, i]));
+const GROUP_TITLES = ['제작 결과물 시세', '재료 시세', '고정가 (길드 가입 시 할인 적용)'];
 
-                    <div class="bg-white p-3.5 rounded-xl border border-blue-200 hover:border-blue-400 transition-colors">
-                        <label class="block text-xs font-bold text-gray-700 mb-1.5">고급 대영웅의 비약</label>
-                        <input type="text" id="t2AdvHeroPotionPrice" value="4,150,000" class="w-full p-2 text-base font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="t2AdvHeroPotionPriceKor" class="text-xs text-blue-600 mt-1.5 text-right font-bold">415만 메소</div>
-                    </div>
-                </div>
-            </div>
+// 제작 카드 정의. sec: 섹션 번호, mats: {재료 id: 1회 필요 수량}
+// (oilG, potionG는 "하루 피로도로 씨앗을 채집"하는 전용 계산)
+const SECTION_TITLES = ['쥬니퍼베리 씨앗', '영롱한 황혼의 정수', '기타'];
+const CARDS = [
+  { sec: 0, id: 'seedSell', out: 'seedPrice', title: '쥬니퍼베리 씨앗 (채집 후 판매)', desc: '채집한 씨앗을 그대로 판매' },
+  { sec: 0, id: 'oilG',    out: 'oilPrice',    title: '쥬니퍼베리 씨앗 오일 (직접 채집)', desc: '부캐 제작 (성공률 90%)' },
+  { sec: 0, id: 'potionG', out: 'potionPrice', title: '소형 재물 획득의 비약 (채집한 오일로 제작)', desc: '1회: 피로도 5 → 6개' },
+  { sec: 0, id: 'potion',  out: 'potionPrice', title: '소형 재물 획득의 비약 (오일 구매)', yield: 6, fatigue: 5, mats: { bottlePrice: 1, oilPrice: 5, crystalPrice: 2, recipePrice: 1 } },
+  { sec: 1, id: 'shiningSell', out: 't2ShiningTwilightPrice', title: '영롱한 황혼의 정수 (보유 수량 판매)', desc: '보유 중인 수량 기준' },
+  { sec: 1, id: 'hyssopOil', out: 'hyssopOilPrice', title: '히솝 꽃 오일 (씨앗 채집 시 함께 획득)', desc: '부캐 제작 (성공률 90%)' },
+  { sec: 1, id: 'highexp', out: 't2SmallHighExpPotionPrice', yield: 4, fatigue: 5,  mats: { t2SmallExpPotionPrice: 4, t2ShiningTwilightPrice: 2, hyssopOilPrice: 10, t2MagicCrystalPrice: 1000 } },
+  { sec: 1, id: 'hero',    out: 't2HeroPotionPrice',         yield: 2, fatigue: 5,  mats: { bottlePrice: 1, t2MagicCrystalPrice: 10, hyssopOilPrice: 10, t2TwistedTimePrice: 15, t2TwilightPrice: 3 } },
+  { sec: 1, id: 'advhero', out: 't2AdvHeroPotionPrice',      yield: 2, fatigue: 10, mats: { t2HeroPotionPrice: 1, hyssopOilPrice: 10, t2AdvSpellPrice: 1, t2ShiningTwilightPrice: 1 } },
+  { sec: 2, id: 'stone',   out: 'stonePrice',                yield: 1, fatigue: 10, mats: { crystalPrice: 10, t2TwistedTimePrice: 10, t2AdvSpellPrice: 10 } }
+];
 
-            <!-- 부가 설정 (제작 재료) -->
-            <div class="pt-3 border-t border-blue-200/60">
-                <span class="text-xs font-bold text-gray-600 mb-2 block">비약 제작 기타 재료 단가</span>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
-                        <label class="block text-xs font-bold text-gray-700 mb-1">히솝 꽃</label>
-                        <input type="text" id="t2HyssopFlowerPrice" value="700" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="t2HyssopFlowerPriceKor" class="text-xs text-gray-500 mt-1 text-right font-medium">700 메소</div>
-                    </div>
+// localStorage에 저장할 입력 필드 (기존 키 유지)
+const INPUT_IDS = [
+  'dailyFatigue', 'character_name',
+  ...ITEMS.filter(i => !i.fixed).map(i => i.id),
+  ...ITEMS.map(i => `own_${i.id}`)
+];
 
-                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">뒤틀린 시간의 정수</label>
-                        <input type="text" id="t2TwistedTimePrice" value="7,300" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="t2TwistedTimePriceKor" class="text-xs text-gray-500 mt-1 text-right font-medium">7300 메소</div>
-                    </div>
+/* ============================================================
+ * 제작 계산기: 렌더링
+ * ============================================================ */
+const iconBox = (item, size = 7) => `
+  <span class="flex h-${size} w-${size} shrink-0 items-center justify-center">
+    <img src="icon/${item.icon}.png" alt="" class="max-h-full max-w-full" onerror="this.style.display='none'">
+  </span>`;
 
-                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">마력 결정</label>
-                        <input type="text" id="t2MagicCrystalPrice" value="50" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="t2MagicCrystalPriceKor" class="text-xs text-gray-500 mt-1 text-right font-medium">50 메소</div>
-                    </div>
-
-                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">상급 주문의 정수</label>
-                        <input type="text" id="t2AdvSpellPrice" value="7,700" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="t2AdvSpellPriceKor" class="text-xs text-gray-500 mt-1 text-right font-medium">7700 메소</div>
-                    </div>
-
-                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">황혼의 정수</label>
-                        <input type="text" id="t2TwilightPrice" value="17,000" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="t2TwilightPriceKor" class="text-xs text-gray-500 mt-1 text-right font-medium">1만 7000 메소</div>
-                    </div>
-
-                    <div class="bg-white p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">소형 고농축 경험 축적의 비약 레시피</label>
-                        <input type="text" id="t2RecipePrice" value="10,000" class="w-full p-1.5 text-sm font-bold text-gray-800 bg-gray-50 border border-gray-300 rounded focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all" oninput="handleInput(this)">
-                        <div id="t2RecipePriceKor" class="text-xs text-gray-500 mt-1 text-right font-medium">1만 메소</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 순이익 비교 -->
-        <div class="grid gap-4 p-4 md:p-5 bg-emerald-50/40 rounded-xl border border-emerald-200">
-            <h2 class="text-base font-bold text-emerald-950 border-b border-emerald-200 pb-2.5 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-600 inline-block"></span>
-                순이익 비교
-            </h2>
-
-            <!-- 1회 제작 기댓값 요약 -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div class="flex flex-col justify-between items-end bg-white p-3 rounded-xl border border-emerald-200/80">
-                    <span class="text-xs font-bold text-gray-700 w-full">소고경축 1회 손익 (4개 완성 / 피로도 5)</span>
-                    <span id="t2SmallHighExpMargin" class="font-bold text-sm">0</span>
-                </div>
-                <div class="flex flex-col justify-between items-end bg-white p-3 rounded-xl border border-emerald-200/80">
-                    <span class="text-xs font-bold text-gray-700 w-full">고대비(직접제작) 1회 손익 (2개 완성 / 피로도 12.5)</span>
-                    <span id="t2AdvHeroSelfMargin" class="font-bold text-sm">0</span>
-                </div>
-                <div class="flex flex-col justify-between items-end bg-white p-3 rounded-xl border border-emerald-200/80">
-                    <span class="text-xs font-bold text-gray-700 w-full">고대비(구매) 1회 손익 (2개 완성 / 피로도 10)</span>
-                    <span id="t2AdvHeroBuyMargin" class="font-bold text-sm">0</span>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <!-- 시나리오 1 -->
-                <div class="bg-white border border-gray-200 p-4 rounded-xl flex flex-col justify-between transition-all" id="t2BoxScenario1">
-                    <div>
-                        <h3 class="font-bold text-gray-800 text-sm mb-1">소형 고농축 경축 제작</h3>
-                        <p id="t2S1Desc" class="text-xs text-gray-500 mb-2 leading-relaxed">재료 구매 후 제작 판매 (5 피로도/회)</p>
-                    </div>
-                    <div class="border-t border-gray-100 pt-2.5 mt-2">
-                        <div id="t2Scenario1Kor" class="font-extrabold text-base text-gray-900 text-right">0 메소</div>
-                    </div>
-                </div>
-
-                <!-- 시나리오 2 -->
-                <div class="bg-white border border-gray-200 p-4 rounded-xl flex flex-col justify-between transition-all" id="t2BoxScenario2">
-                    <div>
-                        <h3 class="font-bold text-gray-800 text-sm mb-1">고급 대영웅의 비약 (직접제작)</h3>
-                        <p id="t2S2Desc" class="text-xs text-gray-500 mb-2 leading-relaxed">대영웅 직접 제작 후 고대비 제작 (12.5 피로도/회)</p>
-                    </div>
-                    <div class="border-t border-gray-100 pt-2.5 mt-2">
-                        <div id="t2Scenario2Kor" class="font-extrabold text-base text-gray-900 text-right">0 메소</div>
-                    </div>
-                </div>
-
-                <!-- 시나리오 3 -->
-                <div class="bg-white border border-gray-200 p-4 rounded-xl flex flex-col justify-between transition-all" id="t2BoxScenario3">
-                    <div>
-                        <h3 class="font-bold text-gray-800 text-sm mb-1">고급 대영웅의 비약 (구매)</h3>
-                        <p id="t2S3Desc" class="text-xs text-gray-500 mb-2 leading-relaxed">대영웅 구매 후 고대비 제작 (10 피로도/회)</p>
-                    </div>
-                    <div class="border-t border-gray-100 pt-2.5 mt-2">
-                        <div id="t2Scenario3Kor" class="font-extrabold text-base text-gray-900 text-right">0 메소</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 보유 영황정 계산기 -->
-        <div class="bg-amber-50/50 p-4 md:p-5 rounded-xl border border-amber-200 space-y-4">
-            <h2 class="text-base font-bold text-amber-950 border-b border-amber-200/80 pb-2.5 flex justify-between items-center gap-3">
-                <span class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
-                    보유 영황정 계산기
-                </span>
-                <p class="text-xs font-normal text-amber-800">보유 중인 영황정 수량 기준 순이익 비교 (영황정 원가 0원 적용)</p>
-            </h2>
-
-            <div class="flex items-center gap-3 justify-end bg-white/80 p-2.5 rounded-lg border border-amber-200/60">
-                <label class="block text-xs font-bold text-amber-900">보유 영황정 수량 (개)</label>
-                <input type="text" id="t2OwnedEssence" value="10" class="w-full md:w-1/3 p-1.5 text-base font-bold border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white" oninput="handleInput(this)">
-                <span class="block text-sm font-bold text-amber-900">개</span>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <!-- 1. 소형 고농축 경축 -->
-                <div class="bg-white p-3.5 rounded-xl border border-amber-200 flex flex-col justify-between transition-all" id="t2OwnedBox1">
-                    <div>
-                        <span class="text-xs text-gray-600 block font-bold mb-1">1. 소형 고농축 경축 제작</span>
-                        <span id="t2Owned1Desc" class="text-xs text-gray-500 pb-4 block leading-relaxed">0</span>
-                    </div>
-                    <div class="border-t border-amber-100 pt-2 text-right">
-                        <div id="t2Owned1Profit" class="font-extrabold text-right text-sm text-gray-800">0 메소</div>
-                    </div>
-                </div>
-
-                <!-- 2. 고급 대영웅 (직접 제작) -->
-                <div class="bg-white p-3.5 rounded-xl border border-amber-200 flex flex-col justify-between transition-all" id="t2OwnedBox2">
-                    <div>
-                        <span class="text-xs text-gray-600 block font-bold mb-1">2. 고급 대영웅 (대영웅 직접제작)</span>
-                        <span id="t2Owned2Desc" class="text-xs text-gray-500 pb-4 block leading-relaxed">0</span>
-                    </div>
-                    <div class="border-t border-amber-100 pt-2 text-right">
-                        <div id="t2Owned2Profit" class="font-extrabold text-right text-sm text-gray-800">0 메소</div>
-                    </div>
-                </div>
-
-                <!-- 3. 고급 대영웅 (구매) -->
-                <div class="bg-white p-3.5 rounded-xl border border-amber-200 flex flex-col justify-between transition-all" id="t2OwnedBox3">
-                    <div>
-                        <span class="text-xs text-gray-600 block font-bold mb-1">3. 고급 대영웅 (대영웅 구매)</span>
-                        <span id="t2Owned3Desc" class="text-xs text-gray-500 pb-4 block leading-relaxed">0</span>
-                    </div>
-                    <div class="border-t border-amber-100 pt-2 text-right">
-                        <div id="t2Owned3Profit" class="font-extrabold text-right text-sm text-gray-800">0 메소</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+const drawerItem = i => `
+  <div class="card p-2.5">
+    <div class="mb-2 flex items-center gap-2">${iconBox(i)}<span class="label truncate">${i.name}</span></div>
+    <div class="grid grid-cols-[2fr_1fr] gap-2">
+      <div>
+        <span class="text-[10px] font-bold text-slate-400">시세</span>
+        <input type="text" id="${i.id}" value="${i.price || ''}" class="input mt-0.5 ${i.fixed ? 'cursor-not-allowed bg-slate-100' : ''}" ${i.fixed ? 'readonly' : 'oninput="handleInput(this)"'}>
+        <div id="${i.id}Kor" class="kor"></div>
+      </div>
+      <div>
+        <span class="text-[10px] font-bold text-slate-400">보유 수량</span>
+        <input type="text" id="own_${i.id}" value="0" class="input mt-0.5" oninput="handleInput(this)">
+        <div id="own_${i.id}Cnt" class="kor !text-slate-500"></div>
+      </div>
     </div>
+  </div>`;
 
+function buildDrawer() {
+  $('drawerBody').innerHTML = `
+    <label class="card flex cursor-pointer items-center gap-2 p-3 text-sm font-bold text-slate-800">
+      <input type="checkbox" id="guildCheck" class="cb" onchange="handleInput()">
+      길드 가입 <span class="hint">(수수료 · 채집 도구 할인)</span>
+    </label>
+    <div class="card p-2.5">
+      <div class="mb-2 flex items-center gap-2">${iconBox({ icon: '피로도' })}<label class="label" for="dailyFatigue">하루 사용 피로도</label></div>
+      <input type="text" id="dailyFatigue" value="500" class="input" oninput="handleInput(this)">
+      <div id="dailyFatigueKor" class="kor"></div>
+    </div>` +
+    GROUP_TITLES.map((title, g) => `
+      <div class="space-y-2">
+        <span class="sub-h">${title}</span>
+        ${ITEMS.filter(i => i.g === g).map(drawerItem).join('')}
+      </div>`).join('');
+}
 
-    <div id="tab3" class="tab-content hidden max-w-4xl mx-auto bg-white rounded-b-xl border-x border-b border-gray-300 p-4 md:p-6 space-y-6">
-    
-        <!-- API 키 및 캐릭터 검색 설정 -->
-        <div class="grid gap-4 p-4 md:p-5 bg-blue-50/50 rounded-xl border border-blue-200">
-            <h2 class="text-base font-bold text-blue-950 border-b border-blue-200 pb-2.5 flex justify-between items-center">
-                <span class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-blue-600 inline-block"></span>
-                    캐릭터 정보 조회
-                </span>
-                <span class="text-xs text-blue-700 font-normal">Nexon Open API 연동</span>
-            </h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div class="bg-white p-3 rounded-xl border border-blue-200">
-                    <label class="block text-xs font-bold text-gray-700 mb-1">Nexon Open API Key</label>
-                    <input type="password" id="apiKey" placeholder="API Key 입력" class="w-full p-2 text-xs font-semibold text-gray-800 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" onchange="saveApiKey(this.value)">
-                </div>
+const cardHtml = c => {
+  const out = ITEM[c.out];
+  const desc = c.desc || `1회: 피로도 ${c.fatigue} → ${c.yield}개`;
+  return `
+    <div id="card_${c.id}" class="card flex flex-col gap-3 p-4 md:flex-row">
+      <div class="space-y-1.5 md:w-56 md:shrink-0">
+        <div class="flex items-center gap-2">${iconBox(out, 8)}<h3 class="text-sm font-bold leading-snug text-slate-900">${c.title || out.name}</h3></div>
+        <p class="text-xs text-slate-500">${desc}</p>
+        <p id="${c.id}_fat" class="text-xs font-semibold text-slate-700"></p>
+        <p id="${c.id}_own" class="text-xs text-slate-500"></p>
+      </div>
+      <div id="${c.id}_mats" class="flex flex-1 flex-wrap content-start gap-1.5 border-slate-100 md:border-x md:px-4"></div>
+      <div class="space-y-1 text-xs md:w-52 md:shrink-0">
+        <div class="flex justify-between gap-2"><span class="text-slate-500">추가 구매 비용</span><b id="${c.id}_cost" class="text-right"></b></div>
+        <div class="flex justify-between gap-2"><span class="text-slate-500">판매가</span><b id="${c.id}_rev" class="text-right"></b></div>
+        <div class="flex justify-between gap-2 border-t border-slate-100 pt-1.5"><span class="font-bold text-slate-800">순이익</span><b id="${c.id}_profit" class="text-right text-sm"></b></div>
+      </div>
+    </div>`;
+};
 
-                <div class="md:col-span-2 bg-white p-3 rounded-xl border border-blue-200 flex items-end gap-2">
-                    <div class="flex-1">
-                        <label class="block text-xs font-bold text-gray-700 mb-1">캐릭터 닉네임</label>
-                        <input type="text" id="character_name" placeholder="닉네임을 입력하세요" class="w-full p-2 text-sm font-bold text-blue-950 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all" onchange="saveCharacterName(this.value)" onkeyup="if(event.key==='Enter') fetchCharacterInfo()">
-                    </div>
-                    <button onclick="fetchCharacterInfo()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-lg transition-colors h-[38px] flex items-center justify-center min-w-[70px]">
-                        조회
-                    </button>
-                </div>
-            </div>
+function buildRecipes() {
+  $('recipeList').innerHTML = SECTION_TITLES.map((title, sec) => `
+    <div class="space-y-3">
+      <div class="flex items-center gap-3">
+        <span class="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700">${title}</span>
+        <span class="h-px flex-1 bg-slate-200"></span>
+      </div>
+      ${CARDS.filter(c => c.sec === sec).map(cardHtml).join('')}
+    </div>`).join('');
+}
 
-            <!-- 캐릭터 프로필 출력 카드 -->
-            <div id="charCard" class="hidden bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-                    <div class="w-32 h-32 bg-gray-100 rounded-lg border border-gray-200 overflow-hidden flex items-center justify-center">
-                        <img id="charImg" src="" alt="캐릭터 이미지" class="w-full h-full object-contain scale-x-[-2.8] scale-y-[2.8]">
-                    </div>
-                    <div class="flex-1 space-y-2 text-center sm:text-left w-full">
-                        <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                            <span id="charWorld" class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">-</span>
-                            <h3 id="charName" class="text-lg font-black text-gray-900">-</h3>
-                        </div>
-                        <div class="text-xs text-gray-600 space-x-2">
-                            <span>Lv. <strong id="charLevel" class="text-gray-900">0</strong></span>
-                            <span>|</span>
-                            <span id="charClass" class="text-gray-900 font-semibold">-</span>
-                        </div>
-                        <div>
-                            <span id="charGuild" class="text-xs text-gray-500 font-medium">길드: -</span>
-                        </div>
-                        <div class="pt-2 border-t border-gray-100 flex flex-wrap justify-between items-center text-xs">
-                            <span class="text-gray-500 font-bold">전투력</span>
-                            <span id="charStat" class="text-sm font-extrabold text-blue-600">0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+/* 시세·보유 패널 열기/닫기 */
+let drawerOpen = true;
+function setDrawer(open) {
+  drawerOpen = open;
+  $('drawerWrap').classList.toggle('-translate-x-full', !open);
+  $('drawerBackdrop').classList.toggle('hidden', !open);
+  const btn = $('drawerToggle');
+  btn.textContent = open ? '닫기' : '시세 · 보유';
+  btn.classList.toggle('py-10', open);
+  btn.classList.toggle('py-4', !open);
+}
+const toggleDrawer = () => setDrawer(!drawerOpen);
 
-            <div id="charError" class="hidden text-xs text-red-500 font-bold p-2 text-center bg-red-50 rounded-lg border border-red-200"></div>
+// 스크롤바 대신, 아래로 더 내릴 수 있을 때만 하단 그라데이션 표시
+function updateFade() {
+  const el = $('drawerScroll');
+  $('drawerFade').style.opacity = el.scrollTop + el.clientHeight < el.scrollHeight - 4 ? 1 : 0;
+}
+
+/* ============================================================
+ * 입력 처리 / 저장
+ * ============================================================ */
+/** 자동 콤마, 최대값 제한, 커서 위치 유지 */
+function formatNumber(input) {
+  const pos = input.selectionStart || 0;
+  const digitsBeforeCursor = input.value.slice(0, pos).replace(/\D/g, '').length;
+
+  let num = Number(input.value.replace(/\D/g, '') || '0');
+  if (num > 1e9) num = 1e9;
+  const formatted = num.toLocaleString('ko-KR');
+  input.value = formatted;
+
+  let cursor = 0, count = 0;
+  if (digitsBeforeCursor > 0) {
+    for (let i = 0; i < formatted.length; i++) {
+      if (/\d/.test(formatted[i])) count++;
+      if (count === digitsBeforeCursor) { cursor = i + 1; break; }
+    }
+  }
+  input.setSelectionRange(cursor, cursor);
+}
+
+function saveInputs() {
+  INPUT_IDS.forEach(id => {
+    const el = $(id);
+    if (el) localStorage.setItem(`input_${id}`, el.value);
+  });
+  localStorage.setItem('guild_member', $('guildCheck').checked ? '1' : '0');
+}
+
+function loadInputs() {
+  if (localStorage.getItem('defaults_version') !== '3') {   // 기본 시세를 바꾸면 버전을 올려 이전 저장값을 초기화
+    ITEMS.filter(i => !i.fixed).forEach(i => localStorage.removeItem(`input_${i.id}`));
+    localStorage.setItem('defaults_version', '3');
+  }
+  INPUT_IDS.forEach(id => {
+    const el = $(id), saved = localStorage.getItem(`input_${id}`);
+    if (el && saved !== null) el.value = saved;
+  });
+  $('guildCheck').checked = localStorage.getItem('guild_member') === '1';
+  $('apiKey').value = localStorage.getItem('nexon_api_key') || '';
+  $('character_name').value = localStorage.getItem('nexon_character_name') || '';
+}
+
+function handleInput(input) {
+  if (input) formatNumber(input);
+  saveInputs();
+  calculate();
+}
+
+function switchTab(tabId) {
+  ['tab1', 'tab3'].forEach(t => {
+    $(t).classList.toggle('hidden', t !== tabId);
+    $(`tabBtn${t.slice(-1)}`).setAttribute('aria-selected', String(t === tabId));
+  });
+  if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+  if (tabId === 'tab3') renderScheduler();
+}
+
+/* ============================================================
+ * 제작 계산
+ * ============================================================ */
+const fmt1 = n => n.toLocaleString(undefined, { maximumFractionDigits: 1 });
+
+const matChip = (id, label, total, buy, note) => `
+  <span class="chip flex !whitespace-normal items-center gap-1.5 !rounded-lg py-1">
+    ${iconBox(ITEM[id], 5)}
+    <span>${ITEM[id].name}${label ? ` <b>${label}</b>` : ''}
+      <span class="block text-[10px] font-medium ${buy > 0 ? 'text-indigo-600' : 'text-slate-400'}">총 ${total.toLocaleString()} · ${note || (buy > 0 ? `구매 ${buy.toLocaleString()}` : '보유로 충당')}</span>
+    </span>
+  </span>`;
+
+/** 카드 하나의 계산 → { chips, cost(추가 구매 비용), revenue, lines } */
+function calcCard(c, fatigue) {
+  const own = id => getVal(`own_${id}`), price = id => getVal(id);
+  const chips = [];
+  let cost = 0, revenue = 0, lines;
+
+  const need = (id, total, label = '', note = '') => {
+    const buy = note ? 0 : Math.max(0, total - own(id));
+    cost += buy * price(id);
+    chips.push(matChip(id, label, total, buy, note));
+  };
+  const seedLine = (gather, owned) => `채집 ${gather.toLocaleString()}개${owned > 0 ? ` + 보유 ${owned.toLocaleString()}개` : ''}`;
+
+  if (c.id === 'seedSell') {
+    const seeds = fatigue + own('seedPrice');
+    need('toolPrice', Math.ceil(fatigue / 500));
+    revenue = seeds * price('seedPrice');
+    lines = [`피로도 ${fatigue.toLocaleString()} → 씨앗 ${seedLine(fatigue, own('seedPrice'))}`, `총 ${seeds.toLocaleString()}개 판매`];
+
+  } else if (c.id === 'shiningSell') {
+    const n = own(c.out);
+    revenue = n * price(c.out);
+    lines = [`보유 ${n.toLocaleString()}개 판매`, '재료 · 제작 비용 없음'];
+
+  } else if (c.id === 'oilG') {
+    const attempts = Math.floor((fatigue + own('seedPrice')) / 6);
+    const oil = attempts * 0.9;
+    need('seedPrice', attempts * 6, '×6', `채집 ${fatigue.toLocaleString()}${own('seedPrice') > 0 ? ` + 보유 ${own('seedPrice').toLocaleString()}` : ''}`);
+    need('herbOilPrice', attempts, '×1');
+    need('toolPrice', Math.ceil(fatigue / 500));
+    revenue = oil * price('oilPrice');
+    lines = [`피로도 ${fatigue.toLocaleString()} → 씨앗 ${seedLine(fatigue, own('seedPrice'))}`, `오일 약 ${fmt1(oil)}개 (${attempts.toLocaleString()}회 제작)`];
+
+  } else if (c.id === 'potionG') {
+    // 피로도를 채집과 비약 제작(5)에 나눠 쓰며, 오일이 충분한 최대 제작 횟수를 탐색
+    let crafts = Math.floor(fatigue / 38.3333), gather, attempts, oil;
+    const evaluate = () => {
+      gather = fatigue - crafts * 5;
+      attempts = Math.floor((gather + own('seedPrice')) / 6);
+      oil = Math.floor(attempts * 0.9) + own('oilPrice');
+    };
+    for (; crafts > 0; crafts--) { evaluate(); if (oil >= crafts * 5) break; }
+    if (crafts <= 0) { crafts = 0; evaluate(); }
+
+    need('seedPrice', attempts * 6, '', `채집 ${gather.toLocaleString()}${own('seedPrice') > 0 ? ` + 보유 ${own('seedPrice').toLocaleString()}` : ''}`);
+    need('herbOilPrice', attempts, '×1');
+    need('toolPrice', Math.ceil(gather / 500));
+    need('bottlePrice', crafts);
+    need('crystalPrice', crafts * 2);
+    need('recipePrice', crafts);
+    revenue = crafts * 6 * price('potionPrice');
+    lines = [`피로도 ${fatigue.toLocaleString()} = 채집 ${gather.toLocaleString()} + 제작 ${(crafts * 5).toLocaleString()}`, `오일 ${oil.toLocaleString()}개 → 비약 ${(crafts * 6).toLocaleString()}개 (${crafts.toLocaleString()}회)`];
+
+  } else if (c.id === 'hyssopOil') {
+    // 씨앗을 캐면 히솝 꽃도 같은 수량 얻으므로 채집 도구 비용은 포함하지 않음
+    const flowers = fatigue + own('t2HyssopFlowerPrice');
+    const attempts = Math.floor(flowers / 6);
+    need('t2HyssopFlowerPrice', attempts * 6, '×6', `채집 ${fatigue.toLocaleString()}${own('t2HyssopFlowerPrice') > 0 ? ` + 보유 ${own('t2HyssopFlowerPrice').toLocaleString()}` : ''}`);
+    need('herbOilPrice', attempts, '×1');
+    revenue = attempts * 0.9 * price(c.out);
+    lines = [`피로도 ${fatigue.toLocaleString()} → 히솝 꽃 ${seedLine(fatigue, own('t2HyssopFlowerPrice'))}`, `오일 약 ${fmt1(attempts * 0.9)}개 (${attempts.toLocaleString()}회 제작)`];
+
+  } else {
+    const crafts = Math.floor(fatigue / c.fatigue);
+    let canCraft = Infinity;
+    Object.entries(c.mats).forEach(([id, qty]) => {
+      need(id, qty * crafts, `×${qty}`);
+      canCraft = Math.min(canCraft, Math.floor(own(id) / qty));
+    });
+    revenue = crafts * c.yield * price(c.out);
+    lines = [`피로도 기준 ${crafts.toLocaleString()}회 → ${(crafts * c.yield).toLocaleString()}개`, `보유 재료로 ${Math.min(canCraft, crafts).toLocaleString()}회 제작 가능`];
+  }
+  return { chips, cost, revenue, lines };
+}
+
+function calculate() {
+  const guild = $('guildCheck').checked;
+  ITEMS.filter(i => i.fixed).forEach(i => { $(i.id).value = i.fixed[guild ? 1 : 0].toLocaleString('ko-KR'); });
+
+  const fatigue = getVal('dailyFatigue');
+  ITEMS.forEach(i => {
+    setText(`${i.id}Kor`, formatKoreanMoney(getVal(i.id)));
+    setText(`own_${i.id}Cnt`, `${getVal(`own_${i.id}`).toLocaleString()} 개`);
+  });
+  setText('dailyFatigueKor', `${fatigue.toLocaleString()} 피로도`);
+  setText('toolPriceKor', `${formatKoreanMoney(getVal('toolPrice'))} (씨앗 1개 ≈ ${Math.round(getVal('toolPrice') / 500).toLocaleString()} 메소)`);
+  setText('craftHint', `하루 피로도 ${fatigue.toLocaleString()} 전부 사용 기준 · 길드 ${guild ? '가입' : '미가입'}`);
+
+  CARDS.forEach(c => {
+    const r = calcCard(c, fatigue);
+    setText(`${c.id}_fat`, r.lines[0]);
+    setText(`${c.id}_own`, r.lines[1]);
+    $(`${c.id}_mats`).innerHTML = r.chips.join('');
+    setText(`${c.id}_cost`, formatKoreanMoney(r.cost));
+    setText(`${c.id}_rev`, formatKoreanMoney(r.revenue));
+    setProfit(`${c.id}_profit`, r.revenue - r.cost);
+  });
+}
+
+/* ============================================================
+ * 스케줄러: 보스 메소 수익 (형식: "난이도 보스명 가격")
+ * ============================================================ */
+const BOSS_PRICE_TEXT = `
+이지 자쿰 114000
+노말 자쿰 349000
+이지 파풀라투스 390000
+이지 매그너스 411000
+노말 힐라 455000
+이지 혼테일 502000
+노말 블러디퀸 551000
+노말 반반 551000
+노말 피에르 551000
+노말 벨룸 551000
+노말 혼테일 576000
+이지 반 레온 602000
+이지 아카이럼 656000
+노말 카웅 712000
+카오스 혼테일 770000
+노말 핑크빈 799000
+노말 반 레온 830000
+하드 반 레온 1070000
+노말 아카이럼 1110000
+노말 매그너스 1160000
+노말 파풀라투스 1200000
+하드 힐라 1280000
+카오스 핑크빈 1320000
+노말 시그너스 1360000
+카오스 자쿰 4040000
+카오스 블러디퀸 4070000
+카오스 반반 4070000
+카오스 피에르 4080000
+하드 매그너스 4280000
+카오스 벨룸 4640000
+카오스 파풀라투스 6550000
+노말 스우 8350000
+노말 데미안 8750000
+노말 가디언 엔젤 슬라임 12700000
+이지 루시드 14900000
+이지 윌 16100000
+노말 루시드 17800000
+노말 윌 20500000
+노말 더스크 22000000
+노말 듄켈 23700000
+하드 데미안 46400000
+하드 스우 48900000
+하드 루시드 59700000
+카오스 더스크 66300000
+노말 진 힐라 67600000
+카오스 가디언 엔젤 슬라임 71300000
+하드 윌 73200000
+하드 듄켈 89600000
+하드 진 힐라 100000000
+노말 선택받은 세렌 167000000
+이지 감시자 칼로스 238000000
+이지 최초의 대적자 261000000
+하드 선택받은 세렌 302000000
+이지 카링 320000000
+이지 벨로나 396000000
+노말 감시자 칼로스 479000000
+노말 최초의 대적자 532000000
+익스트림 스우 545000000
+노말 찬란한 흉성 576000000
+노말 카링 593000000
+노말 벨로나 824000000
+노말 림보 995000000
+카오스 감시자 칼로스 1230000000
+노말 발드릭스 1320000000
+하드 최초의 대적자 1390000000
+노말 유피테르 1560000000
+하드 카링 1560000000
+익스트림 선택받은 세렌 1840000000
+하드 림보 2385000000
+하드 찬란한 흉성 2678000000
+하드 벨로나 2950000000
+하드 발드릭스 3078000000
+익스트림 감시자 칼로스 4104000000
+익스트림 최초의 대적자 4712000000
+하드 유피테르 4845000000
+익스트림 카링 5387000000
+하드 검은 마법사 465000000
+익스트림 검은 마법사 5680000000
+`;
+
+const BOSS_PRICES = Object.fromEntries(
+  BOSS_PRICE_TEXT.trim().split('\n').map(line => {
+    const i = line.lastIndexOf(' ');
+    return [line.slice(0, i), Number(line.slice(i + 1))];
+  })
+);
+
+const DIFF_KOR = { easy: '이지', normal: '노말', hard: '하드', chaos: '카오스', extreme: '익스' };
+const DIFF_PRICE_KOR = { easy: '이지', normal: '노말', hard: '하드', chaos: '카오스', extreme: '익스트림' };
+const DAILY_DIFF_KEYS = ['easy', 'normal', 'hard', 'chaos'];
+const WEEKLY_DIFF_KEYS = ['easy', 'normal', 'hard', 'chaos', 'extreme'];
+const MONTHLY_DIFF_KEYS = ['hard', 'extreme'];
+const EXCLUDED_WEEKLY = ['PC방', '크리티아스', '세계수', '헤이븐', '꾸준한'];
+
+const getBossPrice = (diff, bossName) => BOSS_PRICES[`${DIFF_PRICE_KOR[diff] || '노말'} ${bossName}`] || 0;
+
+/* ============================================================
+ * 스케줄러: 상태 / API
+ * ============================================================ */
+const STATE_KEY = 'maple_scheduler_state';
+let cachedSchedulerData = null;
+
+const loadState = () => readJSON(STATE_KEY);
+const patchState = (key, value) => {
+  localStorage.setItem(STATE_KEY, JSON.stringify({ ...loadState(), [key]: value }));
+  renderScheduler();
+};
+
+const toggleTask = (key, checked) => patchState(key, checked);
+const updatePartyCount = (bossName, count) => patchState(`party_${bossName}`, Number(count));
+
+function resetScheduler() {
+  if (confirm('모든 체크 및 파티 인원 설정을 초기화하시겠습니까?')) {
+    localStorage.removeItem(STATE_KEY);
+    renderScheduler();
+  }
+}
+
+function saveApiKey(val) { localStorage.setItem('nexon_api_key', val.trim()); }
+function saveCharacterName(val) { localStorage.setItem('nexon_character_name', val.trim()); }
+
+async function fetchCharacterInfo() {
+  localStorage.removeItem(STATE_KEY);
+  cachedSchedulerData = null;
+
+  const apiKey = (localStorage.getItem('nexon_api_key') || '').trim();
+  const charName = $('character_name').value.trim();
+  const charCard = $('charCard');
+  const charError = $('charError');
+  const showError = msg => { charError.textContent = msg; charError.classList.remove('hidden'); };
+
+  charCard.classList.add('hidden');
+  charError.classList.add('hidden');
+
+  if (!apiKey) return showError('Nexon Open API Key를 입력해주세요.');
+  if (!charName) return showError('캐릭터 닉네임을 입력해주세요.');
+
+  const api = path => fetch(`https://open.api.nexon.com/maplestory/v1/${path}`, { headers: { 'x-nxopen-api-key': apiKey } });
+
+  try {
+    const idRes = await api(`id?character_name=${encodeURIComponent(charName)}`);
+    const idData = await idRes.json();
+    if (!idRes.ok || !idData.ocid) throw new Error(idData.error?.message || '캐릭터를 찾을 수 없습니다.');
+
+    const ocid = idData.ocid;
+    const [basicRes, statRes, schedulerRes] = await Promise.all([
+      api(`character/basic?ocid=${ocid}`),
+      api(`character/stat?ocid=${ocid}`),
+      api(`scheduler/character-state?ocid=${ocid}`)
+    ]);
+    const basic = await basicRes.json();
+    const stat = await statRes.json();
+    const scheduler = await schedulerRes.json();
+
+    if (!basicRes.ok) throw new Error(basic.error?.message || '캐릭터 정보 조회 실패');
+
+    $('charImg').src = basic.character_image || '';
+    setText('charWorld', basic.world_name || '-');
+    setText('charName', basic.character_name || charName);
+    setText('charGuild', basic.character_guild_name ? `길드: ${basic.character_guild_name}` : '길드: 없음');
+    setText('charLevel', basic.character_level || '0');
+    setText('charClass', basic.character_class || '-');
+
+    let combatPower = '0';
+    const cp = stat.final_stat?.find(s => s.stat_name === '전투력');
+    if (cp?.stat_value) combatPower = formatKoreanMoney(Number(cp.stat_value)).replace('메소', '').trim();
+    setText('charStat', combatPower);
+
+    if (schedulerRes.ok && scheduler) {
+      cachedSchedulerData = scheduler;
+      renderScheduler(scheduler);
+    } else {
+      renderScheduler();
+    }
+    charCard.classList.remove('hidden');
+  } catch (err) {
+    showError(err.message || '데이터를 불러오는 중 오류가 발생했습니다.');
+  }
+}
+
+/* ============================================================
+ * 스케줄러: 렌더링
+ * ============================================================ */
+function isTaskCompleted(item, type) {
+  if (!item) return false;
+  if (type === 'boss') return item.complete_flag === 'true' || item.complete_flag === true;
+
+  const name = item.content_name || '';
+  if (name.includes('지하 수로') || name.includes('플래그')) return (item.now_count || 0) >= 1;
+  if (name.includes('에픽 던전')) return (item.now_count || 0) >= (item.max_count || 5);
+  if (item.quest_state === '2') return true;
+  return Boolean(item.max_count && item.now_count >= item.max_count);
+}
+
+function groupBossContentsByCycle(bossItems, targetCycle) {
+  const keywords = { daily: ['일간', 'daily'], weekly: ['주간', 'weekly'], monthly: ['월간', 'monthly'] }[targetCycle];
+  const grouped = {};
+
+  (bossItems || []).forEach((item, originalIdx) => {
+    const name = item.content_name.trim();
+    if (name.includes('메이린')) return;
+
+    const cycle = (item.cycle || item.boss_type || '').toLowerCase();
+    if (!keywords.some(k => cycle.includes(k))) return;
+
+    grouped[name] ??= { name, cycle: item.cycle || item.boss_type, difficulties: {} };
+    grouped[name].difficulties[(item.difficulty || 'normal').toLowerCase()] = { ...item, originalIdx };
+  });
+
+  return Object.values(grouped);
+}
+
+const taskRow = (key, name, checked, rightHtml = '') => `
+  <label class="row cursor-pointer">
+    <span class="flex items-center gap-2 overflow-hidden">
+      <input type="checkbox" class="cb" data-key="${esc(key)}" onchange="toggleTask(this.dataset.key, this.checked)" ${checked ? 'checked' : ''}>
+      <span class="truncate ${checked ? 'text-slate-400 line-through' : 'font-medium text-slate-800'}">${esc(name)}</span>
+    </span>
+    ${rightHtml}
+  </label>`;
+
+const countLabel = item => item.max_count
+  ? `<span class="ml-1 whitespace-nowrap text-[11px] font-bold text-slate-500">(${item.now_count}/${item.max_count})</span>` : '';
+
+const emptyMsg = text => `<p class="p-2 text-center text-xs text-slate-400">${text}</p>`;
+
+// 보스 표의 컬럼 폭을 헤더/행에서 동일하게 맞추기 위한 헬퍼
+const COL_PARTY = 'w-14 shrink-0 text-center';
+const COL_DIFF = 'w-10 shrink-0 flex justify-center items-center';
+
+function bossHeaderHtml(diffKeys, party) {
+  return `
+    <div class="flex items-center gap-1 border-b border-slate-100 pb-1 text-[10px] font-bold text-slate-400 pr-5">
+      <span class="flex-1 pl-1">보스</span>
+      ${party ? `<span class="${COL_PARTY}">인원수</span>` : ''}
+      ${diffKeys.map(d => `<span class="${COL_DIFF}">${DIFF_KOR[d]}</span>`).join('')}
+    </div>`;
+}
+
+function renderBossGrid(bossList, diffKeys, state, showParty) {
+  if (!bossList.length) return { html: emptyMsg('해당 보스 없음'), cleared: 0, revenue: 0 };
+
+  let cleared = 0, revenue = 0;
+
+  const html = bossList.map(boss => {
+    const party = showParty ? (state[`party_${boss.name}`] || 1) : 1;
+    const imgSrc = `icon/boss/${boss.name.replace(/\s+/g, '')}.png`;
+    let isCleared = false;
+
+    const cells = diffKeys.map(diff => {
+      const item = boss.difficulties[diff];
+      if (!item) return `<div class="${COL_DIFF} text-slate-300">-</div>`;
+
+      const key = `b_api_${item.originalIdx}`;
+      const checked = state[key] !== undefined ? state[key] : isTaskCompleted(item, 'boss');
+      if (checked) {
+        isCleared = true;
+        revenue += getBossPrice(diff, boss.name) / party;
+      }
+      return `<div class="${COL_DIFF}"><input type="checkbox" class="cb !h-5 !w-5" data-key="${key}" onchange="toggleTask(this.dataset.key, this.checked)" ${checked ? 'checked' : ''}></div>`;
+    }).join('');
+
+    if (isCleared) cleared++;
+
+    const partySelect = showParty ? `
+      <div class="${COL_PARTY}">
+        <select data-boss="${esc(boss.name)}" onchange="updatePartyCount(this.dataset.boss, this.value)"
+                class="rounded border border-slate-300 bg-slate-50 px-1 py-0.5 text-[11px] font-bold focus:outline-none focus:ring-1 focus:ring-indigo-500">
+          ${[1, 2, 3, 4, 5, 6].map(n => `<option value="${n}" ${party === n ? 'selected' : ''}>${n}인</option>`).join('')}
+        </select>
+      </div>` : '';
+
+    return `
+      <div class="flex items-center gap-1 rounded border-b border-slate-100 p-1.5 hover:bg-slate-50">
+        <div class="flex min-w-0 flex-1 items-center gap-2 text-[13px] font-bold ${isCleared ? 'text-slate-400 line-through' : 'text-slate-800'}" title="${esc(boss.name)}">
+          <img src="${esc(imgSrc)}" alt="" class="h-8 w-8 flex-shrink-0 rounded object-contain" onerror="this.style.display='none'">
+          <span class="truncate">${esc(boss.name)}</span>
         </div>
-
-        <!-- 스케줄러 영역 -->
-        <div class="grid gap-4 p-4 md:p-5 bg-emerald-50/40 rounded-xl border border-emerald-200">
-            <h2 class="text-base font-bold text-emerald-950 border-b border-emerald-200 pb-2.5 flex items-center justify-between">
-                <span class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-600 inline-block"></span>
-                    인게임 스케줄러 현황
-                    <span id="schedulerDate" class="text-xs text-emerald-700 font-normal"></span>
-                </span>
-                <button onclick="resetScheduler()" class="text-xs font-semibold text-red-600 hover:text-red-800 bg-white px-2 py-1 border border-red-200 rounded transition-colors">
-                    체크 초기화
-                </button>
-            </h2>
-
-            <!-- 1행: 일간 콘텐츠 & 주간 콘텐츠 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- 일일 과제 -->
-                <div class="bg-white p-4 rounded-xl border border-emerald-200 space-y-3">
-                    <h3 class="text-xs font-bold text-emerald-900 border-b border-gray-100 pb-2 flex justify-between items-center">
-                        <span>일일 콘텐츠 (Daily)</span>
-                        <span id="dailyProgress" class="text-emerald-600 font-extrabold">0/0</span>
-                    </h3>
-                    <div id="dailyList" class="space-y-1 text-xs text-gray-700 max-h-80 overflow-y-auto"></div>
-                </div>
-
-                <!-- 주간 과제 -->
-                <div class="bg-white p-4 rounded-xl border border-emerald-200 space-y-3">
-                    <h3 class="text-xs font-bold text-emerald-900 border-b border-gray-100 pb-2 flex justify-between items-center">
-                        <span>주간 콘텐츠 (Weekly)</span>
-                        <span id="weeklyProgress" class="text-emerald-600 font-extrabold">0/0</span>
-                    </h3>
-                    <div id="weeklyList" class="space-y-1 text-xs text-gray-700 max-h-80 overflow-y-auto"></div>
-                </div>
-            </div>
-
-            <!-- 2행: 주간 보스 처치 현황 요약 바 -->
-            <div id="bossSummaryBar" class="hidden bg-white p-3 rounded-xl border border-emerald-300 shadow-sm flex justify-between items-center text-xs font-bold text-emerald-950">
-                <span class="flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                    주간 보스 처치 현황
-                </span>
-                <span class="text-emerald-800"><strong id="bossClearCount" class="text-emerald-600 text-sm font-black">0</strong> / <span id="bossClearLimit">12</span> 회</span>
-            </div>
-
-            <!-- 2.5행: 보스 수익 요약 카드 (주간 보스 처치 현황 아래) -->
-            <div id="bossRevenueBar" class="bg-white p-3.5 rounded-xl border border-emerald-300 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                <div class="flex flex-col justify-center items-center p-2 bg-blue-50/60 rounded-lg border border-blue-100">
-                    <span class="text-blue-900 font-bold mb-1">일간 보스 수익</span>
-                    <span id="dailyBossRevenue" class="text-sm font-black text-blue-600">0 메소</span>
-                </div>
-                <div class="flex flex-col justify-center items-center p-2 bg-purple-50/60 rounded-lg border border-purple-100">
-                    <span class="text-purple-900 font-bold mb-1">주간 보스 수익</span>
-                    <span id="weeklyBossRevenue" class="text-sm font-black text-purple-600">0 메소</span>
-                </div>
-                <div class="flex flex-col justify-center items-center p-2 bg-rose-50/60 rounded-lg border border-rose-100">
-                    <span class="text-rose-900 font-bold mb-1">월간 보스 수익</span>
-                    <span id="monthlyBossRevenue" class="text-sm font-black text-rose-600">0 메소</span>
-                </div>
-            </div>
-
-            <!-- 3행: 보스 콘텐츠 영역 -->
-            <div class="space-y-4">
-                <!-- 3-1행: 주간 보스 -->
-                <div class="bg-white p-3.5 rounded-xl border border-emerald-200 space-y-2">
-                    <h3 class="text-xs font-bold text-purple-900 border-b border-gray-100 pb-2 flex justify-between items-center">
-                        <span class="flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-                            주간 보스
-                        </span>
-                        <span id="weeklyBossProgress" class="text-purple-600 font-extrabold">0/0</span>
-                    </h3>
-                    <div class="flex justify-between gap-1 text-[10px] font-bold text-gray-400 border-b border-gray-100 pr-3 pb-1 text-center">
-                        <span class="col-span-5 text-left pl-1">보스</span>
-                        <div class="flex gap-6 items-center">
-                            <span class="w-12 text-center">인원수</span>
-                            <span>이지</span>
-                            <span>노말</span>
-                            <span>하드</span>
-                            <span>카오스</span>
-                            <span>익스</span>
-                        </div>
-                    </div>
-                    <div id="weeklyBossList" class="space-y-1 text-xs text-gray-700 max-h-96 overflow-y-auto"></div>
-                </div>
-                <!-- 3-2행: 일간 보스 (2/3) & 월간 보스 (1/3) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- 일간 보스 -->
-                    <div class="md:col-span-1 bg-white p-3.5 rounded-xl border border-emerald-200 space-y-2">
-                        <h3 class="text-xs font-bold text-blue-900 border-b border-gray-100 pb-2 flex justify-between items-center">
-                            <span class="flex items-center gap-1.5">
-                                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                                일간 보스
-                            </span>
-                            <span id="dailyBossProgress" class="text-blue-600 font-extrabold">0/0</span>
-                        </h3>
-                        <div class="flex justify-between gap-1 text-[10px] font-bold text-gray-400 border-b border-gray-100 pr-3 pb-1 text-center">
-                            <span class="col-span-5 text-left pl-1">보스</span>
-                            <div class="flex gap-6">
-                                <span>이지</span>
-                                <span>노말</span>
-                                <span>하드</span>
-                                <span>카오스</span>
-                            </div>
-                        </div>
-                        <div id="dailyBossList" class="space-y-1 text-xs text-gray-700 max-h-60 overflow-y-auto"></div>
-                    </div>
-
-                    <!-- 월간 보스 -->
-                    <div class="md:col-span-1 bg-white p-3.5 rounded-xl border border-emerald-200 space-y-2">
-                        <h3 class="text-xs font-bold text-rose-900 border-b border-gray-100 pb-2 flex justify-between items-center">
-                            <span class="flex items-center gap-1.5">
-                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                                월간 보스
-                            </span>
-                            <span id="monthlyBossProgress" class="text-rose-600 font-extrabold">0/0</span>
-                        </h3>
-                        <div class="flex justify-between gap-1 text-[10px] font-bold text-gray-400 border-b border-gray-100 pr-3 pb-1 text-center">
-                            <span class="col-span-6 text-left pl-1">보스</span>
-                            <div class="flex gap-6 items-center">
-                                <span class="w-12 text-center">인원수</span>
-                                <span>하드</span>
-                                <span>익스</span>
-                            </div>
-                        </div>
-                        <div id="monthlyBossList" class="space-y-1 text-xs text-gray-700 max-h-60 overflow-y-auto"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-
-    <script>
-        // 보스 메소 수익 데이터베이스
-        const BOSS_PRICES = {
-            // 일간 보스
-            '이지 자쿰': 114000,
-            '노말 자쿰': 349000,
-            '노멀 자쿰': 349000,
-            '이지 파풀라투스': 390000,
-            '이지 매그너스': 411000,
-            '노말 힐라': 455000,
-            '노멀 힐라': 455000,
-            '이지 혼테일': 502000,
-            '노말 블러디퀸': 551000,
-            '노멀 블러디퀸': 551000,
-            '노말 반반': 551000,
-            '노멀 반반': 551000,
-            '노말 피에르': 551000,
-            '노멀 피에르': 551000,
-            '노말 벨룸': 551000,
-            '노멀 벨룸': 551000,
-            '노말 혼테일': 576000,
-            '노멀 혼테일': 576000,
-            '이지 반 레온': 602000,
-            '이지 아카이럼': 656000,
-            '노말 카웅': 712000,
-            '노멀 카웅': 712000,
-            '카오스 혼테일': 770000,
-            '노말 핑크빈': 799000,
-            '노멀 핑크빈': 799000,
-            '노말 반 레온': 830000,
-            '노멀 반 레온': 830000,
-            '하드 반 레온': 1070000,
-            '노말 아카이럼': 1110000,
-            '노멀 아카이럼': 1110000,
-            '노말 매그너스': 1160000,
-            '노멀 매그너스': 1160000,
-            '노말 파풀라투스': 1200000,
-            '노멀 파풀라투스': 1200000,
-            '하드 힐라': 1280000,
-            '카오스 핑크빈': 1320000,
-            '노말 시그너스': 1360000,
-            '노멀 시그너스': 1360000,
-
-            // 주간 보스
-            '카오스 자쿰': 4040000,
-            '카오스 블러디퀸': 4070000,
-            '카오스 반반': 4070000,
-            '카오스 피에르': 4080000,
-            '하드 매그너스': 4280000,
-            '카오스 벨룸': 4640000,
-            '카오스 파풀라투스': 6550000,
-            '노말 스우': 8350000,
-            '노멀 스우': 8350000,
-            '노말 데미안': 8750000,
-            '노멀 데미안': 8750000,
-            '노말 가디언 엔젤 슬라임': 12700000,
-            '노멀 가디언 엔젤 슬라임': 12700000,
-            '이지 루시드': 14900000,
-            '이지 윌': 16100000,
-            '노말 루시드': 17800000,
-            '노멀 루시드': 17800000,
-            '노말 윌': 20500000,
-            '노멀 윌': 20500000,
-            '노말 더스크': 22000000,
-            '노멀 더스크': 22000000,
-            '노말 듄켈': 23700000,
-            '노멀 듄켈': 23700000,
-            '하드 데미안': 46400000,
-            '하드 스우': 48900000,
-            '하드 루시드': 59700000,
-            '카오스 더스크': 66300000,
-            '노말 진 힐라': 67600000,
-            '노멀 진 힐라': 67600000,
-            '카오스 가디언 엔젤 슬라임': 71300000,
-            '하드 윌': 73200000,
-            '하드 듄켈': 89600000,
-            '하드 진 힐라': 100000000,
-            '노말 선택받은 세렌': 167000000,
-            '노멀 선택받은 세렌': 167000000,
-            '이지 감시자 칼로스': 238000000,
-            '이지 최초의 대적자': 261000000,
-            '하드 선택받은 세렌': 302000000,
-            '이지 카링': 320000000,
-            '이지 벨로나': 396000000,
-            '노말 감시자 칼로스': 479000000,
-            '노멀 감시자 칼로스': 479000000,
-            '노말 최초의 대적자': 532000000,
-            '노멀 최초의 대적자': 532000000,
-            '익스트림 스우': 545000000,
-            '노말 찬란한 흉성': 576000000,
-            '노멀 찬란한 흉성': 576000000,
-            '노말 카링': 593000000,
-            '노멀 카링': 593000000,
-            '노말 벨로나': 824000000,
-            '노멀 벨로나': 824000000,
-            '노말 림보': 995000000,
-            '노멀 림보': 995000000,
-            '카오스 감시자 칼로스': 1230000000,
-            '노말 발드릭스': 1320000000,
-            '노멀 발드릭스': 1320000000,
-            '하드 최초의 대적자': 1390000000,
-            '노말 유피테르': 1560000000,
-            '노멀 유피테르': 1560000000,
-            '하드 카링': 1560000000,
-            '익스트림 선택받은 세렌': 1840000000,
-            '하드 림보': 2385000000,
-            '하드 찬란한 흉성': 2678000000,
-            '하드 벨로나': 2950000000,
-            '하드 발드릭스': 3078000000,
-            '익스트림 감시자 칼로스': 4104000000,
-            '익스트림 최초의 대적자': 4712000000,
-            '하드 유피테르': 4845000000,
-            '익스트림 카링': 5387000000,
-
-            // 월간 보스
-            '하드 검은 마법사': 465000000,
-            '익스트림 검은 마법사': 5680000000
-        };
-
-        // 보스 가격 조회 헬퍼 함수
-        function getBossPrice(diffKey, bossName) {
-            const diffMap = {
-                'easy': '이지',
-                'normal': '노말',
-                'hard': '하드',
-                'chaos': '카오스',
-                'extreme': '익스트림'
-            };
-            const diffKor = diffMap[diffKey] || '노말';
-            
-            let key = `${diffKor} ${bossName}`;
-            if (BOSS_PRICES[key] !== undefined) return BOSS_PRICES[key];
-
-            key = `${diffKor === '노말' ? '노멀' : diffKor} ${bossName}`;
-            if (BOSS_PRICES[key] !== undefined) return BOSS_PRICES[key];
-
-            return 0;
-        }
-
-        // localStorage에 저장할 입력 필드 ID 목록
-        const INPUT_IDS = [
-            'seedPrice', 'oilPrice', 'potionPrice', 'dailyFatigue', 'toolPrice', 'recipePrice', 'crystalPrice', 'harvestedSeeds',
-            't2ShiningTwilightPrice', 't2SmallExpPotionPrice', 't2SmallHighExpPotionPrice', 't2DailyFatigue', 't2HeroPotionPrice',
-            't2AdvHeroPotionPrice', 't2HyssopFlowerPrice', 't2TwistedTimePrice', 't2MagicCrystalPrice', 't2AdvSpellPrice',
-            't2TwilightPrice', 't2RecipePrice', 't2OwnedEssence', 'character_name'
-        ];
-        
-
-        // 입력값 localStorage 저장
-        function saveInputs() {
-            INPUT_IDS.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    localStorage.setItem(`input_${id}`, el.value);
-                }
-            });
-        }
-
-        function loadInputs() {
-            INPUT_IDS.forEach(id => {
-                const el = document.getElementById(id);
-                const savedVal = localStorage.getItem(`input_${id}`);
-                if (el && savedVal !== null) {
-                    el.value = savedVal;
-                }
-            });
-            
-            const apiKey = localStorage.getItem('nexon_api_key') || '';
-            const characterName = localStorage.getItem('nexon_character_name') || '';
-
-            if (document.getElementById('apiKey')) {
-                document.getElementById('apiKey').value = apiKey;
-            }
-            if (document.getElementById('character_name')) {
-                document.getElementById('character_name').value = characterName;
-            }
-        }
-
-        // 탭 전환 함수
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(tabId).classList.remove('hidden');
-
-            const btn1 = document.getElementById('tabBtn1');
-            const btn2 = document.getElementById('tabBtn2');
-            const btn3 = document.getElementById('tabBtn3');
-
-            const tab1activeClass = "flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-blue-600 text-blue-600 bg-white rounded-tl-xl transition-all";
-            const tab1inactiveClass = "flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-800 hover:bg-white/50 rounded-tl-xl transition-all";
-            const tab2activeClass = "flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-blue-600 text-blue-600 bg-white transition-all";
-            const tab2inactiveClass = "flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-800 hover:bg-white/50 transition-all";
-            const tab3activeClass = "flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-blue-600 text-blue-600 bg-white rounded-tr-xl transition-all";
-            const tab3inactiveClass = "flex-1 py-2.5 px-3 text-sm md:text-base font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-800 hover:bg-white/50 rounded-tr-xl transition-all";
-
-            if (tabId === 'tab1') {
-                btn1.className = tab1activeClass;
-                btn2.className = tab2inactiveClass;
-                btn3.className = tab3inactiveClass;
-            } else if (tabId === 'tab2'){
-                btn1.className = tab1inactiveClass;
-                btn2.className = tab2activeClass;
-                btn3.className = tab3inactiveClass;
-            } else {
-                btn1.className = tab1inactiveClass;
-                btn2.className = tab2inactiveClass;
-                btn3.className = tab3activeClass;
-            }
-
-            if (document.activeElement instanceof HTMLElement) {
-                document.activeElement.blur();
-            }
-
-            if (tabId === 'tab3') renderScheduler();
-        }
-
-        // 숫자를 한글 메소 단위로 변환
-        function formatKoreanMoney(num) {
-            if (isNaN(num) || num === 0) return '0 메소';
-            
-            const isNegative = num < 0;
-            let absNum = Math.abs(Math.round(num));
-
-            const eok = Math.floor(absNum / 100000000);
-            let remainder = absNum % 100000000;
-            const man = Math.floor(remainder / 10000);
-            const remain = remainder % 10000;
-
-            let result = '';
-            if (eok > 0) result += `${eok.toLocaleString()}억 `;
-            if (man > 0) result += `${man.toLocaleString()}만 `;
-            if (remain > 0 || (eok === 0 && man === 0)) result += `${remain.toLocaleString()}`;
-
-            return (isNegative ? '-' : '') + result.trim() + ' 메소';
-        }
-
-        // 입력창 자동 콤마 포맷, 최대값 제한 및 커서 위치 유지
-        function formatNumber(input) {
-            const selectionStart = input.selectionStart || 0;
-            const valueBeforeCursor = input.value.slice(0, selectionStart);
-            const digitsBeforeCursor = valueBeforeCursor.replace(/[^0-9]/g, '').length;
-
-            let rawValue = input.value.replace(/,/g, '').replace(/[^0-9]/g, '');
-            if (rawValue === '') rawValue = '0';
-
-            let num = Number(rawValue);
-
-            if (num > 1000000000) num = 1000000000;
-
-            const formattedValue = num.toLocaleString('ko-KR');
-            input.value = formattedValue;
-
-            let newCursorPos = 0;
-            let digitCount = 0;
-
-            if (digitsBeforeCursor === 0) {
-                newCursorPos = 0;
-            } else {
-                for (let i = 0; i < formattedValue.length; i++) {
-                    if (/[0-9]/.test(formattedValue[i])) {
-                        digitCount++;
-                    }
-                    if (digitCount === digitsBeforeCursor) {
-                        newCursorPos = i + 1;
-                        break;
-                    }
-                }
-            }
-
-            input.setSelectionRange(newCursorPos, newCursorPos);
-        }
-
-        // 입력값 파싱
-        function getVal(id) {
-            const el = document.getElementById(id);
-            if (!el) return 0;
-            return Number(el.value.replace(/,/g, '')) || 0;
-        }
-
-        // 통합 핸들러
-        function handleInput(input) {
-            if (input) formatNumber(input);
-            saveInputs();
-            calculate();
-        }
-
-        function calculateTab2() {
-            const shiningTwilight = getVal('t2ShiningTwilightPrice');
-            const smallExp = getVal('t2SmallExpPotionPrice');
-            const smallHighExp = getVal('t2SmallHighExpPotionPrice');
-            const fatigue = getVal('t2DailyFatigue');
-            const heroPotion = getVal('t2HeroPotionPrice');
-            const advHeroPotion = getVal('t2AdvHeroPotionPrice');
-            const hyssopFlower = getVal('t2HyssopFlowerPrice');
-            const twistedTime = getVal('t2TwistedTimePrice');
-            const magicCrystal = getVal('t2MagicCrystalPrice');
-            const advSpell = getVal('t2AdvSpellPrice');
-            const twilight = getVal('t2TwilightPrice');
-            const recipe = getVal('t2RecipePrice');
-
-            const hyssopOilCost = ((hyssopFlower * 6) + 1000) / 0.9;
-
-            if (document.getElementById('t2ShiningTwilightPriceKor')) document.getElementById('t2ShiningTwilightPriceKor').textContent = formatKoreanMoney(shiningTwilight);
-            if (document.getElementById('t2SmallExpPotionPriceKor')) document.getElementById('t2SmallExpPotionPriceKor').textContent = formatKoreanMoney(smallExp);
-            if (document.getElementById('t2SmallHighExpPotionPriceKor')) document.getElementById('t2SmallHighExpPotionPriceKor').textContent = formatKoreanMoney(smallHighExp);
-            if (document.getElementById('t2DailyFatigueKor')) document.getElementById('t2DailyFatigueKor').textContent = `${fatigue.toLocaleString()} 피로도`;
-            if (document.getElementById('t2HeroPotionPriceKor')) document.getElementById('t2HeroPotionPriceKor').textContent = formatKoreanMoney(heroPotion);
-            if (document.getElementById('t2AdvHeroPotionPriceKor')) document.getElementById('t2AdvHeroPotionPriceKor').textContent = formatKoreanMoney(advHeroPotion);
-            if (document.getElementById('t2HyssopFlowerPriceKor')) document.getElementById('t2HyssopFlowerPriceKor').textContent = `${formatKoreanMoney(hyssopFlower)} (오일 1개: ~${Math.round(hyssopOilCost).toLocaleString()}메소)`;
-            if (document.getElementById('t2TwistedTimePriceKor')) document.getElementById('t2TwistedTimePriceKor').textContent = formatKoreanMoney(twistedTime);
-            if (document.getElementById('t2MagicCrystalPriceKor')) document.getElementById('t2MagicCrystalPriceKor').textContent = formatKoreanMoney(magicCrystal);
-            if (document.getElementById('t2AdvSpellPriceKor')) document.getElementById('t2AdvSpellPriceKor').textContent = formatKoreanMoney(advSpell);
-            if (document.getElementById('t2TwilightPriceKor')) document.getElementById('t2TwilightPriceKor').textContent = formatKoreanMoney(twilight);
-            if (document.getElementById('t2RecipePriceKor')) document.getElementById('t2RecipePriceKor').textContent = formatKoreanMoney(recipe);
-
-            const costSmallHighExp = (smallExp * 4) + (shiningTwilight * 2) + (hyssopOilCost * 10) + (magicCrystal * 1000) + recipe;
-            const revSmallHighExp = smallHighExp * 4;
-            const marginSmallHighExp = revSmallHighExp - costSmallHighExp;
-            const s1Count = Math.floor(fatigue / 5);
-            const s1Profit = marginSmallHighExp * s1Count;
-
-            const costHeroPotionOneCraft = (magicCrystal * 10) + (hyssopOilCost * 10) + (twistedTime * 15) + 800 + (twilight * 3);
-            const costPerHeroPotionSelf = costHeroPotionOneCraft / 2;
-
-            const costAdvHeroSelf = costPerHeroPotionSelf + (hyssopOilCost * 10) + advSpell + shiningTwilight;
-            const revAdvHero = advHeroPotion * 2;
-            const marginAdvHeroSelf = revAdvHero - costAdvHeroSelf;
-            const s2Count = Math.floor(fatigue / 12.5);
-            const s2Profit = marginAdvHeroSelf * s2Count;
-
-            const costAdvHeroBuy = heroPotion + (hyssopOilCost * 10) + advSpell + shiningTwilight;
-            const marginAdvHeroBuy = revAdvHero - costAdvHeroBuy;
-            const s3Count = Math.floor(fatigue / 10);
-            const s3Profit = marginAdvHeroBuy * s3Count;
-
-            if (document.getElementById('t2SmallHighExpMargin')) {
-                const el = document.getElementById('t2SmallHighExpMargin');
-                el.textContent = formatKoreanMoney(marginSmallHighExp);
-                el.className = marginSmallHighExp >= 0 ? "font-bold text-sm text-red-600" : "font-bold text-sm text-blue-600";
-            }
-            if (document.getElementById('t2AdvHeroSelfMargin')) {
-                const el = document.getElementById('t2AdvHeroSelfMargin');
-                el.textContent = formatKoreanMoney(marginAdvHeroSelf);
-                el.className = marginAdvHeroSelf >= 0 ? "font-bold text-sm text-red-600" : "font-bold text-sm text-blue-600";
-            }
-            if (document.getElementById('t2AdvHeroBuyMargin')) {
-                const el = document.getElementById('t2AdvHeroBuyMargin');
-                el.textContent = formatKoreanMoney(marginAdvHeroBuy);
-                el.className = marginAdvHeroBuy >= 0 ? "font-bold text-sm text-red-600" : "font-bold text-sm text-blue-600";
-            }
-
-            if (document.getElementById('t2Scenario1Kor')) document.getElementById('t2Scenario1Kor').textContent = formatKoreanMoney(s1Profit);
-            if (document.getElementById('t2S1Desc')) document.getElementById('t2S1Desc').textContent = `제작 ${s1Count.toLocaleString()}회 (${(s1Count * 4).toLocaleString()}개 완성 / 피로도 ${s1Count * 5} 소모)`;
-
-            if (document.getElementById('t2Scenario2Kor')) document.getElementById('t2Scenario2Kor').textContent = formatKoreanMoney(s2Profit);
-            if (document.getElementById('t2S2Desc')) document.getElementById('t2S2Desc').textContent = `대영웅+고대비 직접제작 ${s2Count.toLocaleString()}회 (${(s2Count * 2).toLocaleString()}개 완성 / 피로도 ${Math.round(s2Count * 12.5)} 소모)`;
-
-            if (document.getElementById('t2Scenario3Kor')) document.getElementById('t2Scenario3Kor').textContent = formatKoreanMoney(s3Profit);
-            if (document.getElementById('t2S3Desc')) document.getElementById('t2S3Desc').textContent = `대영웅 구매 후 고대비 제작 ${s3Count.toLocaleString()}회 (${(s3Count * 2).toLocaleString()}개 완성 / 피로도 ${s3Count * 10} 소모)`;
-
-            const box1 = document.getElementById('t2BoxScenario1');
-            const box2 = document.getElementById('t2BoxScenario2');
-            const box3 = document.getElementById('t2BoxScenario3');
-
-            if (box1 && box2 && box3) {
-                box1.classList.remove('border-2', 'border-green-500', 'bg-green-50/30');
-                box2.classList.remove('border-2', 'border-green-500', 'bg-green-50/30');
-                box3.classList.remove('border-2', 'border-green-500', 'bg-green-50/30');
-
-                const maxProfit = Math.max(s1Profit, s2Profit, s3Profit);
-                if (maxProfit === s1Profit && s1Profit > 0) {
-                    box1.classList.add('border-2', 'border-green-500', 'bg-green-50/30');
-                } else if (maxProfit === s2Profit && s2Profit > 0) {
-                    box2.classList.add('border-2', 'border-green-500', 'bg-green-50/30');
-                } else if (maxProfit === s3Profit && s3Profit > 0) {
-                    box3.classList.add('border-2', 'border-green-500', 'bg-green-50/30');
-                }
-            }
-
-            const ownedEssence = getVal('t2OwnedEssence');
-
-            const owned1Crafts = Math.floor(ownedEssence / 2);
-            const owned1Leftover = ownedEssence % 2;
-            const owned1ProfitPerCraft = (smallHighExp * 4) - ((smallExp * 4) + (hyssopOilCost * 10) + (magicCrystal * 1000) + recipe);
-            const owned1TotalProfit = owned1ProfitPerCraft * owned1Crafts;
-
-            const owned2Crafts = ownedEssence;
-            const owned2ProfitPerCraft = (advHeroPotion * 2) - (costPerHeroPotionSelf + (hyssopOilCost * 10) + advSpell);
-            const owned2TotalProfit = owned2ProfitPerCraft * owned2Crafts;
-
-            const owned3Crafts = ownedEssence;
-            const owned3ProfitPerCraft = (advHeroPotion * 2) - (heroPotion + (hyssopOilCost * 10) + advSpell);
-            const owned3TotalProfit = owned3ProfitPerCraft * owned3Crafts;
-
-            if (document.getElementById('t2Owned1Desc')) {
-                document.getElementById('t2Owned1Desc').textContent = `소고경축 ${(owned1Crafts * 4).toLocaleString()}개 제작 (${owned1Crafts.toLocaleString()}회)${owned1Leftover > 0 ? ` + 남은 영황정 ${owned1Leftover}개` : ''}`;
-                document.getElementById('t2Owned1Profit').textContent = formatKoreanMoney(owned1TotalProfit);
-                document.getElementById('t2Owned1Profit').className = owned1TotalProfit >= 0 ? "font-bold text-right text-sm text-red-600" : "font-bold text-right text-sm text-blue-600";
-            }
-
-            if (document.getElementById('t2Owned2Desc')) {
-                document.getElementById('t2Owned2Desc').textContent = `고대비 ${(owned2Crafts * 2).toLocaleString()}개 제작 (${owned2Crafts.toLocaleString()}회)`;
-                document.getElementById('t2Owned2Profit').textContent = formatKoreanMoney(owned2TotalProfit);
-                document.getElementById('t2Owned2Profit').className = owned2TotalProfit >= 0 ? "font-bold text-right text-sm text-red-600" : "font-bold text-right text-sm text-blue-600";
-            }
-
-            if (document.getElementById('t2Owned3Desc')) {
-                document.getElementById('t2Owned3Desc').textContent = `고대비 ${(owned3Crafts * 2).toLocaleString()}개 제작 (${owned3Crafts.toLocaleString()}회)`;
-                document.getElementById('t2Owned3Profit').textContent = formatKoreanMoney(owned3TotalProfit);
-                document.getElementById('t2Owned3Profit').className = owned3TotalProfit >= 0 ? "font-bold text-right text-sm text-red-600" : "font-bold text-right text-sm text-blue-600";
-            }
-
-            const oBox1 = document.getElementById('t2OwnedBox1');
-            const oBox2 = document.getElementById('t2OwnedBox2');
-            const oBox3 = document.getElementById('t2OwnedBox3');
-
-            if (oBox1 && oBox2 && oBox3) {
-                oBox1.classList.remove('border-2', 'border-amber-500', 'bg-amber-50/40');
-                oBox2.classList.remove('border-2', 'border-amber-500', 'bg-amber-50/40');
-                oBox3.classList.remove('border-2', 'border-amber-500', 'bg-amber-50/40');
-
-                const maxOwnedProfit = Math.max(owned1TotalProfit, owned2TotalProfit, owned3TotalProfit);
-                if (maxOwnedProfit > 0) {
-                    if (maxOwnedProfit === owned1TotalProfit) {
-                        oBox1.classList.add('border-2', 'border-amber-500', 'bg-amber-50/40');
-                    } else if (maxOwnedProfit === owned2TotalProfit) {
-                        oBox2.classList.add('border-2', 'border-amber-500', 'bg-amber-50/40');
-                    } else if (maxOwnedProfit === owned3TotalProfit) {
-                        oBox3.classList.add('border-2', 'border-amber-500', 'bg-amber-50/40');
-                    }
-                }
-            }
-        }
-
-        function calculate() {
-            calculateTab1();
-            calculateTab2();
-        }
-
-        function calculateTab1() {
-            const seedPrice = getVal('seedPrice');
-            const oilPrice = getVal('oilPrice');
-            const potionPrice = getVal('potionPrice');
-            const dailyFatigue = getVal('dailyFatigue');
-            const toolPrice = getVal('toolPrice');
-            const recipePrice = getVal('recipePrice');
-            const crystalPrice = getVal('crystalPrice');
-            const harvestedSeeds = getVal('harvestedSeeds');
-
-            document.getElementById('seedPriceKor').textContent = formatKoreanMoney(seedPrice);
-            document.getElementById('oilPriceKor').textContent = formatKoreanMoney(oilPrice);
-            document.getElementById('potionPriceKor').textContent = formatKoreanMoney(potionPrice);
-            document.getElementById('dailyFatigueKor').textContent = `${dailyFatigue.toLocaleString()} 피로도`;
-            document.getElementById('toolPriceKor').textContent = formatKoreanMoney(toolPrice);
-            document.getElementById('recipePriceKor').textContent = formatKoreanMoney(recipePrice);
-            document.getElementById('crystalPriceKor').textContent = formatKoreanMoney(crystalPrice);
-
-            const totalToolCost = (dailyFatigue / 500) * toolPrice;
-
-            const oilCraftCost = (seedPrice * 6) + 1000;
-            const oilCraftExpect = oilPrice * 0.9;
-            const oilMargin = oilCraftExpect - oilCraftCost;
-            
-            document.getElementById('oilMargin').textContent = formatKoreanMoney(oilMargin);
-            document.getElementById('oilMargin').className = oilMargin >= 0 ? "font-bold text-sm text-red-600" : "font-bold text-sm text-blue-600";
-
-            const potionCraftCost = (oilPrice * 5) + (crystalPrice * 2);
-            const potionCraftRev = potionPrice * 6;
-            const potionMargin = potionCraftRev - potionCraftCost;
-
-            document.getElementById('potionMargin').textContent = formatKoreanMoney(potionMargin);
-            document.getElementById('potionMargin').className = potionMargin >= 0 ? "font-bold text-sm text-red-600" : "font-bold text-sm text-blue-600";
-
-            const s1Profit = (dailyFatigue * seedPrice) - totalToolCost;
-            document.getElementById('scenario1Kor').textContent = formatKoreanMoney(s1Profit);
-            document.getElementById('s1Desc').textContent = `씨앗 ${dailyFatigue.toLocaleString()}개 판매 (도구 ${formatKoreanMoney(totalToolCost)} 차감)`;
-
-            const oilAttempts = Math.floor(dailyFatigue / 6);
-            const leftoverSeeds = dailyFatigue % 6;
-            const expectedOil = oilAttempts * 0.9;
-            const s2Profit = (expectedOil * oilPrice) + (leftoverSeeds * seedPrice) - (totalToolCost + (oilAttempts * 1000));
-            document.getElementById('scenario2Kor').textContent = formatKoreanMoney(s2Profit);
-            document.getElementById('s2Desc').textContent = `오일 약 ${expectedOil.toFixed(1)}개 + 남은 씨앗 ${leftoverSeeds}개`;
-
-            let s3PotionCrafts = Math.floor(dailyFatigue / 38.3333);
-            let s3GatherFatigue = 0;
-            let s3Seeds = 0;
-            let s3OilAttempts = 0;
-            let s3ExpectedOil = 0;
-            let s3ReqOil = 0;
-
-            while (s3PotionCrafts > 0) {
-                s3GatherFatigue = dailyFatigue - (s3PotionCrafts * 5);
-                s3Seeds = s3GatherFatigue;
-                s3OilAttempts = Math.floor(s3Seeds / 6);
-                s3ExpectedOil = Math.floor(s3OilAttempts * 0.9);
-                s3ReqOil = s3PotionCrafts * 5;
-
-                if (s3ExpectedOil >= s3ReqOil) {
-                    break;
-                }
-                s3PotionCrafts--;
-            }
-
-            if (s3PotionCrafts <= 0) {
-                s3PotionCrafts = 0;
-                s3GatherFatigue = dailyFatigue;
-                s3Seeds = dailyFatigue;
-                s3OilAttempts = Math.floor(s3Seeds / 6);
-                s3ExpectedOil = Math.floor(s3OilAttempts * 0.9);
-                s3ReqOil = 0;
-            }
-
-            const s3LeftoverOil = s3ExpectedOil - s3ReqOil;
-            const s3LeftoverSeeds = s3Seeds % 6;
-
-            const s3ToolCost = Math.ceil((s3GatherFatigue / 500)) * toolPrice;
-            const s3ToolCount = Math.ceil((s3GatherFatigue / 500));
-            const s3OilFee = s3OilAttempts * 1000;
-            const s3CrystalFee = s3PotionCrafts * (crystalPrice * 2);
-            const s3TotalCost = recipePrice + s3CrystalFee + s3OilFee + s3ToolCost;
-
-            const s3PotionRev = s3PotionCrafts * 6 * potionPrice;
-            const s3OilRev = s3LeftoverOil * oilPrice;
-            const s3SeedRev = s3LeftoverSeeds * seedPrice;
-            const s3TotalRev = s3PotionRev + s3OilRev + s3SeedRev;
-
-            const s3Profit = s3TotalRev - s3TotalCost;
-
-            document.getElementById('scenario3Kor').textContent = formatKoreanMoney(s3Profit);
-            document.getElementById('s3Desc').textContent = `비약 ${s3PotionCrafts * 6}개 제작 + 남은 오일 ${s3LeftoverOil}개 + 남은 씨앗 ${s3LeftoverSeeds}개(사용한 도구 ${s3ToolCount}개)`;
-
-            document.getElementById('boxScenario1').classList.remove('border-2', 'border-green-500', 'bg-green-50/30');
-            document.getElementById('boxScenario2').classList.remove('border-2', 'border-green-500', 'bg-green-50/30');
-            document.getElementById('boxScenario3').classList.remove('border-2', 'border-green-500', 'bg-green-50/30');
-
-            let maxGatherProfit = Math.max(s1Profit, s2Profit);
-
-            if (maxGatherProfit > s3Profit) {
-                if (s2Profit > s1Profit) {
-                    document.getElementById('boxScenario2').classList.add('border-2', 'border-green-500', 'bg-green-50/30');
-                } else {
-                    document.getElementById('boxScenario1').classList.add('border-2', 'border-green-500', 'bg-green-50/30');
-                }
-            } else {
-                document.getElementById('boxScenario3').classList.add('border-2', 'border-green-500', 'bg-green-50/30');
-            }
-
-            const seedSellTotal = harvestedSeeds * seedPrice;
-            document.getElementById('seedSellTotal').textContent = '씨앗 '+ harvestedSeeds.toLocaleString() + ' 개';
-            document.getElementById('seedSellTotalKor').textContent = formatKoreanMoney(seedSellTotal);
-
-            const subOilAttempts = Math.floor(harvestedSeeds / 6);
-            const subLeftoverSeeds = harvestedSeeds % 6;
-            const subExpectedOil = subOilAttempts * 0.9;
-            const oilSellTotal = (subExpectedOil * oilPrice) + (subLeftoverSeeds * seedPrice) - (subOilAttempts * 1000);
-            const craftOilDiff = oilSellTotal - seedSellTotal;
-
-            document.getElementById('oilSellTotal').textContent = '오일 ' + subExpectedOil.toLocaleString() + ' 개 + 씨앗 '+ subLeftoverSeeds.toLocaleString() + ' 개';
-            document.getElementById('oilSellTotalKor').textContent = formatKoreanMoney(oilSellTotal);
-            document.getElementById('craftOilDiff').textContent = (craftOilDiff >= 0 ? '+' : '') + formatKoreanMoney(craftOilDiff);
-            document.getElementById('craftOilDiff').className = craftOilDiff >= 0 ? "text-xs font-bold text-red-600" : "text-xs font-bold text-blue-600";
-
-            const subPotionAttempts = Math.floor(subExpectedOil / 5);
-            const subLeftoverOil = subExpectedOil - (subPotionAttempts * 5);
-            const subPotionRev = subPotionAttempts * (potionPrice * 6);
-            const subPotionFee = subPotionAttempts * (crystalPrice * 2);
-            const subOilFee = subOilAttempts * 1000;
-            const potionSellTotal = subPotionRev + (subLeftoverOil * oilPrice) + (subLeftoverSeeds * seedPrice) - subPotionFee - subOilFee;
-            const craftPotionDiff = potionSellTotal - seedSellTotal;
-
-            document.getElementById('potionSellTotal').textContent = '소재비 '+(subPotionAttempts*6).toLocaleString()
-            + ' 개 + 오일 ' + subLeftoverOil.toLocaleString() + ' 개 + 씨앗 '+ subLeftoverSeeds.toLocaleString() + ' 개';
-            document.getElementById('potionSellTotalKor').textContent = formatKoreanMoney(potionSellTotal);
-            document.getElementById('craftPotionDiff').textContent = (craftPotionDiff >= 0 ? '+' : '') + formatKoreanMoney(craftPotionDiff);
-            document.getElementById('craftPotionDiff').className = craftPotionDiff >= 0 ? "text-xs font-bold text-red-600" : "text-xs font-bold text-blue-600";
-        }
-
-        // --- 3번 탭 전용 스크립트 ---
-        const DAILY_DIFF_KEYS = ['easy', 'normal', 'hard', 'chaos'];
-        const WEEKLY_DIFF_KEYS = ['easy', 'normal', 'hard', 'chaos', 'extreme'];
-        const MONTHLY_DIFF_KEYS = ['hard', 'extreme'];
-
-        let cachedSchedulerData = null;
-
-        function initTab3() {
-            const savedApiKey = localStorage.getItem('nexon_api_key') || '';
-            const apiKeyEl = document.getElementById('apiKey');
-            if (apiKeyEl) apiKeyEl.value = savedApiKey;
-
-            renderScheduler();
-        }
-
-        function saveApiKey(val) {
-            localStorage.setItem('nexon_api_key', val.trim());
-        }
-
-        function saveCharacterName(val) {
-            localStorage.setItem('nexon_character_name', val.trim());
-        }
-
-        async function fetchCharacterInfo() {
-            localStorage.removeItem('maple_scheduler_state');
-            cachedSchedulerData = null;
-
-            const apiKey = (localStorage.getItem('nexon_api_key') || '').trim();
-            const charName = document.getElementById('character_name').value.trim();
-            const charCard = document.getElementById('charCard');
-            const charError = document.getElementById('charError');
-
-            charCard.classList.add('hidden');
-            charError.classList.add('hidden');
-
-            if (!apiKey) {
-                charError.textContent = 'Nexon Open API Key를 입력해주세요.';
-                charError.classList.remove('hidden');
-                return;
-            }
-
-            if (!charName) {
-                charError.textContent = '캐릭터 닉네임을 입력해주세요.';
-                charError.classList.remove('hidden');
-                return;
-            }
-
-            try {
-                const idRes = await fetch(`https://open.api.nexon.com/maplestory/v1/id?character_name=${encodeURIComponent(charName)}`, {
-                    headers: { 'x-nxopen-api-key': apiKey }
-                });
-                const idData = await idRes.json();
-
-                if (!idRes.ok || !idData.ocid) {
-                    throw new Error(idData.error?.message || '캐릭터를 찾을 수 없습니다.');
-                }
-
-                const ocid = idData.ocid;
-
-                const [basicRes, statRes, schedulerRes] = await Promise.all([
-                    fetch(`https://open.api.nexon.com/maplestory/v1/character/basic?ocid=${ocid}`, { headers: { 'x-nxopen-api-key': apiKey } }),
-                    fetch(`https://open.api.nexon.com/maplestory/v1/character/stat?ocid=${ocid}`, { headers: { 'x-nxopen-api-key': apiKey } }),
-                    fetch(`https://open.api.nexon.com/maplestory/v1/scheduler/character-state?ocid=${ocid}`, { headers: { 'x-nxopen-api-key': apiKey } })
-                ]);
-
-                const basicData = await basicRes.json();
-                const statData = await statRes.json();
-                const schedulerData = await schedulerRes.json();
-
-                if (!basicRes.ok) throw new Error(basicData.error?.message || '캐릭터 정보 조회 실패');
-
-                document.getElementById('charImg').src = basicData.character_image || '';
-                document.getElementById('charWorld').textContent = basicData.world_name || '-';
-                document.getElementById('charName').textContent = basicData.character_name || charName;
-                document.getElementById('charGuild').textContent = basicData.character_guild_name ? `길드: ${basicData.character_guild_name}` : '길드: 없음';
-                document.getElementById('charLevel').textContent = basicData.character_level || '0';
-                document.getElementById('charClass').textContent = basicData.character_class || '-';
-
-                let combatPower = '0';
-                if (statData.final_stat) {
-                    const cpStat = statData.final_stat.find(s => s.stat_name === '전투력');
-                    if (cpStat && cpStat.stat_value) {
-                        combatPower = formatKoreanMoney(Number(cpStat.stat_value)).replace('메소', '').trim();
-                    }
-                }
-                document.getElementById('charStat').textContent = combatPower;
-
-                if (schedulerRes.ok && schedulerData) {
-                    cachedSchedulerData = schedulerData;
-                    renderScheduler(schedulerData);
-                } else {
-                    renderScheduler();
-                }
-
-                charCard.classList.remove('hidden');
-            } catch (err) {
-                charError.textContent = err.message || '데이터를 불러오는 중 오류가 발생했습니다.';
-                charError.classList.remove('hidden');
-            }
-        }
-
-        function isTaskCompleted(item, type) {
-            if (!item) return false;
-            if (type === 'boss') {
-                return item.complete_flag === 'true' || item.complete_flag === true;
-            }
-            if (item.content_name && (item.content_name.includes('지하 수로') || item.content_name.includes('플래그'))) {
-                return (item.now_count || 0) >= 1;
-            }
-            if (item.content_name && item.content_name.includes('에픽 던전')) {
-                const max = item.max_count || 5;
-                return (item.now_count || 0) >= max;
-            }
-            if (item.quest_state === '2') return true;
-            if (item.max_count && item.now_count >= item.max_count) return true;
-            return false;
-        }
-
-        function groupBossContentsByCycle(bossItems, targetCycle) {
-            const grouped = {};
-
-            (bossItems || []).forEach((item, originalIdx) => {
-                const name = item.content_name.trim();
-                if (name.includes('메이린')) return;
-
-                const cycleStr = (item.cycle || item.boss_type || '').toLowerCase();
-                let isTarget = false;
-
-                if (targetCycle === 'daily' && (cycleStr.includes('일간') || cycleStr.includes('daily'))) {
-                    isTarget = true;
-                } else if (targetCycle === 'weekly' && (cycleStr.includes('주간') || cycleStr.includes('weekly'))) {
-                    isTarget = true;
-                } else if (targetCycle === 'monthly' && (cycleStr.includes('월간') || cycleStr.includes('monthly'))) {
-                    isTarget = true;
-                }
-
-                if (!isTarget) return;
-
-                if (!grouped[name]) {
-                    grouped[name] = {
-                        name: name,
-                        cycle: item.cycle || item.boss_type,
-                        difficulties: {}
-                    };
-                }
-
-                const diff = (item.difficulty || 'normal').toLowerCase();
-                grouped[name].difficulties[diff] = {
-                    ...item,
-                    originalIdx: originalIdx
-                };
-            });
-
-            return Object.values(grouped);
-        }
-
-        function toggleTask(key, checked) {
-            const savedState = JSON.parse(localStorage.getItem('maple_scheduler_state') || '{}');
-            savedState[key] = checked;
-            localStorage.setItem('maple_scheduler_state', JSON.stringify(savedState));
-            renderScheduler();
-        }
-
-        function updatePartyCount(bossName, count) {
-            const savedState = JSON.parse(localStorage.getItem('maple_scheduler_state') || '{}');
-            savedState[`party_${bossName}`] = Number(count);
-            localStorage.setItem('maple_scheduler_state', JSON.stringify(savedState));
-            renderScheduler();
-        }
-
-        function resetScheduler() {
-            if (confirm('모든 체크 및 파티 인원 설정을 초기화하시겠습니까?')) {
-                localStorage.removeItem('maple_scheduler_state');
-                renderScheduler();
-            }
-        }
-
-        function renderScheduler(apiData = cachedSchedulerData) {
-            const savedState = JSON.parse(localStorage.getItem('maple_scheduler_state') || '{}');
-
-            const dailyListEl = document.getElementById('dailyList');
-            const weeklyListEl = document.getElementById('weeklyList');
-            const dailyBossListEl = document.getElementById('dailyBossList');
-            const weeklyBossListEl = document.getElementById('weeklyBossList');
-            const monthlyBossListEl = document.getElementById('monthlyBossList');
-            const schedulerDateEl = document.getElementById('schedulerDate');
-            const bossSummaryBar = document.getElementById('bossSummaryBar');
-
-            if (!dailyListEl || !weeklyListEl || !dailyBossListEl || !weeklyBossListEl || !monthlyBossListEl) return;
-
-            if (apiData) {
-                if (schedulerDateEl && apiData.date) {
-                    schedulerDateEl.textContent = `(${apiData.date} 기준)`;
-                }
-
-                if (bossSummaryBar && apiData.weekly_boss_clear_count !== undefined) {
-                    document.getElementById('bossClearCount').textContent = apiData.weekly_boss_clear_count;
-                    document.getElementById('bossClearLimit').textContent = apiData.weekly_boss_clear_limit_count || 12;
-                    bossSummaryBar.classList.remove('hidden');
-                }
-
-                // 1. 일일 콘텐츠
-                const dailyItems = (apiData.daily_contents || [])
-                    .filter(item => (item.registration_flag === 'true' || item.registration_flag === true));
-
-                let dailyDone = 0;
-                dailyListEl.innerHTML = dailyItems.length === 0 ? '<p class="text-gray-400 p-2">등록된 일일 콘텐츠가 없습니다.</p>' : dailyItems.map((item) => {
-                    const isMonsterPark = item.content_name.includes('몬스터') && item.content_name.includes('파크');
-                    const apiDone = isTaskCompleted(item, 'daily');
-                    
-                    const storageKey = `d_api_${item.content_name}`;
-                    const isChecked = savedState[storageKey] !== undefined ? savedState[storageKey] : apiDone;
-                    if (isChecked) dailyDone++;
-
-                    if (isMonsterPark) {
-                        const now = item.now_count ?? 0;
-                        const max = item.max_count ?? 14;
-                        return `
-                            <div class="flex items-center justify-between p-2 rounded bg-emerald-50/60 border border-emerald-200">
-                                <span class="text-emerald-950 font-bold truncate">${item.content_name}</span>
-                                <span class="text-xs font-black text-emerald-700 bg-white px-2.5 py-0.5 rounded-full border border-emerald-300 shadow-sm whitespace-nowrap ml-1">
-                                    ${now} / ${max} 판
-                                </span>
-                            </div>
-                        `;
-                    }
-
-                    return `
-                        <label class="flex items-center justify-between p-2 rounded hover:bg-gray-50 cursor-pointer border border-transparent hover:border-gray-200 transition-all">
-                            <div class="flex items-center gap-2 overflow-hidden">
-                                <input type="checkbox" onchange="toggleTask('${storageKey}', this.checked)" ${isChecked ? 'checked' : ''} class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500">
-                                <span class="${isChecked ? 'line-through text-gray-400' : 'text-gray-800 font-medium'} truncate">${item.content_name}</span>
-                            </div>
-                            ${item.max_count ? `<span class="text-[11px] text-gray-500 font-bold whitespace-nowrap ml-1">(${item.now_count}/${item.max_count})</span>` : ''}
-                        </label>
-                    `;
-                }).join('');
-                document.getElementById('dailyProgress').textContent = `${dailyDone}/${dailyItems.length}`;
-
-                // 2. 주간 콘텐츠
-                const excludeKeywords = ['PC방', '크리티아스', '세계수', '헤이븐', '꾸준한'];
-                const weeklyItems = (apiData.weekly_contents || [])
-                    .map((item, idx) => ({ ...item, _idx: idx }))
-                    .filter(item => {
-                        const isEpic = item.content_name.includes('에픽 던전');
-                        const isRegistered = item.registration_flag === 'true' || item.registration_flag === true;
-                        const isExcluded = excludeKeywords.some(k => item.content_name.includes(k));
-                        return (isEpic || isRegistered) && !isExcluded;
-                    });
-
-                let weeklyDone = 0;
-                weeklyListEl.innerHTML = weeklyItems.length === 0 ? '<p class="text-gray-400 p-2">등록된 주간 콘텐츠가 없습니다.</p>' : weeklyItems.map((item) => {
-                    const isScoreContent = item.content_name.includes('지하 수로') || item.content_name.includes('플래그');
-                    const isEpicDungeon = item.content_name.includes('에픽 던전');
-                    const apiDone = isTaskCompleted(item, 'weekly');
-                    const label = isEpicDungeon && item.content_name ? `${item.content_name} - ${item.content_name}` : item.content_name;
-                    const storageKey = `w_api_${item._idx}_${item.content_name}`;
-                    const isChecked = savedState[storageKey] !== undefined ? savedState[storageKey] : apiDone;
-                    if (isChecked) weeklyDone++;
-
-                    let rightHtml = '';
-                    if (isScoreContent) {
-                        const score = item.now_count || 0;
-                        rightHtml = `<span class="text-xs font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 whitespace-nowrap ml-1">${score.toLocaleString()}점</span>`;
-                    } else if (isEpicDungeon) {
-                        const stage = item.now_count || 0;
-                        rightHtml = `<span class="text-[11px] text-gray-500 font-bold whitespace-nowrap ml-1">(${stage} / 5 단계)</span>`;
-                    } else if (item.max_count) {
-                        rightHtml = `<span class="text-[11px] text-gray-500 font-bold whitespace-nowrap ml-1">(${item.now_count}/${item.max_count})</span>`;
-                    }
-
-                    return `
-                        <label class="flex items-center justify-between p-2 rounded hover:bg-gray-50 cursor-pointer border border-transparent hover:border-gray-200 transition-all">
-                            <div class="flex items-center gap-2 overflow-hidden">
-                                <input type="checkbox" onchange="toggleTask('${storageKey}', this.checked)" ${isChecked ? 'checked' : ''} class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500">
-                                <span class="${isChecked ? 'line-through text-gray-400' : 'text-gray-800 font-medium'} truncate">${item.content_name}</span>
-                            </div>
-                            ${rightHtml}
-                        </label>
-                    `;
-                }).join('');
-                document.getElementById('weeklyProgress').textContent = `${weeklyDone}/${weeklyItems.length}`;
-
-                // 3. 보스 콘텐츠 렌더링 (주기별 분류)
-                const dailyBosses = groupBossContentsByCycle(apiData.boss_contents, 'daily');
-                const weeklyBosses = groupBossContentsByCycle(apiData.boss_contents, 'weekly');
-                const monthlyBosses = groupBossContentsByCycle(apiData.boss_contents, 'monthly');
-
-                // 보스 그리드 생성 및 수익 계산 헬퍼 함수
-                const renderBossGrid = (bossList, diffKeys, showPartySelect = false) => {
-                    if (bossList.length === 0) return { html: '<p class="text-gray-400 p-2 text-center text-xs">해당 보스 없음</p>', clearedBossCount: 0, totalRevenue: 0 };
-
-                    let clearedBossCount = 0;
-                    let totalRevenue = 0;
-
-                    const html = bossList.map(boss => {
-                        let isBossCleared = false;
-                        const imgName = boss.name.replace(/\s+/g, '');
-                        const imgSrc = `icon/boss/${imgName}.png`;
-
-                        const partyCount = showPartySelect ? (savedState[`party_${boss.name}`] || 1) : 1;
-
-                        const colsHtml = diffKeys.map(diff => {
-                            const item = boss.difficulties[diff];
-                            if (!item) {
-                                return `<div class="w-5 h-5 text-center text-gray-600 font-normal">-</div>`;
-                            }
-
-                            const apiDone = isTaskCompleted(item, 'boss');
-                            const storageKey = `b_api_${item.originalIdx}`;
-                            const isChecked = savedState[storageKey] !== undefined ? savedState[storageKey] : apiDone;
-
-                            if (isChecked) {
-                                isBossCleared = true;
-                                const rawPrice = getBossPrice(diff, boss.name);
-                                totalRevenue += (rawPrice / partyCount);
-                            }
-
-                            return `
-                                <div class="flex justify-center items-center">
-                                    <input type="checkbox" onchange="toggleTask('${storageKey}', this.checked)" ${isChecked ? 'checked' : ''} class="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500 cursor-pointer">
-                                </div>
-                            `;
-                        }).join('');
-
-                        if (isBossCleared) clearedBossCount++;
-
-                        const partySelectHtml = showPartySelect ? `
-                            <div class="flex items-center justify-center min-w-[50px]">
-                                <select onchange="updatePartyCount('${boss.name}', this.value)" class="text-[11px] font-bold border border-gray-300 rounded px-1 py-0.5 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                                    <option value="1" ${partyCount === 1 ? 'selected' : ''}>1인</option>
-                                    <option value="2" ${partyCount === 2 ? 'selected' : ''}>2인</option>
-                                    <option value="3" ${partyCount === 3 ? 'selected' : ''}>3인</option>
-                                    <option value="4" ${partyCount === 4 ? 'selected' : ''}>4인</option>
-                                    <option value="5" ${partyCount === 5 ? 'selected' : ''}>5인</option>
-                                    <option value="6" ${partyCount === 6 ? 'selected' : ''}>6인</option>
-                                </select>
-                            </div>
-                        ` : '';
-
-                        return `
-                            <div class="flex justify-between gap-1 items-center p-1.5 rounded hover:bg-gray-50 border-b border-gray-100 text-xs">
-                                <div class="font-bold ${isBossCleared ? 'text-gray-400 line-through' : 'text-gray-800'} truncate text-[14px] flex items-center gap-2" title="${boss.name}">
-                                    <img src="${imgSrc}" alt="${boss.name}" class="w-8 h-8 rounded object-contain flex-shrink-0" onerror="this.style.display='none'">
-                                    <span>${boss.name}</span>
-                                </div>
-                                <div class="flex gap-6 items-center">
-                                    ${partySelectHtml}
-                                    ${colsHtml}
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-
-                    return { html, clearedBossCount, totalRevenue };
-                };
-
-                const dailyRes = renderBossGrid(dailyBosses, DAILY_DIFF_KEYS, false);
-                dailyBossListEl.innerHTML = dailyRes.html;
-                document.getElementById('dailyBossProgress').textContent = `${dailyRes.clearedBossCount}/${dailyBosses.length}`;
-
-                const weeklyRes = renderBossGrid(weeklyBosses, WEEKLY_DIFF_KEYS, true);
-                weeklyBossListEl.innerHTML = weeklyRes.html;
-                document.getElementById('weeklyBossProgress').textContent = `${weeklyRes.clearedBossCount}/${weeklyBosses.length}`;
-
-                const monthlyRes = renderBossGrid(monthlyBosses, MONTHLY_DIFF_KEYS, true);
-                monthlyBossListEl.innerHTML = monthlyRes.html;
-                document.getElementById('monthlyBossProgress').textContent = `${monthlyRes.clearedBossCount}/${monthlyBosses.length}`;
-
-                // 수익 출력 업데이트
-                document.getElementById('dailyBossRevenue').textContent = formatKoreanMoney(dailyRes.totalRevenue);
-                document.getElementById('weeklyBossRevenue').textContent = formatKoreanMoney(weeklyRes.totalRevenue);
-                document.getElementById('monthlyBossRevenue').textContent = formatKoreanMoney(monthlyRes.totalRevenue);
-            }
-        }
-
-        window.onload = function() {
-            loadInputs();
-            calculate();
-            initTab3();
-        };
-    </script>
+        ${partySelect}${cells}
+      </div>`;
+  }).join('');
+
+  return { html, cleared, revenue };
+}
+
+function renderScheduler(apiData = cachedSchedulerData) {
+  if (!apiData || !$('dailyList')) return;
+  const state = loadState();
+  const resolve = (key, apiDone) => state[key] !== undefined ? state[key] : apiDone;
+
+  if (apiData.date) setText('schedulerDate', `(${apiData.date} 기준)`);
+  if (apiData.weekly_boss_clear_count !== undefined) {
+    setText('bossClearCount', apiData.weekly_boss_clear_count);
+    setText('bossClearLimit', apiData.weekly_boss_clear_limit_count || 12);
+    $('bossSummaryBar').classList.remove('hidden');
+  }
+
+  // 일일 콘텐츠
+  const dailyItems = (apiData.daily_contents || []).filter(i => i.registration_flag === 'true' || i.registration_flag === true);
+  let dailyDone = 0;
+  $('dailyList').innerHTML = !dailyItems.length ? emptyMsg('등록된 일일 콘텐츠가 없습니다.') : dailyItems.map(item => {
+    const key = `d_api_${item.content_name}`;
+    const checked = resolve(key, isTaskCompleted(item, 'daily'));
+    if (checked) dailyDone++;
+
+    if (item.content_name.includes('몬스터') && item.content_name.includes('파크')) {
+      return `
+        <div class="row border-indigo-100 bg-indigo-50/60">
+          <span class="truncate font-bold text-indigo-950">${esc(item.content_name)}</span>
+          <span class="chip border-indigo-200 text-indigo-700">${item.now_count ?? 0} / ${item.max_count ?? 14} 판</span>
+        </div>`;
+    }
+    return taskRow(key, item.content_name, checked, countLabel(item));
+  }).join('');
+  setText('dailyProgress', `${dailyDone}/${dailyItems.length}`);
+
+  // 주간 콘텐츠
+  const weeklyItems = (apiData.weekly_contents || [])
+    .map((item, idx) => ({ ...item, _idx: idx }))
+    .filter(item => {
+      const isEpic = item.content_name.includes('에픽 던전');
+      const registered = item.registration_flag === 'true' || item.registration_flag === true;
+      return (isEpic || registered) && !EXCLUDED_WEEKLY.some(k => item.content_name.includes(k));
+    });
+
+  let weeklyDone = 0;
+  $('weeklyList').innerHTML = !weeklyItems.length ? emptyMsg('등록된 주간 콘텐츠가 없습니다.') : weeklyItems.map(item => {
+    const key = `w_api_${item._idx}_${item.content_name}`;
+    const checked = resolve(key, isTaskCompleted(item, 'weekly'));
+    if (checked) weeklyDone++;
+
+    let right;
+    if (item.content_name.includes('지하 수로') || item.content_name.includes('플래그')) {
+      right = `<span class="chip ml-1 border-indigo-200 bg-indigo-50 text-indigo-700">${(item.now_count || 0).toLocaleString()}점</span>`;
+    } else if (item.content_name.includes('에픽 던전')) {
+      right = `<span class="ml-1 whitespace-nowrap text-[11px] font-bold text-slate-500">(${item.now_count || 0} / 5 단계)</span>`;
+    } else {
+      right = countLabel(item);
+    }
+    return taskRow(key, item.content_name, checked, right);
+  }).join('');
+  setText('weeklyProgress', `${weeklyDone}/${weeklyItems.length}`);
+
+  // 보스 콘텐츠
+  const sections = [
+    { cycle: 'daily',   keys: DAILY_DIFF_KEYS,   party: false, list: 'dailyBossList',   progress: 'dailyBossProgress',   revenue: 'dailyBossRevenue' },
+    { cycle: 'weekly',  keys: WEEKLY_DIFF_KEYS,  party: true,  list: 'weeklyBossList',  progress: 'weeklyBossProgress',  revenue: 'weeklyBossRevenue' },
+    { cycle: 'monthly', keys: MONTHLY_DIFF_KEYS, party: true,  list: 'monthlyBossList', progress: 'monthlyBossProgress', revenue: 'monthlyBossRevenue' }
+  ];
+  sections.forEach(s => {
+    const bosses = groupBossContentsByCycle(apiData.boss_contents, s.cycle);
+    const res = renderBossGrid(bosses, s.keys, state, s.party);
+    $(s.list).innerHTML = res.html;
+    setText(s.progress, `${res.cleared}/${bosses.length}`);
+    setText(s.revenue, formatKoreanMoney(res.revenue));
+  });
+}
+
+/* ============================================================
+ * 초기화
+ * ============================================================ */
+window.onload = function () {
+  buildDrawer();
+  buildRecipes();
+
+  $('dailyBossHead').innerHTML = bossHeaderHtml(DAILY_DIFF_KEYS, false);
+  $('weeklyBossHead').innerHTML = bossHeaderHtml(WEEKLY_DIFF_KEYS, true);
+  $('monthlyBossHead').innerHTML = bossHeaderHtml(MONTHLY_DIFF_KEYS, true);
+
+  loadInputs();
+  calculate();
+  renderScheduler();
+
+  $('drawerScroll').addEventListener('scroll', updateFade);
+  window.addEventListener('resize', updateFade);
+  setDrawer(window.innerWidth >= 768);   // 데스크톱은 기본 열림, 모바일은 닫힘
+  updateFade();
+};
+</script>
 </body>
 </html>
