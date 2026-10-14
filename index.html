@@ -232,12 +232,12 @@ const GROUP_TITLES = ['제작 결과물 시세', '재료 시세', '고정가 (�
 // (oilG, potionG는 "하루 피로도로 씨앗을 채집"하는 전용 계산)
 const SECTION_TITLES = ['쥬니퍼베리 씨앗', '영롱한 황혼의 정수', '기타'];
 const CARDS = [
-  { sec: 0, id: 'seedSell', out: 'seedPrice', title: '쥬니퍼베리 씨앗 (채집 후 판매)', desc: '채집한 씨앗을 그대로 판매' },
-  { sec: 0, id: 'oilG',    out: 'oilPrice',    title: '쥬니퍼베리 씨앗 오일 (직접 채집)', desc: '부캐 제작 (성공률 90%)' },
-  { sec: 0, id: 'potionG', out: 'potionPrice', title: '소형 재물 획득의 비약 (채집한 오일로 제작)', desc: '1회: 피로도 5 → 6개' },
-  { sec: 0, id: 'potion',  out: 'potionPrice', title: '소형 재물 획득의 비약 (오일 구매)', yield: 6, fatigue: 5, mats: { bottlePrice: 1, oilPrice: 5, crystalPrice: 2, recipePrice: 1 } },
+  { sec: 0, id: 'seedSell', out: 'seedPrice', title: '쥬니퍼베리 씨앗', desc: '채집한 씨앗을 그대로 판매' },
+  { sec: 0, id: 'oilG',    out: 'oilPrice',    title: '쥬니퍼베리 씨앗 오일', desc: '씨앗 채집 후 부캐 제작 (성공률 90%)' },
+  { sec: 0, id: 'potionG', out: 'potionPrice', title: '소형 재물 획득의 비약 (채집후 제작한 오일)', desc: '1회: 피로도 5 → 6개' },
+  { sec: 0, id: 'potion',  out: 'potionPrice', title: '소형 재물 획득의 비약 (구매한 오일)', yield: 6, fatigue: 5, mats: { bottlePrice: 1, oilPrice: 5, crystalPrice: 2, recipePrice: 1 } },
   { sec: 1, id: 'shiningSell', out: 't2ShiningTwilightPrice', title: '영롱한 황혼의 정수 (보유 수량 판매)', desc: '보유 중인 수량 기준' },
-  { sec: 1, id: 'hyssopOil', out: 'hyssopOilPrice', title: '히솝 꽃 오일 (씨앗 채집 시 함께 획득)', desc: '부캐 제작 (성공률 90%)' },
+  { sec: 1, id: 'hyssopOil', out: 'hyssopOilPrice', title: '히솝 꽃 오일', desc: '채집 후 부캐 제작 (성공률 90%)' },
   { sec: 1, id: 'highexp', out: 't2SmallHighExpPotionPrice', yield: 4, fatigue: 5,  mats: { t2SmallExpPotionPrice: 4, t2ShiningTwilightPrice: 2, hyssopOilPrice: 10, t2MagicCrystalPrice: 1000 } },
   { sec: 1, id: 'hero',    out: 't2HeroPotionPrice',         yield: 2, fatigue: 5,  mats: { bottlePrice: 1, t2MagicCrystalPrice: 10, hyssopOilPrice: 10, t2TwistedTimePrice: 15, t2TwilightPrice: 3 } },
   { sec: 1, id: 'advhero', out: 't2AdvHeroPotionPrice',      yield: 2, fatigue: 10, mats: { t2HeroPotionPrice: 1, hyssopOilPrice: 10, t2AdvSpellPrice: 1, t2ShiningTwilightPrice: 1 } },
@@ -471,13 +471,12 @@ function calcCard(c, fatigue) {
     lines = [`피로도 ${fatigue.toLocaleString()} = 채집 ${gather.toLocaleString()} + 제작 ${(crafts * 5).toLocaleString()}`, `오일 ${oil.toLocaleString()}개 → 비약 ${(crafts * 6).toLocaleString()}개 (${crafts.toLocaleString()}회)`];
 
   } else if (c.id === 'hyssopOil') {
-    // 씨앗을 캐면 히솝 꽃도 같은 수량 얻으므로 채집 도구 비용은 포함하지 않음
-    const flowers = fatigue + own('t2HyssopFlowerPrice');
+    const flowers = own('t2HyssopFlowerPrice');
     const attempts = Math.floor(flowers / 6);
-    need('t2HyssopFlowerPrice', attempts * 6, '×6', `채집 ${fatigue.toLocaleString()}${own('t2HyssopFlowerPrice') > 0 ? ` + 보유 ${own('t2HyssopFlowerPrice').toLocaleString()}` : ''}`);
+    need('t2HyssopFlowerPrice', attempts * 6, '×6', `보유 ${flowers.toLocaleString()}`);
     need('herbOilPrice', attempts, '×1');
     revenue = attempts * 0.9 * price(c.out);
-    lines = [`피로도 ${fatigue.toLocaleString()} → 히솝 꽃 ${seedLine(fatigue, own('t2HyssopFlowerPrice'))}`, `오일 약 ${fmt1(attempts * 0.9)}개 (${attempts.toLocaleString()}회 제작)`];
+    lines = [`보유 히솝 꽃 ${flowers.toLocaleString()}개`, `오일 약 ${fmt1(attempts * 0.9)}개 (${attempts.toLocaleString()}회 제작)`];
 
   } else {
     const crafts = Math.floor(fatigue / c.fatigue);
