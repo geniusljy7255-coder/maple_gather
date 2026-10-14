@@ -280,7 +280,11 @@ function buildDrawer() {
   $('drawerBody').innerHTML = `
     <label class="card flex cursor-pointer items-center gap-2 p-3 text-sm font-bold text-slate-800">
       <input type="checkbox" id="guildCheck" class="cb" onchange="handleInput()">
-      길드 가입 <span class="hint">(수수료 · 채집 도구 할인)</span>
+      길드 가입 <span class="hint">(수수료 · 채집 도구 할인 4%)</span>
+    </label>
+    <label class="card flex cursor-pointer items-center gap-2 p-3 text-sm font-bold text-slate-800">
+      <input type="checkbox" id="mvpCheck" class="cb" onchange="handleInput()">
+      MVP 보유 <span class="hint">(경매장 수수료 5% → 3%)</span>
     </label>
     <div class="card p-2.5">
       <div class="mb-2 flex items-center gap-2">${iconBox({ icon: '피로도' })}<label class="label" for="dailyFatigue">하루 사용 피로도</label></div>
@@ -308,7 +312,7 @@ const cardHtml = c => {
       <div id="${c.id}_mats" class="flex flex-1 flex-wrap content-start gap-1.5 border-slate-100 md:border-x md:px-4"></div>
       <div class="space-y-1 text-xs md:w-52 md:shrink-0">
         <div class="flex justify-between gap-2"><span class="text-slate-500">추가 구매 비용</span><b id="${c.id}_cost" class="text-right"></b></div>
-        <div class="flex justify-between gap-2"><span class="text-slate-500">판매가</span><b id="${c.id}_rev" class="text-right"></b></div>
+        <div class="flex justify-between gap-2"><span class="text-slate-500">판매가(수수료 포함)</span><b id="${c.id}_rev" class="text-right"></b></div>
         <div class="flex justify-between gap-2 border-t border-slate-100 pt-1.5"><span class="font-bold text-slate-800">순이익</span><b id="${c.id}_profit" class="text-right text-sm"></b></div>
       </div>
     </div>`;
@@ -373,6 +377,7 @@ function saveInputs() {
     if (el) localStorage.setItem(`input_${id}`, el.value);
   });
   localStorage.setItem('guild_member', $('guildCheck').checked ? '1' : '0');
+  localStorage.setItem('mvp_member', $('mvpCheck').checked ? '1' : '0');
 }
 
 function loadInputs() {
@@ -385,6 +390,7 @@ function loadInputs() {
     if (el && saved !== null) el.value = saved;
   });
   $('guildCheck').checked = localStorage.getItem('guild_member') === '1';
+  $('mvpCheck').checked = localStorage.getItem('mvp_member') === '1';
   $('apiKey').value = localStorage.getItem('nexon_api_key') || '';
   $('character_name').value = localStorage.getItem('nexon_character_name') || '';
 }
@@ -493,6 +499,9 @@ function calcCard(c, fatigue) {
 
 function calculate() {
   const guild = $('guildCheck').checked;
+  const mvp = $('mvpCheck').checked;
+  const feeRate = mvp ? 0.03 : 0.05;
+
   ITEMS.filter(i => i.fixed).forEach(i => { $(i.id).value = i.fixed[guild ? 1 : 0].toLocaleString('ko-KR'); });
 
   const fatigue = getVal('dailyFatigue');
@@ -502,17 +511,30 @@ function calculate() {
   });
   setText('dailyFatigueKor', `${fatigue.toLocaleString()} 피로도`);
   setText('toolPriceKor', `${formatKoreanMoney(getVal('toolPrice'))} (씨앗 1개 ≈ ${Math.round(getVal('toolPrice') / 500).toLocaleString()} 메소)`);
-  setText('craftHint', `하루 피로도 ${fatigue.toLocaleString()} 전부 사용 기준 · 길드 ${guild ? '가입' : '미가입'}`);
+  setText('craftHint', `하루 피로도 ${fatigue.toLocaleString()} 전부 사용 기준 · 길드 ${guild ? '가입' : '미가입'} · MVP ${mvp ? '적용' : '미적용'} · 경매장 수수료 ${mvp ? '3%' : '5%'}`);
 
   CARDS.forEach(c => {
     const r = calcCard(c, fatigue);
+    const netRevenue = Math.floor(r.revenue * (1 - feeRate));
     setText(`${c.id}_fat`, r.lines[0]);
     setText(`${c.id}_own`, r.lines[1]);
     $(`${c.id}_mats`).innerHTML = r.chips.join('');
     setText(`${c.id}_cost`, formatKoreanMoney(r.cost));
-    setText(`${c.id}_rev`, formatKoreanMoney(r.revenue));
-    setProfit(`${c.id}_profit`, r.revenue - r.cost);
+    setText(`${c.id}_rev`, formatKoreanMoney(netRevenue));
+    setProfit(`${c.id}_profit`, netRevenue - r.cost);
   });
+
+  CARDS.forEach(c => {
+    const r = calcCard(c, fatigue);
+    const netRevenue = Math.floor(r.revenue * (1 - feeRate));
+    setText(`${c.id}_fat`, r.lines[0]);
+    setText(`${c.id}_own`, r.lines[1]);
+    $(`${c.id}_mats`).innerHTML = r.chips.join('');
+    setText(`${c.id}_cost`, formatKoreanMoney(r.cost));
+    setText(`${c.id}_rev`, formatKoreanMoney(netRevenue));
+    setProfit(`${c.id}_profit`, netRevenue - r.cost);
+  });
+
 }
 
 /* ============================================================
