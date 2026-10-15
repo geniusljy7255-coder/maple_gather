@@ -67,7 +67,7 @@
     <div class="panel">
       <h2 class="panel-h">
         <span><span class="dot"></span>캐릭터 정보 조회</span>
-        <span class="hint">Nexon Open API 연동</span>
+        <span class="hint">Nexon Open API 연동 · + 버튼으로 캐릭터 추가</span>
       </h2>
 
       <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -75,36 +75,9 @@
           <label class="label mb-1.5 block" for="apiKey">Nexon Open API Key (본인 api)</label>
           <input type="password" id="apiKey" placeholder="API Key 입력" class="input text-left" onchange="saveApiKey(this.value)">
         </div>
-        <div class="card flex items-end gap-2 md:col-span-2">
-          <div class="flex-1">
-            <label class="label mb-1.5 block" for="character_name">캐릭터 닉네임</label>
-            <input type="text" id="character_name" placeholder="닉네임을 입력하세요" class="input text-left"
-                   onchange="saveCharacterName(this.value)" onkeyup="if(event.key==='Enter') fetchCharacterInfo()">
-          </div>
-          <button onclick="fetchCharacterInfo()" class="h-[38px] min-w-[70px] rounded-lg bg-indigo-600 px-5 text-sm font-bold text-white transition hover:bg-indigo-700">조회</button>
-        </div>
-      </div>
-
-      <div id="charCard" class="card hidden">
-        <div class="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-          <div class="flex h-32 w-32 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
-            <img id="charImg" src="" alt="캐릭터 이미지" class="h-full w-full scale-x-[-2.8] scale-y-[2.8] object-contain">
-          </div>
-          <div class="w-full flex-1 space-y-2 text-center sm:text-left">
-            <div class="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-              <span id="charWorld" class="rounded bg-indigo-100 px-2.5 py-0.5 text-xs font-bold text-indigo-700">-</span>
-              <h3 id="charName" class="text-lg font-black text-slate-900">-</h3>
-            </div>
-            <div class="space-x-2 text-xs text-slate-600">
-              <span>Lv. <strong id="charLevel" class="text-slate-900">0</strong></span><span>|</span>
-              <span id="charClass" class="font-semibold text-slate-900">-</span>
-            </div>
-            <div id="charGuild" class="text-xs font-medium text-slate-500">길드: -</div>
-            <div class="flex items-center justify-between border-t border-slate-100 pt-2 text-xs">
-              <span class="font-bold text-slate-500">전투력</span>
-              <span id="charStat" class="text-sm font-extrabold text-indigo-600">0</span>
-            </div>
-          </div>
+        <div class="card md:col-span-2">
+          <span class="label mb-1.5 block">캐릭터 닉네임</span>
+          <div id="nameList" class="space-y-2"></div>
         </div>
       </div>
 
@@ -112,8 +85,19 @@
     </div>
 
     <div class="panel">
+      <h2 class="panel-h"><span><span class="dot"></span>계정 보스 수익 · 캐릭터 선택 <span class="hint ml-1">(주마다 캐릭터를 최소 1번 이상 접속 해야지 정상적으로 호출 됩니다.)</span></span></h2>
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div class="card text-center"><div class="label mb-1">계정 일간 보스 수익</div><div id="accDailyRevenue" class="text-sm font-black text-indigo-600">0 메소</div></div>
+        <div class="card text-center"><div class="label mb-1">계정 주간 보스 수익</div><div id="accWeeklyRevenue" class="text-sm font-black text-indigo-600">0 메소</div></div>
+        <div class="card text-center"><div class="label mb-1">계정 월간 보스 수익</div><div id="accMonthlyRevenue" class="text-sm font-black text-indigo-600">0 메소</div></div>
+      </div>
+      <div id="charCards" class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6"></div>
+      <p id="charEmpty" class="hint text-center">닉네임을 입력하고 조회하면 캐릭터가 여기에 표시됩니다.</p>
+    </div>
+
+    <div id="schedulerBody" class="panel hidden">
       <h2 class="panel-h">
-        <span><span class="dot"></span>인게임 스케줄러 현황 <span id="schedulerDate" class="hint ml-1"></span></span>
+        <span><span class="dot"></span>인게임 스케줄러 현황 <span id="schedulerCharName" class="text-indigo-600"></span> <span id="schedulerDate" class="hint ml-1"></span></span>
         <button onclick="resetScheduler()" class="rounded-lg border border-red-200 bg-white px-2.5 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50">체크 초기화</button>
       </h2>
 
@@ -216,6 +200,8 @@ const ITEMS = [
   { g: 1, id: 't2TwilightPrice',           name: '황혼의 정수',                   icon: '황혼의정수',           price: '14,000' },
   { g: 1, id: 't2HyssopFlowerPrice',       name: '히솝 꽃',                       icon: '히솝꽃',               price: '1,100' },
   { g: 1, id: 'hyssopOilPrice',            name: '히솝 꽃 오일',                  icon: '히솝꽃오일',           price: '8,700' },
+  { g: 1, id: 'potionRecipePrice',           name: '재물 획득의 비약 레시피',       icon: '레시피',           price: '7,000,000' },
+  { g: 1, id: 'highExpRecipePrice',          name: '소형 고농축 경험 축적의 비약 레시피', icon: '레시피',      price: '10,000' },
   { g: 1, id: 'crystalPrice',              name: '최상급 아이템 결정',            icon: '최상급아이템결정',     price: '280,000' },
   { g: 1, id: 't2AdvSpellPrice',           name: '상급 주문의 정수',              icon: '상급주문의정수',       price: '78,000' },
   { g: 1, id: 't2MagicCrystalPrice',       name: '마력 결정',                     icon: '마력결정',             price: '50' },
@@ -231,14 +217,15 @@ const GROUP_TITLES = ['제작 결과물 시세', '재료 시세', '고정가 (�
 // 제작 카드 정의. sec: 섹션 번호, mats: {재료 id: 1회 필요 수량}
 // (oilG, potionG는 "하루 피로도로 씨앗을 채집"하는 전용 계산)
 const SECTION_TITLES = ['쥬니퍼베리 씨앗', '영롱한 황혼의 정수', '기타'];
+// once: 1일 1회만 필요한 재료 (제작 횟수가 1회 이상이면 한 번만 포함)
 const CARDS = [
   { sec: 0, id: 'seedSell', out: 'seedPrice', title: '쥬니퍼베리 씨앗', desc: '채집한 씨앗을 그대로 판매' },
   { sec: 0, id: 'oilG',    out: 'oilPrice',    title: '쥬니퍼베리 씨앗 오일', desc: '씨앗 채집 후 부캐 제작 (성공률 90%)' },
   { sec: 0, id: 'potionG', out: 'potionPrice', title: '소형 재물 획득의 비약 (채집후 제작한 오일)', desc: '1회: 피로도 5 → 6개' },
-  { sec: 0, id: 'potion',  out: 'potionPrice', title: '소형 재물 획득의 비약 (구매한 오일)', yield: 6, fatigue: 5, mats: { bottlePrice: 1, oilPrice: 5, crystalPrice: 2, recipePrice: 1 } },
+  { sec: 0, id: 'potion',  out: 'potionPrice', title: '소형 재물 획득의 비약 (구매한 오일)', yield: 6, fatigue: 5, mats: { bottlePrice: 1, oilPrice: 5, crystalPrice: 2, recipePrice: 1 }, once: { potionRecipePrice: 1 } },
   { sec: 1, id: 'shiningSell', out: 't2ShiningTwilightPrice', title: '영롱한 황혼의 정수 (보유 수량 판매)', desc: '보유 중인 수량 기준' },
   { sec: 1, id: 'hyssopOil', out: 'hyssopOilPrice', title: '히솝 꽃 오일', desc: '채집 후 부캐 제작 (성공률 90%)' },
-  { sec: 1, id: 'highexp', out: 't2SmallHighExpPotionPrice', yield: 4, fatigue: 5,  mats: { t2SmallExpPotionPrice: 4, t2ShiningTwilightPrice: 2, hyssopOilPrice: 10, t2MagicCrystalPrice: 1000 } },
+  { sec: 1, id: 'highexp', out: 't2SmallHighExpPotionPrice', yield: 4, fatigue: 5,  mats: { t2SmallExpPotionPrice: 4, t2ShiningTwilightPrice: 2, hyssopOilPrice: 10, t2MagicCrystalPrice: 1000, highExpRecipePrice: 1 } },
   { sec: 1, id: 'hero',    out: 't2HeroPotionPrice',         yield: 2, fatigue: 5,  mats: { bottlePrice: 1, t2MagicCrystalPrice: 10, hyssopOilPrice: 10, t2TwistedTimePrice: 15, t2TwilightPrice: 3 } },
   { sec: 1, id: 'advhero', out: 't2AdvHeroPotionPrice',      yield: 2, fatigue: 10, mats: { t2HeroPotionPrice: 1, hyssopOilPrice: 10, t2AdvSpellPrice: 1, t2ShiningTwilightPrice: 1 } },
   { sec: 2, id: 'stone',   out: 'stonePrice',                yield: 1, fatigue: 10, mats: { crystalPrice: 10, t2TwistedTimePrice: 10, t2AdvSpellPrice: 10 } }
@@ -246,7 +233,7 @@ const CARDS = [
 
 // localStorage에 저장할 입력 필드 (기존 키 유지)
 const INPUT_IDS = [
-  'dailyFatigue', 'character_name',
+  'dailyFatigue',
   ...ITEMS.filter(i => !i.fixed).map(i => i.id),
   ...ITEMS.map(i => `own_${i.id}`)
 ];
@@ -256,7 +243,7 @@ const INPUT_IDS = [
  * ============================================================ */
 const iconBox = (item, size = 7) => `
   <span class="flex h-${size} w-${size} shrink-0 items-center justify-center">
-    <img src="icon/${item.icon}.png" alt="" class="max-h-full max-w-full" onerror="this.style.display='none'">
+    <img src="icon/${item.icon}.${item.ext || 'png'}" alt="" class="max-h-full max-w-full" onerror="this.style.display='none'">
   </span>`;
 
 const drawerItem = i => `
@@ -287,7 +274,7 @@ function buildDrawer() {
       MVP 보유 <span class="hint">(경매장 수수료 5% → 3%)</span>
     </label>
     <div class="card p-2.5">
-      <div class="mb-2 flex items-center gap-2">${iconBox({ icon: '피로도' })}<label class="label" for="dailyFatigue">하루 사용 피로도</label></div>
+      <div class="mb-2 flex items-center gap-2">${iconBox({ icon: '피로도' })}<label class="label" for="dailyFatigue">사용 피로도</label></div>
       <input type="text" id="dailyFatigue" value="500" class="input" oninput="handleInput(this)">
       <div id="dailyFatigueKor" class="kor"></div>
     </div>` +
@@ -392,7 +379,6 @@ function loadInputs() {
   $('guildCheck').checked = localStorage.getItem('guild_member') === '1';
   $('mvpCheck').checked = localStorage.getItem('mvp_member') === '1';
   $('apiKey').value = localStorage.getItem('nexon_api_key') || '';
-  $('character_name').value = localStorage.getItem('nexon_character_name') || '';
 }
 
 function handleInput(input) {
@@ -473,6 +459,7 @@ function calcCard(c, fatigue) {
     need('bottlePrice', crafts);
     need('crystalPrice', crafts * 2);
     need('recipePrice', crafts);
+    if (crafts > 0) need('potionRecipePrice', 1, '×1 · 1일 1회');
     revenue = crafts * 6 * price('potionPrice');
     lines = [`피로도 ${fatigue.toLocaleString()} = 채집 ${gather.toLocaleString()} + 제작 ${(crafts * 5).toLocaleString()}`, `오일 ${oil.toLocaleString()}개 → 비약 ${(crafts * 6).toLocaleString()}개 (${crafts.toLocaleString()}회)`];
 
@@ -491,6 +478,7 @@ function calcCard(c, fatigue) {
       need(id, qty * crafts, `×${qty}`);
       canCraft = Math.min(canCraft, Math.floor(own(id) / qty));
     });
+    if (crafts > 0) Object.entries(c.once || {}).forEach(([id, qty]) => need(id, qty, '×1 · 1일 1회'));
     revenue = crafts * c.yield * price(c.out);
     lines = [`피로도 기준 ${crafts.toLocaleString()}회 → ${(crafts * c.yield).toLocaleString()}개`, `보유 재료로 ${Math.min(canCraft, crafts).toLocaleString()}회 제작 가능`];
   }
@@ -511,7 +499,7 @@ function calculate() {
   });
   setText('dailyFatigueKor', `${fatigue.toLocaleString()} 피로도`);
   setText('toolPriceKor', `${formatKoreanMoney(getVal('toolPrice'))} (씨앗 1개 ≈ ${Math.round(getVal('toolPrice') / 500).toLocaleString()} 메소)`);
-  setText('craftHint', `하루 피로도 ${fatigue.toLocaleString()} 전부 사용 기준 · 길드 ${guild ? '가입' : '미가입'} · MVP ${mvp ? '적용' : '미적용'} · 경매장 수수료 ${mvp ? '3%' : '5%'}`);
+  setText('craftHint', `사용 피로도 ${fatigue.toLocaleString()} 전부 사용 기준 · 길드 ${guild ? '가입' : '미가입'} · MVP ${mvp ? '적용' : '미적용'} · 경매장 수수료 ${mvp ? '3%' : '5%'}`);
 
   CARDS.forEach(c => {
     const r = calcCard(c, fatigue);
@@ -523,18 +511,6 @@ function calculate() {
     setText(`${c.id}_rev`, formatKoreanMoney(netRevenue));
     setProfit(`${c.id}_profit`, netRevenue - r.cost);
   });
-
-  CARDS.forEach(c => {
-    const r = calcCard(c, fatigue);
-    const netRevenue = Math.floor(r.revenue * (1 - feeRate));
-    setText(`${c.id}_fat`, r.lines[0]);
-    setText(`${c.id}_own`, r.lines[1]);
-    $(`${c.id}_mats`).innerHTML = r.chips.join('');
-    setText(`${c.id}_cost`, formatKoreanMoney(r.cost));
-    setText(`${c.id}_rev`, formatKoreanMoney(netRevenue));
-    setProfit(`${c.id}_profit`, netRevenue - r.cost);
-  });
-
 }
 
 /* ============================================================
@@ -641,84 +617,148 @@ const getBossPrice = (diff, bossName) => BOSS_PRICES[`${DIFF_PRICE_KOR[diff] || 
  * 스케줄러: 상태 / API
  * ============================================================ */
 const STATE_KEY = 'maple_scheduler_state';
-let cachedSchedulerData = null;
+const MAX_NAMES = 12;
+let characters = [];      // 조회된 캐릭터: { name, ocid, basic, scheduler }
+let selectedIdx = -1;     // 선택된 캐릭터 번호
+let charNames = [''];     // 닉네임 입력칸 값
 
-const loadState = () => readJSON(STATE_KEY);
+// 체크 상태는 캐릭터(ocid)마다 따로 저장
+const stateKeyOf = ocid => `${STATE_KEY}_${ocid}`;
+const loadStateOf = ocid => readJSON(stateKeyOf(ocid));
+const currentChar = () => characters[selectedIdx];
+
 const patchState = (key, value) => {
-  localStorage.setItem(STATE_KEY, JSON.stringify({ ...loadState(), [key]: value }));
+  const c = currentChar();
+  if (!c) return;
+  localStorage.setItem(stateKeyOf(c.ocid), JSON.stringify({ ...loadStateOf(c.ocid), [key]: value }));
   renderScheduler();
 };
-
 const toggleTask = (key, checked) => patchState(key, checked);
 const updatePartyCount = (bossName, count) => patchState(`party_${bossName}`, Number(count));
 
 function resetScheduler() {
-  if (confirm('모든 체크 및 파티 인원 설정을 초기화하시겠습니까?')) {
-    localStorage.removeItem(STATE_KEY);
+  const c = currentChar();
+  if (c && confirm(`${c.name}의 모든 체크 및 파티 인원 설정을 초기화하시겠습니까?`)) {
+    localStorage.removeItem(stateKeyOf(c.ocid));
     renderScheduler();
   }
 }
 
 function saveApiKey(val) { localStorage.setItem('nexon_api_key', val.trim()); }
-function saveCharacterName(val) { localStorage.setItem('nexon_character_name', val.trim()); }
+
+/* ---------- 닉네임 입력 행 (+ 버튼으로 추가) ---------- */
+function loadNames() {
+  try {
+    const arr = JSON.parse(localStorage.getItem('nexon_character_names') || 'null');
+    if (Array.isArray(arr) && arr.length) return arr;
+  } catch (e) { /* 무시 */ }
+  return [localStorage.getItem('nexon_character_name') || ''];   // 이전 버전에서 저장한 닉네임
+}
+const saveNames = () => localStorage.setItem('nexon_character_names', JSON.stringify(charNames));
+
+function renderNameRows() {
+  $('nameList').innerHTML = charNames.map((n, i) => `
+    <div class="grid grid-cols-[2rem_1fr_5.5rem] items-center gap-2">
+      <button onclick="${i === 0 ? 'addName()' : `removeName(${i})`}" aria-label="${i === 0 ? '닉네임 칸 추가' : '닉네임 칸 삭제'}"
+              class="h-9 w-8 rounded-lg border border-slate-300 bg-white text-base font-black text-slate-600 transition hover:bg-slate-100">${i === 0 ? '+' : '−'}</button>
+      <input type="text" value="${esc(n)}" placeholder="닉네임을 입력하세요" class="input text-left" data-idx="${i}"
+             oninput="setName(this.dataset.idx, this.value)" onkeyup="if(event.key==='Enter') fetchCharacterInfo()">
+      ${i === 0
+        ? '<button id="fetchBtn" onclick="fetchCharacterInfo()" class="h-[38px] w-full rounded-lg bg-indigo-600 text-sm font-bold text-white transition hover:bg-indigo-700 disabled:opacity-60">조회</button>'
+        : '<span></span>'}
+    </div>`).join('');
+}
+function addName() {
+  if (charNames.length >= MAX_NAMES) return;
+  charNames.push('');
+  saveNames(); renderNameRows();
+  const inputs = $('nameList').querySelectorAll('input');
+  inputs[inputs.length - 1].focus();
+}
+function removeName(i) { charNames.splice(i, 1); saveNames(); renderNameRows(); }
+function setName(i, v) { charNames[i] = v.trim(); saveNames(); }
+
+/* ---------- 캐릭터 조회 ---------- */
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function fetchCharacterInfo() {
-  localStorage.removeItem(STATE_KEY);
-  cachedSchedulerData = null;
-
   const apiKey = (localStorage.getItem('nexon_api_key') || '').trim();
-  const charName = $('character_name').value.trim();
-  const charCard = $('charCard');
-  const charError = $('charError');
-  const showError = msg => { charError.textContent = msg; charError.classList.remove('hidden'); };
+  const names = [...new Set(charNames.map(n => n.trim()).filter(Boolean))];
+  const errBox = $('charError'), btn = $('fetchBtn');
+  const showError = msg => { errBox.textContent = msg; errBox.classList.remove('hidden'); };
 
-  charCard.classList.add('hidden');
-  charError.classList.add('hidden');
-
+  errBox.classList.add('hidden');
   if (!apiKey) return showError('Nexon Open API Key를 입력해주세요.');
-  if (!charName) return showError('캐릭터 닉네임을 입력해주세요.');
+  if (!names.length) return showError('캐릭터 닉네임을 입력해주세요.');
 
   const api = path => fetch(`https://open.api.nexon.com/maplestory/v1/${path}`, { headers: { 'x-nxopen-api-key': apiKey } });
+  const prevOcid = currentChar()?.ocid;
+  const found = [], errors = [];
 
+  btn.disabled = true; btn.textContent = '조회 중...';
   try {
-    const idRes = await api(`id?character_name=${encodeURIComponent(charName)}`);
-    const idData = await idRes.json();
-    if (!idRes.ok || !idData.ocid) throw new Error(idData.error?.message || '캐릭터를 찾을 수 없습니다.');
+    for (const name of names) {      // API 호출 제한을 피하기 위해 캐릭터를 순서대로 조회
+      try {
+        const idRes = await api(`id?character_name=${encodeURIComponent(name)}`);
+        const idData = await idRes.json();
+        if (!idRes.ok || !idData.ocid) throw new Error(idData.error?.message || '캐릭터를 찾을 수 없습니다.');
 
-    const ocid = idData.ocid;
-    const [basicRes, statRes, schedulerRes] = await Promise.all([
-      api(`character/basic?ocid=${ocid}`),
-      api(`character/stat?ocid=${ocid}`),
-      api(`scheduler/character-state?ocid=${ocid}`)
-    ]);
-    const basic = await basicRes.json();
-    const stat = await statRes.json();
-    const scheduler = await schedulerRes.json();
+        const [basicRes, schedulerRes] = await Promise.all([
+          api(`character/basic?ocid=${idData.ocid}`),
+          api(`scheduler/character-state?ocid=${idData.ocid}`)
+        ]);
+        const basic = await basicRes.json();
+        const scheduler = await schedulerRes.json();
+        if (!basicRes.ok) throw new Error(basic.error?.message || '캐릭터 정보 조회 실패');
 
-    if (!basicRes.ok) throw new Error(basic.error?.message || '캐릭터 정보 조회 실패');
-
-    $('charImg').src = basic.character_image || '';
-    setText('charWorld', basic.world_name || '-');
-    setText('charName', basic.character_name || charName);
-    setText('charGuild', basic.character_guild_name ? `길드: ${basic.character_guild_name}` : '길드: 없음');
-    setText('charLevel', basic.character_level || '0');
-    setText('charClass', basic.character_class || '-');
-
-    let combatPower = '0';
-    const cp = stat.final_stat?.find(s => s.stat_name === '전투력');
-    if (cp?.stat_value) combatPower = formatKoreanMoney(Number(cp.stat_value)).replace('메소', '').trim();
-    setText('charStat', combatPower);
-
-    if (schedulerRes.ok && scheduler) {
-      cachedSchedulerData = scheduler;
-      renderScheduler(scheduler);
-    } else {
-      renderScheduler();
+        found.push({ name, ocid: idData.ocid, basic, scheduler: schedulerRes.ok ? scheduler : {} });
+      } catch (err) {
+        errors.push(`${name}: ${err.message || '데이터를 불러오는 중 오류가 발생했습니다.'}`);
+      }
+      await sleep(250);
     }
-    charCard.classList.remove('hidden');
-  } catch (err) {
-    showError(err.message || '데이터를 불러오는 중 오류가 발생했습니다.');
+  } finally {
+    btn.disabled = false; btn.textContent = '조회';
   }
+
+  found.forEach(c => localStorage.removeItem(stateKeyOf(c.ocid)));   // 조회할 때마다 게임 데이터 기준으로 초기화
+  characters = found;
+  const keep = found.findIndex(c => c.ocid === prevOcid);
+  selectedIdx = found.length ? Math.max(keep, 0) : -1;
+  if (errors.length) showError(errors.join(' / '));
+  renderScheduler();
+}
+
+function selectChar(i) { selectedIdx = i; renderScheduler(); }
+
+/* ---------- 캐릭터 카드 / 계정 수익 ---------- */
+function renderCharCards() {
+  $('charCards').innerHTML = characters.map((c, i) => {
+    const b = c.basic, name = b.character_name || c.name, job = b.character_class || '-';
+    return `
+      <button onclick="selectChar(${i})" class="card flex flex-col items-center gap-1 p-2.5 text-center hover:border-slate-300 ${i === selectedIdx ? '!border-indigo-500 ring-2 ring-indigo-200' : ''}">
+        <span class="flex h-[7.5rem] w-[7.5rem] items-center justify-center overflow-hidden rounded-lg bg-white">
+          <img src="${esc(b.character_image || '')}" alt="" class="h-full w-full scale-x-[-2.8] scale-y-[2.8] object-contain">
+        </span>
+        <span class="w-full truncate text-xs font-black text-slate-900" title="${esc(name)}">${esc(name)}</span>
+        <span class="w-full truncate text-[11px] font-semibold text-slate-600" title="${esc(job)}">Lv.${b.character_level ?? 0} · ${esc(job)}</span>
+        <span class="w-full truncate text-[11px] text-slate-400">${esc(b.character_guild_name || '길드 없음')}</span>
+      </button>`;
+  }).join('');
+  $('charEmpty').classList.toggle('hidden', characters.length > 0);
+}
+
+function renderAccountRevenue() {
+  let daily = 0, weekly = 0, monthly = 0;
+  characters.forEach(c => {
+    const state = loadStateOf(c.ocid), boss = c.scheduler?.boss_contents;
+    daily += renderBossGrid(groupBossContentsByCycle(boss, 'daily'), DAILY_DIFF_KEYS, state, false).revenue;
+    weekly += renderBossGrid(groupBossContentsByCycle(boss, 'weekly'), WEEKLY_DIFF_KEYS, state, true).revenue;
+    monthly += renderBossGrid(groupBossContentsByCycle(boss, 'monthly'), MONTHLY_DIFF_KEYS, state, true).revenue;
+  });
+  setText('accDailyRevenue', formatKoreanMoney(daily));
+  setText('accWeeklyRevenue', formatKoreanMoney(weekly));
+  setText('accMonthlyRevenue', formatKoreanMoney(monthly));
 }
 
 /* ============================================================
@@ -826,9 +866,16 @@ function renderBossGrid(bossList, diffKeys, state, showParty) {
   return { html, cleared, revenue };
 }
 
-function renderScheduler(apiData = cachedSchedulerData) {
-  if (!apiData || !$('dailyList')) return;
-  const state = loadState();
+function renderScheduler() {
+  renderAccountRevenue();
+  renderCharCards();
+  const c = currentChar();
+  $('schedulerBody').classList.toggle('hidden', !c);
+  if (!c) return;
+
+  setText('schedulerCharName', `· ${c.basic.character_name || c.name}`);
+  const apiData = c.scheduler || {};
+  const state = loadStateOf(c.ocid);
   const resolve = (key, apiDone) => state[key] !== undefined ? state[key] : apiDone;
 
   if (apiData.date) setText('schedulerDate', `(${apiData.date} 기준)`);
@@ -910,6 +957,8 @@ window.onload = function () {
   $('weeklyBossHead').innerHTML = bossHeaderHtml(WEEKLY_DIFF_KEYS, true);
   $('monthlyBossHead').innerHTML = bossHeaderHtml(MONTHLY_DIFF_KEYS, true);
 
+  charNames = loadNames();
+  renderNameRows();
   loadInputs();
   calculate();
   renderScheduler();
